@@ -1,0 +1,47 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.1.57</VERSION>
+ <DEVICE>"ATmega32"</DEVICE>
+ <WORKING_DIR>D:\diplom\eco\eco\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>D:\diplom\eco\eco\eco.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc</FILE>
+  <FILE>D:\diplom\eco\eco\int_table.inc</FILE>
+  <FILE>D:\diplom\eco\eco\LCD.inc</FILE>
+  <FILE>D:\diplom\eco\eco\core_init.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>D:\diplom\eco\eco\Debug/eco.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>eco.hex</FILE>
+  <FILE>eco.eep</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>eco.map</FILE>
+  <FILE>eco.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <hello><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>6</LINE></hello>
+  <CH4_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>7</LINE></CH4_msg>
+  <temperature_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>8</LINE></temperature_msg>
+  <time_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>9</LINE></time_msg>
+  <coords_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>10</LINE></coords_msg>
+  <sound_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>11</LINE></sound_msg>
+  <reset><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>17</LINE></reset>
+  <EEPROM_read_byte><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>136</LINE></EEPROM_read_byte>
+  <LCD_send_byte_proc><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>156</LINE></LCD_send_byte_proc>
+  <RAM_Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>7</LINE></RAM_Flush>
+  <Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>11</LINE></Flush>
+  <main><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>26</LINE></main>
+  <ee_hello_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>33</LINE></ee_hello_msg>
+  <ee_CH4_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>34</LINE></ee_CH4_msg>
+  <ee_temp_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>35</LINE></ee_temp_msg>
+  <ee_time_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>36</LINE></ee_time_msg>
+  <ee_coords_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>37</LINE></ee_coords_msg>
+  <ee_sound_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>38</LINE></ee_sound_msg>
+ </LABELS>
+</ASSEMBLER_INFO>
