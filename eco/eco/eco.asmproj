@@ -53,9 +53,9 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <AvrAssembler>
-  <avrasm.assembler.general.GenerateEEPFile>True</avrasm.assembler.general.GenerateEEPFile>
-  <avrasm.assembler.general.IncludeFile>(%24IncludeFile)</avrasm.assembler.general.IncludeFile>
-</AvrAssembler>
+        <avrasm.assembler.general.GenerateEEPFile>True</avrasm.assembler.general.GenerateEEPFile>
+        <avrasm.assembler.general.IncludeFile>(%24IncludeFile)</avrasm.assembler.general.IncludeFile>
+      </AvrAssembler>
     </ToolchainSettings>
     <OutputType>Executable</OutputType>
   </PropertyGroup>
@@ -74,6 +74,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="int_table.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="keyboard.inc">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="LCD.inc">

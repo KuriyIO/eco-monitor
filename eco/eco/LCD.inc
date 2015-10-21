@@ -4,12 +4,22 @@
  * Sorry for bad english...
  */ 
 
- .def temp=r17		   //define r16 as temp
- .def byte=r16		   //define r17 as byte
  .equ data = 0x04	   //create constant cmd = 0b00000100 
  .equ cmd = 0		   //create constant data = 0
 
  //========MACRO================================================================
+ 
+//------45 microseconds delay---------------------------------------------
+  
+ .macro delay_45us
+ rcall delay_45us_proc
+ .endm
+
+//------2 ms delay---------------------------------------------
+  
+ .macro delay_2ms
+ rcall delay_2ms_proc
+ .endm
 
 //------------------------------------------------------------------------
 
@@ -35,11 +45,10 @@
 
 //------------------------------------------------------------------------
 
- //      45 microseconds delay
- .macro delay_45us
- ser r25 
- delay45: dec  r25
- brne delay45
+ //      LCD clear
+ .macro LCD_clear
+ LCD_send_cmd 0x01	//clear display
+ delay_2ms
  .endm
 
 //------------------------------------------------------------------------
@@ -56,19 +65,6 @@
  .macro second_line
  LCD_send_cmd 0xC0	//second line
  delay_45us
- .endm
-
-//------------------------------------------------------------------------
-
- //      2 ms delay
- .macro delay_2ms
-    ldi  r24, 42
-    ldi  r25, 142
-delay2: dec  r25
-    brne delay2
-    dec  r24
-    brne delay2
-    nop
  .endm
 
 //------------------------------------------------------------------------
@@ -130,6 +126,32 @@ delay2: dec  r25
 //------------------------------------------------------------------------
 
 //==============PROCEDURES=====================================================
+
+//------45 microseconds delay---------------------------------------------
+      
+ delay_45us_proc:
+ //push r25
+ ser r25 
+ delay45: dec  r25
+ brne delay45
+ //pop r25
+ ret
+
+ //------2 ms delay-------------------------------------------------------
+      
+ delay_2ms_proc:
+ //push r25
+ //push r24
+    ldi  r24, 42
+    ldi  r25, 142
+delay2: dec  r25
+    brne delay2
+    dec  r24
+    brne delay2
+    nop
+ //pop r24
+ //pop r25
+ ret
 
 //------Read Byte form EEPROM---------------------------------------------
 

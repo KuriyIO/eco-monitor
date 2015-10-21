@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Tue Oct 20 23:26:31 2015
+AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Thu Oct 22 02:10:01 2015
 
 
 EQU  SIGNATURE_000 0000001e
@@ -574,23 +574,35 @@ DSEG temperature_msg 00000080
 DSEG time_msg     00000090
 DSEG coords_msg   000000a0
 DSEG sound_msg    000000b0
-CSEG reset        00000057
+CSEG reset        000000a3
 DEF  temp         r17
 DEF  byte         r16
 EQU  data         00000004
 EQU  cmd          00000000
-CSEG EEPROM_read_byte 00000030
-CSEG LCD_send_byte_proc 00000039
-CSEG delay45@delay_45us@1874 00000044
-CSEG RAM_Flush    00000057
-CSEG Flush        0000005a
-CSEG EE_read_loop@load_strings_to_SRAM@1938 0000006f
-CSEG delay45@delay_45us@1979 00000083
-CSEG delay2@delay_2ms@1991 0000008a
-CSEG delay45@delay_45us@2007 00000093
-CSEG sram_read_loop@LCD_print_str@2014 00000099
-CSEG delay45@delay_45us@2024 0000009c
-CSEG main         000000a0
+CSEG delay_45us_proc 00000030
+CSEG delay45      00000031
+CSEG delay_2ms_proc 00000034
+CSEG delay2       00000036
+CSEG EEPROM_read_byte 0000003c
+CSEG LCD_send_byte_proc 00000045
+CSEG On_1_click   00000061
+CSEG On_2_click   00000064
+CSEG On_3_click   00000067
+CSEG On_4_click   0000006a
+CSEG On_5_click   0000006d
+CSEG sram_read_loop@LCD_print_str@1970 00000075
+CSEG On_6_click   0000007d
+CSEG On_7_click   00000080
+CSEG On_8_click   00000083
+CSEG sram_read_loop@LCD_print_str@2016 0000008b
+CSEG On_9_click   00000093
+CSEG On_0_click   00000096
+CSEG On_asterisk_click 0000009d
+CSEG On_grid_click 000000a0
+CSEG RAM_Flush    000000a3
+CSEG Flush        000000a6
+CSEG EE_read_loop@load_strings_to_SRAM@2162 000000bb
+CSEG main         000000dd
 ESEG ee_hello_msg 00000000
 ESEG ee_CH4_msg   00000010
 ESEG ee_temp_msg  00000020

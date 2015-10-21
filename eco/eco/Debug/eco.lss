@@ -1,11 +1,12 @@
 
-AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Tue Oct 20 23:26:31 2015
+AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Thu Oct 22 02:10:01 2015
 
 [builtin](2): Including file 'D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc'
 D:\diplom\eco\eco\eco.asm(1): Including file 'D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc'
 D:\diplom\eco\eco\eco.asm(15): Including file 'D:\diplom\eco\eco\int_table.inc'
 D:\diplom\eco\eco\eco.asm(16): Including file 'D:\diplom\eco\eco\LCD.inc'
-D:\diplom\eco\eco\eco.asm(18): Including file 'D:\diplom\eco\eco\core_init.inc'
+D:\diplom\eco\eco\eco.asm(17): Including file 'D:\diplom\eco\eco\keyboard.inc'
+D:\diplom\eco\eco\eco.asm(19): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  .include "m32def.inc" //include define for ATmega32 controller
                  
@@ -886,7 +887,7 @@ D:\diplom\eco\eco\eco.asm(18): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                   //=========INTERRUPT VECTORS TABLE=============================================
                   .ORG 0x000        ; (RESET) 
-000000 c056       RJMP reset
+000000 c0a2       RJMP reset
                   .ORG 0x002
 000002 9518       RETI             ; (INT0) External Interrupt Request 0
                   .ORG 0x004
@@ -943,6 +944,18 @@ D:\diplom\eco\eco\eco.asm(18): Including file 'D:\diplom\eco\eco\core_init.inc'
                   .equ cmd = 0		   //create constant data = 0
                  
                   //========MACRO================================================================
+                  
+                 //------45 microseconds delay---------------------------------------------
+                   
+                  .macro delay_45us
+                  rcall delay_45us_proc
+                  .endm
+                 
+                 //------2 ms delay---------------------------------------------
+                   
+                  .macro delay_2ms
+                  rcall delay_2ms_proc
+                  .endm
                  
                  //------------------------------------------------------------------------
                  
@@ -968,11 +981,10 @@ D:\diplom\eco\eco\eco.asm(18): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  //------------------------------------------------------------------------
                  
-                  //      45 microseconds delay
-                  .macro delay_45us
-                  ser r25 
-                  delay45: dec  r25
-                  brne delay45
+                  //      LCD clear
+                  .macro LCD_clear
+                  LCD_send_cmd 0x01	//clear display
+                  delay_2ms
                   .endm
                  
                  //------------------------------------------------------------------------
@@ -989,19 +1001,6 @@ D:\diplom\eco\eco\eco.asm(18): Including file 'D:\diplom\eco\eco\core_init.inc'
                   .macro second_line
                   LCD_send_cmd 0xC0	//second line
                   delay_45us
-                  .endm
-                 
-                 //------------------------------------------------------------------------
-                 
-                  //      2 ms delay
-                  .macro delay_2ms
-                     ldi  r24, 42
-                     ldi  r25, 142
-                 delay2: dec  r25
-                     brne delay2
-                     dec  r24
-                     brne delay2
-                     nop
                   .endm
                  
                  //------------------------------------------------------------------------
@@ -1064,78 +1063,259 @@ D:\diplom\eco\eco\eco.asm(18): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  //==============PROCEDURES=====================================================
                  
+                 //------45 microseconds delay---------------------------------------------
+                       
+                  delay_45us_proc:
+                  //push r25
+000030 ef9f       ser r25 
+000031 959a       delay45: dec  r25
+000032 f7f1       brne delay45
+                  //pop r25
+000033 9508       ret
+                 
+                  //------2 ms delay-------------------------------------------------------
+                       
+                  delay_2ms_proc:
+                  //push r25
+                  //push r24
+000034 e28a          ldi  r24, 42
+000035 e89e          ldi  r25, 142
+000036 959a      delay2: dec  r25
+000037 f7f1          brne delay2
+000038 958a          dec  r24
+000039 f7e1          brne delay2
+00003a 0000          nop
+                  //pop r24
+                  //pop r25
+00003b 9508       ret
+                 
                  //------Read Byte form EEPROM---------------------------------------------
                  
                   EEPROM_read_byte:
                   ; Wait for completion of previous write
-000030 99e1       sbic EECR,EEWE
-000031 cffe       rjmp EEPROM_read_byte
+00003c 99e1       sbic EECR,EEWE
+00003d cffe       rjmp EEPROM_read_byte
                  
-000032 94f8       cli //disable all interrupts
+00003e 94f8       cli //disable all interrupts
                  
                   ; Set up address (Z register) in address register
-000033 bbff       out EEARH, ZH
-000034 bbee       out EEARL, ZL
+00003f bbff       out EEARH, ZH
+000040 bbee       out EEARL, ZL
                   ; Start eeprom read by writing EERE
-000035 9ae0       sbi EECR,EERE
+000041 9ae0       sbi EECR,EERE
                   ; Read data from data register
-000036 b30d       in byte,EEDR
+000042 b30d       in byte,EEDR
                  
-000037 9478       sei //enable interrupts
-000038 9508       ret
+000043 9478       sei //enable interrupts
+000044 9508       ret
                  
                  //------Send byte to LCD as 4-but mode------------------------------------
                  
                   LCD_send_byte_proc:
-000039 930f       push byte //save symbol to stack
-00003a 7014       andi temp,0b0000_0100
-00003b bb15       out portc,temp //setting RS line
+000045 930f       push byte //save symbol to stack
+000046 7014       andi temp,0b0000_0100
+000047 bb15       out portc,temp //setting RS line
                  
                   //======High half-byte send=======
-00003c 7f00       andi byte,0xF0 //clear low half-byte
+000048 7f00       andi byte,0xF0 //clear low half-byte
                  				//example:
                  				//before ANDI byte was 0b01011111
                  				//after byte is 0b01010000
                  
-00003d 2b10       or temp,byte	//add high half-byte to temp register
+000049 2b10       or temp,byte	//add high half-byte to temp register
                  				//example:
                  				//before: temp = 0b00000100, byte = 0b11110000
                  				//after: temp = 0b11110100
                  
-00003e bb15       out portc,temp //out temp to port C
-00003f 95c8       lpm			//3 clocks delay
-000040 9aab       sbi portc,3	//enable E signal
-000041 95c8       lpm			//3 clocks delay
-000042 98ab       cbi portc,3	//disable E signal
-000043 ef9f
-000044 959a
-000045 f7f1       delay_45us
+00004a bb15       out portc,temp //out temp to port C
+00004b 95c8       lpm			//3 clocks delay
+00004c 9aab       sbi portc,3	//enable E signal
+00004d 95c8       lpm			//3 clocks delay
+00004e 98ab       cbi portc,3	//disable E signal
+00004f dfe0       delay_45us
                   //======Low half-byte send========
-000046 7014       andi temp,0b0000_0100
-000047 910f       pop byte		//get symbol from stack
-000048 700f       andi byte,0x0F //clear high half-byte
+000050 7014       andi temp,0b0000_0100
+000051 910f       pop byte		//get symbol from stack
+000052 700f       andi byte,0x0F //clear high half-byte
                  				//example:
                  				//before andi: byte = 0b01011010
                  				//after: byte = 0b00001010
                  
-000049 0f00       lsl byte		//logical shift left
-00004a 0f00       lsl byte		//example:
-00004b 0f00       lsl byte		//00001010 <- 00010100 <- 00101000 <- 01010000 <- 10100000
-00004c 0f00       lsl byte
+000053 0f00       lsl byte		//logical shift left
+000054 0f00       lsl byte		//example:
+000055 0f00       lsl byte		//00001010 <- 00010100 <- 00101000 <- 01010000 <- 10100000
+000056 0f00       lsl byte
                  
-00004d 2b10       or temp,byte	//add symbol's low half-byte 
-00004e bb15       out portc,temp //out temp to port C
-00004f 95c8       lpm			//3 clocks delay
-000050 9aab       sbi portc,3	//enable E
-000051 95c8       lpm			//3 clocks delay
-000052 98ab       cbi portc,3	//disable E
-000053 95c8       lpm			//3 clocks delay
+000057 2b10       or temp,byte	//add symbol's low half-byte 
+000058 bb15       out portc,temp //out temp to port C
+000059 95c8       lpm			//3 clocks delay
+00005a 9aab       sbi portc,3	//enable E
+00005b 95c8       lpm			//3 clocks delay
+00005c 98ab       cbi portc,3	//disable E
+00005d 95c8       lpm			//3 clocks delay
                   //=====Set port C as 0xFF=========
-000054 ef00       ldi byte,0xF0
-000055 bb05       out portc,byte	//out to port C 0b11110000
-000056 9508       ret
+00005e ef00       ldi byte,0xF0
+00005f bb05       out portc,byte	//out to port C 0b11110000
+000060 9508       ret
                  //------------------------------------------------------------------------
                  //                          sorry for bad english
+                 .include "keyboard.inc"		//macro and procedures for 3x4 keyboard
+                 
+                  * keyboard.inc
+                  * macro and procedures for 3x4 keyboard
+                  */ 
+                 
+                  //=======PROCEDURES=====================================
+                  //-------On 1 click-----------------------------
+                  On_1_click:
+000061 9b82       sbis pind,2
+000062 cffd       rjmp PC-2
+000063 9508       ret
+                  //-------On 2 click-----------------------------
+                  On_2_click:
+000064 9b82       sbis pind,2
+000065 cffd       rjmp PC-2
+000066 9508       ret
+                  //-------On 3 click-----------------------------
+                  On_3_click:
+000067 9b82       sbis pind,2
+000068 cffd       rjmp PC-2
+000069 9508       ret
+                  //-------On 4 click-----------------------------
+                  On_4_click:
+00006a 9b83       sbis pind,3
+00006b cffd       rjmp PC-2
+00006c 9508       ret
+                  //-------On 5 click-----------------------------
+                  On_5_click:
+00006d e010
+00006e e800
+00006f dfd5
+000070 dfbf       first_line
+000071 e0f0
+000072 e6e0
+000073 e014
+000074 e131
+000075 9101
+000076 dfce
+000077 dfb8
+000078 953a
+000079 f7d9       LCD_print_str hello
+00007a 9b83       sbis pind,3
+00007b cffd       rjmp PC-2
+00007c 9508       ret
+                  //-------On 6 click-----------------------------
+                  On_6_click:
+00007d 9b83       sbis pind,3
+00007e cffd       rjmp PC-2
+00007f 9508       ret
+                  //-------On 7 click-----------------------------
+                  On_7_click:
+000080 9b84       sbis pind,4
+000081 cffd       rjmp PC-2
+000082 9508       ret
+                  //-------On 8 click-----------------------------
+                  On_8_click:
+000083 e010
+000084 ec00
+000085 dfbf
+000086 dfa9       second_line
+000087 e0f0
+000088 e6e0
+000089 e014
+00008a e131
+00008b 9101
+00008c dfb8
+00008d dfa2
+00008e 953a
+00008f f7d9       LCD_print_str hello
+000090 9b84       sbis pind,4
+000091 cffd       rjmp PC-2
+000092 9508       ret
+                  //-------On 9 click-----------------------------
+                  On_9_click:
+000093 9b84       sbis pind,4
+000094 cffd       rjmp PC-2
+000095 9508       ret
+                  //-------On 0 click-----------------------------
+                  On_0_click:
+000096 e010
+000097 e001
+000098 dfac
+000099 df9a       LCD_clear
+00009a 9b85       sbis pind,5
+00009b cffd       rjmp PC-2
+00009c 9508       ret
+                  //-------On * click-----------------------------
+                  On_asterisk_click:
+00009d 9b85       sbis pind,5
+00009e cffd       rjmp PC-2
+00009f 9508       ret
+                  //-------On # click-----------------------------
+                  On_grid_click:
+0000a0 9b85       sbis pind,5
+0000a1 cffd       rjmp PC-2
+0000a2 9508       ret
+                  //----------------------------------------------
+                  //=======MACRO==========================================
+                  //-------Initialization ports for working with keyboard---------
+                  .macro keyboard_init
+                  ldi temp,0b0000_0111	//set KBD_1 KBD_2 KBD_3 as output
+                  out ddrb,temp
+                  ldi temp,0b10000000	//set KBD_A KBD_B KBD_C KBD_D as input
+                  out ddrd,temp
+                  ldi temp,0b0011_1100
+                  out portd,temp
+                  .endm
+                  //-------Check buttons------------------------------------------
+                  .macro key_survay
+                 
+                 	ldi temp,0b0000_0011		//check 1st column
+                 	out portb,temp
+                 
+                 		sbis pind,2				//sbis - skip if bit in port is set
+                 		rcall On_1_click		//if bit 2 in pind is 1 this instruction 
+                 								//will be skipped
+                 		sbis pind,3				//that mean if button was pressed
+                 		rcall On_4_click		//the next instruction is call procedure
+                 								//which do something what you need...
+                 		sbis pind,4				//and after that program counter going back
+                 		rcall On_7_click		//to key survay
+                 
+                 		sbis pind,5
+                 		rcall On_asterisk_click
+                 
+                 	ldi temp,0b0000_0101		//check 2nd column
+                 	out portb,temp
+                 
+                 		sbis pind,2				//the same like in previous
+                 		rcall On_2_click		//but for next column
+                 
+                 		sbis pind,3
+                 		rcall On_5_click
+                 
+                 		sbis pind,4
+                 		rcall On_8_click
+                 
+                 		sbis pind,5
+                 		rcall On_0_click
+                 
+                 
+                 	ldi temp,0b0000_0110		//check 3rd column
+                 	out portb,temp
+                 
+                 		sbis pind,2
+                 		rcall On_3_click
+                 
+                 		sbis pind,3
+                 		rcall On_6_click
+                 
+                 		sbis pind,4
+                 		rcall On_9_click
+                 
+                 		sbis pind,5
+                 		rcall On_grid_click
+                 
                  reset:
                  .include "core_init.inc"	//clear sram, registers and stack init
                  
@@ -1145,89 +1325,104 @@ D:\diplom\eco\eco\eco.asm(18): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  //================SRAM CLEAR=================================
                  RAM_Flush:	
-000057 e6e0      LDI	ZL,Low(SRAM_START)
-000058 e0f0      LDI	ZH,High(SRAM_START)
-000059 2700      CLR	R16
+0000a3 e6e0      LDI	ZL,Low(SRAM_START)
+0000a4 e0f0      LDI	ZH,High(SRAM_START)
+0000a5 2700      CLR	R16
                  Flush:
-00005a 9301      ST Z+,R16
-00005b 30f8      CPI	ZH,High(RAMEND+1)
-00005c f7e9      BRNE Flush
-00005d 36e0      CPI	ZL,Low(RAMEND+1)	
-00005e f7d9      BRNE Flush 
-00005f 27ee      CLR	ZL
-000060 27ff      CLR	ZH
+0000a6 9301      ST Z+,R16
+0000a7 30f8      CPI	ZH,High(RAMEND+1)
+0000a8 f7e9      BRNE Flush
+0000a9 36e0      CPI	ZL,Low(RAMEND+1)	
+0000aa f7d9      BRNE Flush 
+0000ab 27ee      CLR	ZL
+0000ac 27ff      CLR	ZH
                  //===============REGISTERS CLEAR=============================
-000061 e1ee      LDI	ZL, 30			
-000062 27ff      CLR	ZH		
-000063 95ea      DEC	ZL		
-000064 83f0      ST Z,ZH		
-000065 f7e9      BRNE PC-2		
+0000ad e1ee      LDI	ZL, 30			
+0000ae 27ff      CLR	ZH		
+0000af 95ea      DEC	ZL		
+0000b0 83f0      ST Z,ZH		
+0000b1 f7e9      BRNE PC-2		
                  //===============STACK INIT==================================
-000066 e50f      LDI R16,Low(RAMEND)		
-000067 bf0d      OUT SPL,R16			
-000068 e008      LDI R16,High(RAMEND)
-000069 bf0e      OUT SPH,R16
+0000b2 e50f      LDI R16,Low(RAMEND)		
+0000b3 bf0d      OUT SPL,R16			
+0000b4 e008      LDI R16,High(RAMEND)
+0000b5 bf0e      OUT SPH,R16
                  //-----------Program start-------------------------
-00006a 27dd
-00006b e6c0
-00006c 27ee
-00006d 27ff
-00006e e631
-00006f dfc0
-000070 9309
-000071 95e3
-000072 953a
-000073 f7d9      load_strings_to_SRAM //save strings from eeprom to ram
+0000b6 27dd
+0000b7 e6c0
+0000b8 27ee
+0000b9 27ff
+0000ba e631
+0000bb df80
+0000bc 9309
+0000bd 95e3
+0000be 953a
+0000bf f7d9      load_strings_to_SRAM //save strings from eeprom to ram
                  
-000074 ef1c
-000075 bb14
-000076 2711
-000077 bb15
-000078 e210
-000079 bb15
-00007a 9aab
-00007b 95c8
-00007c 98ab
-00007d ef10
-00007e bb15
-00007f e010
-000080 e208
-000081 dfb7
-000082 ef9f
-000083 959a
-000084 f7f1
-000085 e010
-000086 e001
-000087 dfb1
-000088 e28a
-000089 e89e
-00008a 959a
-00008b f7f1
-00008c 958a
-00008d f7e1
-00008e 0000
-00008f e010
-000090 e00f
-000091 dfa7
-000092 ef9f
-000093 959a
-000094 f7f1      LCD_init
-000095 e0f0
-000096 e6e0
-000097 e014
-000098 e131
-000099 9101
-00009a df9e
-00009b ef9f
-00009c 959a
-00009d f7f1
-00009e 953a
-00009f f7c9      LCD_print_str hello //print 16 symbols after "hello" label in sram
+0000c0 e017
+0000c1 bb17
+0000c2 e810
+0000c3 bb11
+0000c4 e31c
+0000c5 bb12      keyboard_init
+0000c6 ef1c
+0000c7 bb14
+0000c8 2711
+0000c9 bb15
+0000ca e210
+0000cb bb15
+0000cc 9aab
+0000cd 95c8
+0000ce 98ab
+0000cf ef10
+0000d0 bb15
+0000d1 e010
+0000d2 e208
+0000d3 df71
+0000d4 df5b
+0000d5 e010
+0000d6 e001
+0000d7 df6d
+0000d8 df5b
+0000d9 e010
+0000da e00f
+0000db df69
+0000dc df53      LCD_init
+                 //LCD_print_str hello //print 16 symbols after "hello" label in sram
                  
                  //-----------MAIN----------------------------------
                  main:			
-0000a0 0000      nop
-0000a1 cffe      rjmp main		
+0000dd e013
+0000de bb18
+0000df 9b82
+0000e0 df80
+0000e1 9b83
+0000e2 df87
+0000e3 9b84
+0000e4 df9b
+0000e5 9b85
+0000e6 dfb6
+0000e7 e015
+0000e8 bb18
+0000e9 9b82
+0000ea df79
+0000eb 9b83
+0000ec df80
+0000ed 9b84
+0000ee df94
+0000ef 9b85
+0000f0 dfa5
+0000f1 e016
+0000f2 bb18
+0000f3 9b82
+0000f4 df72
+0000f5 9b83
+0000f6 df86
+0000f7 9b84
+0000f8 df9a
+0000f9 9b85
+0000fa dfa5      	key_survay		//check for buttons
+0000fb cfe1      rjmp main		
                  //-------------------------------------------------
                  //========EEPROM SEGMENT=================================================
                  .eseg
@@ -1346,9 +1541,9 @@ counted separately from r26..r31 here.
 "ATmega32" register use summary:
 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 r5 :   0 r6 :   0 r7 :   0 
 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 r13:   0 r14:   0 r15:   0 
-r16:  24 r17:  19 r18:   0 r19:   4 r20:   0 r21:   0 r22:   0 r23:   0 
-r24:   2 r25:  10 r26:   0 r27:   0 r28:   1 r29:   1 r30:   9 r31:   8 
-x  :   0 y  :   1 z  :   3 
+r16:  28 r17:  35 r18:   0 r19:   6 r20:   0 r21:   0 r22:   0 r23:   0 
+r24:   2 r25:   4 r26:   0 r27:   0 r28:   1 r29:   1 r30:  10 r31:   9 
+x  :   0 y  :   1 z  :   4 
 Registers used: 11 out of 35 (31.4%)
 
 "ATmega32" instruction use summary:
@@ -1356,27 +1551,27 @@ Registers used: 11 out of 35 (31.4%)
 andi  :   4 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :  11 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brne  :   9 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   3 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :   8 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   2 cpse  :   0 dec   :   9 eor   :   0 fmul  :   0 fmuls :   0 
+cpi   :   2 cpse  :   0 dec   :   7 eor   :   0 fmul  :   0 fmuls :   0 
 fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 inc   :   1 jmp   :   0 
-ld    :   1 ldd   :   0 ldi   :  23 lds   :   0 lpm   :  18 lsl   :   4 
+ld    :   2 ldd   :   0 ldi   :  39 lds   :   0 lpm   :  18 lsl   :   4 
 lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   2 or    :   2 ori   :   0 out   :  12 pop   :   1 
-push  :   1 rcall :   5 ret   :   2 reti  :  20 rjmp  :   3 rol   :   0 
-ror   :   0 sbc   :   0 sbci  :   0 sbi   :   4 sbic  :   1 sbis  :   0 
+neg   :   0 nop   :   1 or    :   2 ori   :   0 out   :  18 pop   :   1 
+push  :   1 rcall :  30 ret   :  16 reti  :  20 rjmp  :  15 rol   :   0 
+ror   :   0 sbc   :   0 sbci  :   0 sbi   :   4 sbic  :   1 sbis  :  24 
 sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
-sei   :   1 sen   :   0 ser   :   4 ses   :   0 set   :   0 sev   :   0 
+sei   :   1 sen   :   0 ser   :   1 ses   :   0 set   :   0 sev   :   0 
 sez   :   0 sleep :   0 spm   :   0 st    :   3 std   :   0 sts   :   0 
 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 27 out of 113 (23.9%)
+Instructions used: 28 out of 113 (24.8%)
 
 "ATmega32" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000144    270      0    270   32768   0.8%
+[.cseg] 0x000000 0x0001f8    450      0    450   32768   1.4%
 [.dseg] 0x000060 0x0000c0      0     96     96    2048   4.7%
 [.eseg] 0x000000 0x000060      0     96     96    1024   9.4%
 
