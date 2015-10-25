@@ -41,30 +41,81 @@
  delay_2ms
  LCD_send_cmd 0x0F	//display ON
  delay_45us
+
+ LCD_send_cmd 0b0100_0000	//Set CGRAM adress as 0x00
+ delay_45us
+
+ LCD_send_symbol 0b00000000			//Start sending bytes for draw a new symbol
+ delay_45us							//in this case i draw upper arrow
+ LCD_send_symbol 0b00000000			//for do that i sending next bytes
+ delay_45us							//
+ LCD_send_symbol 0b00000000			//00000000
+ delay_45us							//00000000
+ LCD_send_symbol 0b00000000			//00000000
+ delay_45us							//00000000
+ LCD_send_symbol 0b00000100			//00000100
+ delay_45us							//00001110
+ LCD_send_symbol 0b00001110			//00011111
+ delay_45us							//00000000
+ LCD_send_symbol 0b00011111			//
+ delay_45us							//
+ LCD_send_symbol 0b00000000			//
+ delay_45us							//
+
+ LCD_send_symbol 0b00000000			//the same like previous but for draw down arrow
+ delay_45us
+ LCD_send_symbol 0b00011111
+ delay_45us
+ LCD_send_symbol 0b00001110
+ delay_45us
+ LCD_send_symbol 0b00000100
+ delay_45us
+ LCD_send_symbol 0b00000000
+ delay_45us
+ LCD_send_symbol 0b00000000
+ delay_45us
+ LCD_send_symbol 0b00000000
+ delay_45us
+ LCD_send_symbol 0b00000000
+ delay_45us
+
+ first_line	//set DDRAM as 0 (in start of first line)
  .endm
 
 //------------------------------------------------------------------------
 
  //      LCD clear
  .macro LCD_clear
+ push temp
+ push byte
  LCD_send_cmd 0x01	//clear display
  delay_2ms
+ pop byte
+ pop temp
  .endm
 
 //------------------------------------------------------------------------
 
  //      1st line
  .macro first_line
+ push temp
+ push byte
  LCD_send_cmd 0x80	//first line
  delay_45us
+ pop byte
+ pop temp
  .endm
 
 //------------------------------------------------------------------------
 
  //      2nd line
  .macro second_line
+ push temp
+ push byte
  LCD_send_cmd 0xC0	//second line
  delay_45us
+ pop byte
+ pop temp
  .endm
 
 //------------------------------------------------------------------------
@@ -80,16 +131,38 @@
 //------------------------------------------------------------------------
 
  //      send command to LCD
- .macro LCD_send_cmd	
+ .macro LCD_send_cmd
+ push temp
+ push byte	
  ldi temp,cmd
  ldi byte,@0
  rcall LCD_send_byte_proc
+ pop byte
+ pop temp
  .endm
 
 //------------------------------------------------------------------------
 
- //      print 16-symbol string from sram adress
+ //      send symbol to LCD
+ .macro LCD_send_symbol	
+ push temp
+ push byte
+ ldi temp,4
+ ldi byte,@0
+ rcall LCD_send_byte_proc
+ pop byte
+ pop temp
+ .endm
+
+//------------------------------------------------------------------------
+
+ //      print 16-symbol string from sram adress (if adress is const)
  .macro LCD_print_str
+ push ZH
+ push ZL
+ push temp
+ push byte
+ push r19
  ldi ZH,high(@0)	//load to high Z-byte high byte of adress
  ldi ZL,low(@0)	//load to low Z-byte low byte of adress
  ldi temp,data	//temp = 0x04 for send data to LCD
@@ -102,25 +175,39 @@
  dec r19			//loop things...
  brne sram_read_loop//go to sram_read_loop label if r19 is not 0
 
+ pop r19
+ pop byte
+ pop temp
+ pop ZL
+ pop ZH
  .endm
 
 //------------------------------------------------------------------------
 
- //      Read from EEPROM and write it in SRAM
- .macro load_strings_to_SRAM
- clr YH		 //load to YH register 0
- ldi YL,0x60 //load to YL 0x60 coz 0x0060 - sram start
- clr ZL		 //clear Z register
- clr ZH
- ldi r19,97				//r19 is a counter
+ //      print 16-symbol string from sram adress (if adress is in register)
+ //					ADRESS MUST BE IN X REGISTER
+ .macro LCD_print_str_reg
+ push temp
+ push byte
+ push XL
+ push XH
+ push r19
 
- EE_read_loop:			//loop 96 times
- rcall EEPROM_read_byte //read byte from EEPROM
- st Y+,byte				//Store byte to SRAM and post-Inc adress
- inc ZL					//increment Z register after reading byte
+ ldi temp,data	//temp = 0x04 for send data to LCD
 
- dec r19				//loop things...
- brne EE_read_loop		//go to EE_read_loop label if r19 is not 0
+ ldi r19,17			//r19 is a counter
+ sram_read_loop:	//loop 16 times
+ ld byte,X+			//read from SRAM and post-inc
+ rcall LCD_send_byte_proc	//print symbol to LCD
+ delay_45us
+ dec r19			//loop things...
+ brne sram_read_loop//go to sram_read_loop label if r19 is not 0
+
+ pop r19
+ pop XH
+ pop XL
+ pop byte
+ pop temp
  .endm
 
 //------------------------------------------------------------------------
@@ -130,18 +217,18 @@
 //------45 microseconds delay---------------------------------------------
       
  delay_45us_proc:
- //push r25
+ push r25
  ser r25 
  delay45: dec  r25
  brne delay45
- //pop r25
+ pop r25
  ret
 
  //------2 ms delay-------------------------------------------------------
       
  delay_2ms_proc:
- //push r25
- //push r24
+ push r25
+ push r24
     ldi  r24, 42
     ldi  r25, 142
 delay2: dec  r25
@@ -149,28 +236,8 @@ delay2: dec  r25
     dec  r24
     brne delay2
     nop
- //pop r24
- //pop r25
- ret
-
-//------Read Byte form EEPROM---------------------------------------------
-
- EEPROM_read_byte:
- ; Wait for completion of previous write
- sbic EECR,EEWE
- rjmp EEPROM_read_byte
-
- cli //disable all interrupts
-
- ; Set up address (Z register) in address register
- out EEARH, ZH
- out EEARL, ZL
- ; Start eeprom read by writing EERE
- sbi EECR,EERE
- ; Read data from data register
- in byte,EEDR
-
- sei //enable interrupts
+ pop r24
+ pop r25
  ret
 
 //------Send byte to LCD as 4-but mode------------------------------------
