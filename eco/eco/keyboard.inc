@@ -4,6 +4,14 @@
  * Sorry for bad english
  */ 
 
+ .equ KBD_A = 2
+ .equ KBD_B = 3
+ .equ KBD_C = 4
+ .equ KBD_D = 5
+ .equ KBD_1 = 0
+ .equ KBD_2 = 1
+ .equ KBD_3 = 2
+
  //=======PROCEDURES=====================================
  //-------On 1 click-----------------------------
  On_1_click:
@@ -54,6 +62,7 @@
  ret
  //-------On 0 click-----------------------------
  On_0_click:
+ LCD_clear
  sbis pind,5		//wait until button is turned off
  rjmp PC-1
  ret
@@ -84,47 +93,47 @@
 	ldi temp,0b0000_0110		//check 1st column
 	out portb,temp
 
-		sbis pind,2				//sbic - skip if bit in port is set
+		sbis pind,KBD_A			//sbic - skip if bit in port is set
 		rcall On_1_click		//if bit 2 in pind is 1 this instruction 
 								//will be skipped
-		sbis pind,3				//that mean if button was pressed
+		sbis pind,KBD_B			//that mean if button was pressed
 		rcall On_4_click		//the next instruction is call procedure
 								//which do something what you need...
-		sbis pind,4				//and after that program counter going back
+		sbis pind,KBD_C			//and after that program counter going back
 		rcall On_7_click		//to key survay
 
-		sbis pind,5
+		sbis pind,KBD_D
 		rcall On_asterisk_click
 
 	ldi temp,0b0000_0101		//check 2nd column
 	out portb,temp
 
-		sbis pind,2				//the same like in previous
+		sbis pind,KBD_A			//the same like in previous
 		rcall On_2_click		//but for next column
 
-		sbis pind,3
+		sbis pind,KBD_B
 		rcall On_5_click
 
-		sbis pind,4
+		sbis pind,KBD_C
 		rcall On_8_click
 
-		sbis pind,5
+		sbis pind,KBD_D
 		rcall On_0_click
 
 
 	ldi temp,0b0000_0011		//check 3rd column
 	out portb,temp
 
-		sbis pind,2
+		sbis pind,KBD_A
 		rcall On_3_click
 
-		sbis pind,3
+		sbis pind,KBD_B
 		rcall On_6_click
 
-		sbis pind,4
+		sbis pind,KBD_C
 		rcall On_9_click
 
-		sbis pind,5
+		sbis pind,KBD_D
 		rcall On_grid_click
 
  .endm

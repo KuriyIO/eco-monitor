@@ -6,19 +6,26 @@
 
  .equ data = 0x04	   //create constant cmd = 0b00000100 
  .equ cmd = 0		   //create constant data = 0
+ .equ E = 3			   //E - is strob line, is a 3rd pin in port C
 
  //========MACRO================================================================
  
-//------45 microseconds delay---------------------------------------------
+//----------delay---------------------------------------------
   
- .macro delay_45us
- rcall delay_45us_proc
- .endm
+ .macro delay
+ push r25
+ push r24
+ push r23
 
-//------2 ms delay---------------------------------------------
-  
- .macro delay_2ms
- rcall delay_2ms_proc
+ ldi r25,@0
+ ldi r24,@1
+ ldi r23,@2
+
+ rcall delay_proc
+
+ pop r23
+ pop r24
+ pop r25
  .endm
 
 //------------------------------------------------------------------------
@@ -27,57 +34,71 @@
  .macro LCD_init
  LCD_port_init		//init port C as output
 
+ delay 242,15,5		//50 ms delay
+ ldi temp,0x30
+ out portc,temp		//send 0x30
+ sbi portc,E
+ lpm
+ cbi portc,E
+ delay 229,30,9		//100 ms delay
+ sbi portc,E
+ lpm				//send 0x30
+ cbi portc,E
+ delay 242,15,5		//50 ms delay 
+ sbi portc,E
+ lpm				//send 0x30
+ cbi portc,E
+ delay 242,15,5		//50 ms delay
  ldi temp,0x20
  out portc,temp
- sbi portc,3
+ sbi portc,E		//send 0x20
  lpm
- cbi portc,3
- ldi temp,0xF0
- out portc,temp
+ cbi portc,E
+ delay 240,1,1		//delay 45us
 
  LCD_send_cmd 0x28	//init 4-bit mode 2 lines
- delay_45us
+ delay 240,1,1 //delay 45us
  LCD_send_cmd 0x01	//clear display
- delay_2ms
+ delay 142,42,1 //delay 2ms
  LCD_send_cmd 0x0F	//display ON
- delay_45us
+ delay 142,42,1 //delay 2ms
 
  LCD_send_cmd 0b0100_0000	//Set CGRAM adress as 0x00
- delay_45us
+ delay 240,1,1 //delay 45us
 
  LCD_send_symbol 0b00000000			//Start sending bytes for draw a new symbol
- delay_45us							//in this case i draw upper arrow
+ delay 240,1,1 //delay 45us			//in this case i draw upper arrow
  LCD_send_symbol 0b00000000			//for do that i sending next bytes
- delay_45us							//
+ delay 240,1,1 //delay 45us			//
  LCD_send_symbol 0b00000000			//00000000
- delay_45us							//00000000
+ delay 240,1,1 //delay 45us			//00000000
  LCD_send_symbol 0b00000000			//00000000
- delay_45us							//00000000
+ delay 240,1,1 //delay 45us			//00000000
  LCD_send_symbol 0b00000100			//00000100
- delay_45us							//00001110
+ delay 240,1,1 //delay 45us			//00001110
  LCD_send_symbol 0b00001110			//00011111
- delay_45us							//00000000
+ delay 240,1,1 //delay 45us			//00000000
  LCD_send_symbol 0b00011111			//
- delay_45us							//
+ delay 240,1,1 //delay 45us			//
  LCD_send_symbol 0b00000000			//
- delay_45us							//
+ delay 240,1,1 //delay 45us			//
 
  LCD_send_symbol 0b00000000			//the same like previous but for draw down arrow
- delay_45us
+ delay 240,1,1 //delay 45us
  LCD_send_symbol 0b00011111
- delay_45us
+ delay 240,1,1 //delay 45us
  LCD_send_symbol 0b00001110
- delay_45us
+ delay 240,1,1 //delay 45us
  LCD_send_symbol 0b00000100
- delay_45us
+ delay 240,1,1 //delay 45us
  LCD_send_symbol 0b00000000
- delay_45us
+ delay 240,1,1 //delay 45us
  LCD_send_symbol 0b00000000
- delay_45us
+ delay 240,1,1 //delay 45us
  LCD_send_symbol 0b00000000
- delay_45us
+ delay 240,1,1 //delay 45us
  LCD_send_symbol 0b00000000
- delay_45us
+ delay 240,1,1 //delay 45us
 
  first_line	//set DDRAM as 0 (in start of first line)
  .endm
@@ -89,7 +110,7 @@
  push temp
  push byte
  LCD_send_cmd 0x01	//clear display
- delay_2ms
+ delay 142,42,1 //delay 2ms
  pop byte
  pop temp
  .endm
@@ -101,7 +122,7 @@
  push temp
  push byte
  LCD_send_cmd 0x80	//first line
- delay_45us
+ delay 240,1,1 //delay 45us
  pop byte
  pop temp
  .endm
@@ -113,7 +134,7 @@
  push temp
  push byte
  LCD_send_cmd 0xC0	//second line
- delay_45us
+ delay 240,1,1 //delay 45us
  pop byte
  pop temp
  .endm
@@ -171,7 +192,7 @@
  sram_read_loop:	//loop 16 times
  ld byte,Z+			//read from SRAM and post-inc
  rcall LCD_send_byte_proc	//print symbol to LCD
- delay_45us
+ delay 240,1,1 //delay 45us
  dec r19			//loop things...
  brne sram_read_loop//go to sram_read_loop label if r19 is not 0
 
@@ -199,7 +220,7 @@
  sram_read_loop:	//loop 16 times
  ld byte,X+			//read from SRAM and post-inc
  rcall LCD_send_byte_proc	//print symbol to LCD
- delay_45us
+ delay 240,1,1 //delay 45us
  dec r19			//loop things...
  brne sram_read_loop//go to sram_read_loop label if r19 is not 0
 
@@ -214,30 +235,18 @@
 
 //==============PROCEDURES=====================================================
 
-//------45 microseconds delay---------------------------------------------
+ //------delay proc-------------------------------------------------------
       
- delay_45us_proc:
- push r25
- ser r25 
- delay45: dec  r25
- brne delay45
- pop r25
- ret
+ delay_proc:
 
- //------2 ms delay-------------------------------------------------------
-      
- delay_2ms_proc:
- push r25
- push r24
-    ldi  r24, 42
-    ldi  r25, 142
-delay2: dec  r25
-    brne delay2
+delay_proc_label: 
+	dec  r25
+    brne delay_proc_label
     dec  r24
-    brne delay2
-    nop
- pop r24
- pop r25
+    brne delay_proc_label
+	dec  r23
+    brne delay_proc_label
+
  ret
 
 //------Send byte to LCD as 4-but mode------------------------------------
@@ -260,10 +269,10 @@ delay2: dec  r25
 
  out portc,temp //out temp to port C
  lpm			//3 clocks delay
- sbi portc,3	//enable E signal
+ sbi portc,E	//enable E signal
  lpm			//3 clocks delay
- cbi portc,3	//disable E signal
- delay_45us
+ cbi portc,E	//disable E signal
+ delay 240,1,1 //delay 45us
  //======Low half-byte send========
  andi temp,0b0000_0100
  pop byte		//get symbol from stack
@@ -280,9 +289,9 @@ delay2: dec  r25
  or temp,byte	//add symbol's low half-byte 
  out portc,temp //out temp to port C
  lpm			//3 clocks delay
- sbi portc,3	//enable E
+ sbi portc,E	//enable E
  lpm			//3 clocks delay
- cbi portc,3	//disable E
+ cbi portc,E	//disable E
  lpm			//3 clocks delay
  //=====Set port C as 0xFF=========
  ldi byte,0xF0
