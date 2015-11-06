@@ -45,29 +45,29 @@
   <delay_proc_label><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>249</LINE></delay_proc_label>
   <LCD_send_byte_proc><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>261</LINE></LCD_send_byte_proc>
   <On_1_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>135</LINE></On_1_click>
-  <return_On_1_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>145</LINE></return_On_1_Click>
-  <On_2_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>155</LINE></On_2_click>
-  <return_On_2_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>166</LINE></return_On_2_Click>
-  <On_3_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>176</LINE></On_3_click>
-  <return_On_3_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>186</LINE></return_On_3_Click>
-  <On_4_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>196</LINE></On_4_click>
-  <return_On_4_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>206</LINE></return_On_4_Click>
-  <On_5_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>216</LINE></On_5_click>
-  <return_On_5_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>226</LINE></return_On_5_Click>
-  <On_6_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>236</LINE></On_6_click>
-  <return_On_6_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>246</LINE></return_On_6_Click>
-  <On_7_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>256</LINE></On_7_click>
-  <return_On_7_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>266</LINE></return_On_7_Click>
-  <On_8_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>276</LINE></On_8_click>
-  <return_On_8_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>287</LINE></return_On_8_Click>
-  <On_9_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>297</LINE></On_9_click>
-  <return_On_9_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>307</LINE></return_On_9_Click>
-  <On_asterisk_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>317</LINE></On_asterisk_click>
-  <return_On_asterisk_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>327</LINE></return_On_asterisk_Click>
-  <On_0_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>337</LINE></On_0_click>
-  <return_On_0_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>347</LINE></return_On_0_Click>
-  <On_grid_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>357</LINE></On_grid_click>
-  <return_On_grid_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>367</LINE></return_On_grid_Click>
+  <return_On_1_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>143</LINE></return_On_1_Click>
+  <On_2_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>153</LINE></On_2_click>
+  <return_On_2_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>163</LINE></return_On_2_Click>
+  <On_3_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>173</LINE></On_3_click>
+  <return_On_3_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>181</LINE></return_On_3_Click>
+  <On_4_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>191</LINE></On_4_click>
+  <return_On_4_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>199</LINE></return_On_4_Click>
+  <On_5_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>209</LINE></On_5_click>
+  <return_On_5_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>217</LINE></return_On_5_Click>
+  <On_6_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>227</LINE></On_6_click>
+  <return_On_6_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>235</LINE></return_On_6_Click>
+  <On_7_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>245</LINE></On_7_click>
+  <return_On_7_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>253</LINE></return_On_7_Click>
+  <On_8_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>263</LINE></On_8_click>
+  <return_On_8_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>273</LINE></return_On_8_Click>
+  <On_9_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>283</LINE></On_9_click>
+  <return_On_9_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>291</LINE></return_On_9_Click>
+  <On_asterisk_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>301</LINE></On_asterisk_click>
+  <return_On_asterisk_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>309</LINE></return_On_asterisk_Click>
+  <On_0_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>319</LINE></On_0_click>
+  <return_On_0_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>327</LINE></return_On_0_Click>
+  <On_grid_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>337</LINE></On_grid_click>
+  <return_On_grid_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>345</LINE></return_On_grid_Click>
   <RAM_Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>7</LINE></RAM_Flush>
   <Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>11</LINE></Flush>
   <main><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>42</LINE></main>

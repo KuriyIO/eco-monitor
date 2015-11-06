@@ -36,7 +36,7 @@ reset:
 Timer1_Init
 keyboard_init				//initialization of ports for keyboard
 LCD_init					//LCD initialization
-//menu_init
+menu_init
 
 //-----------MAIN----------------------------------
 main:			

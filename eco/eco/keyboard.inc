@@ -140,8 +140,6 @@
 
  Anti_false_activation '1', return_On_1_Click
 
- LCD_send_symbol '1'
-
  return_On_1_Click:
  pop r16
  pop YL
@@ -160,8 +158,7 @@
 
  Anti_false_activation '2', return_On_2_Click
 
- LCD_send_symbol '2'
- //menu_prev
+ menu_prev
 
  return_On_2_Click:
  pop r16
@@ -180,9 +177,7 @@
  push r16
 
  Anti_false_activation '3', return_On_3_Click
-
- LCD_send_symbol '3'
-
+ 
  return_On_3_Click:
  pop r16
  pop YL
@@ -200,8 +195,6 @@
  push r16
 
  Anti_false_activation '4', return_On_4_Click
-
- LCD_send_symbol '4'
 
  return_On_4_Click:
  pop r16
@@ -221,8 +214,6 @@
 
  Anti_false_activation '5', return_On_5_Click
 
- LCD_send_symbol '5'
-
  return_On_5_Click:
  pop r16
  pop YL
@@ -240,8 +231,6 @@
  push r16
 
  Anti_false_activation '6', return_On_6_Click
-
- LCD_send_symbol '6'
 
  return_On_6_Click:
  pop r16
@@ -261,8 +250,6 @@
 
  Anti_false_activation '7', return_On_7_Click
 
- LCD_send_symbol '7'
-
  return_On_7_Click:
  pop r16
  pop YL
@@ -280,9 +267,8 @@
  push r16
 
  Anti_false_activation '8', return_On_8_Click
-
- LCD_send_symbol '8'
- //menu_next
+ 
+ menu_next
 
  return_On_8_Click:
  pop r16
@@ -302,8 +288,6 @@
 
  Anti_false_activation '9', return_On_9_Click
 
- LCD_send_symbol '9'
-
  return_On_9_Click:
  pop r16
  pop YL
@@ -321,8 +305,6 @@
  push r16
 
  Anti_false_activation '*', return_On_asterisk_Click
-
- LCD_send_symbol '*'
 
  return_On_asterisk_Click:
  pop r16
@@ -342,8 +324,6 @@
 
  Anti_false_activation '0', return_On_0_Click
 
- LCD_send_symbol '0'
-
  return_On_0_Click:
  pop r16
  pop YL
@@ -361,8 +341,6 @@
  push r16
 
  Anti_false_activation '#', return_On_grid_Click
-
- LCD_send_symbol '#'
 
  return_On_grid_Click:
  pop r16
