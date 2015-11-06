@@ -6,7 +6,12 @@
 
  .equ data = 0x04	   //create constant cmd = 0b00000100 
  .equ cmd = 0		   //create constant data = 0
+ .equ RS = 2		   //RS - 2nd pin in port C
  .equ E = 3			   //E - is strob line, is a 3rd pin in port C
+ .equ D4 = 4		   //LCD data pins in port C
+ .equ D5 = 5
+ .equ D6 = 6
+ .equ D7 = 7
 
  //========MACRO================================================================
  
@@ -143,9 +148,11 @@
 
  //      set port C as output for working with display
  .macro LCD_port_init  
- ldi temp,0xFC
+ in temp, ddrc
+ ori temp, (0 | (1<<RS) | (1<<E) | (1<<D4) | (1<<D5) | (1<<D6) | (1<<D7))
  out ddrc,temp
- clr temp
+ in temp,portc
+ andi temp, (~(0 | (1<<RS) | (1<<E) | (1<<D4) | (1<<D5) | (1<<D6) | (1<<D7)))
  out portc,temp
  .endm
 

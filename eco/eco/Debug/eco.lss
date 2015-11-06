@@ -1,13 +1,14 @@
 
-AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Wed Nov 04 02:43:38 2015
+AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Fri Nov 06 03:06:24 2015
 
 [builtin](2): Including file 'D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc'
 D:\diplom\eco\eco\eco.asm(1): Including file 'D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc'
-D:\diplom\eco\eco\eco.asm(24): Including file 'D:\diplom\eco\eco\int_table.inc'
-D:\diplom\eco\eco\eco.asm(25): Including file 'D:\diplom\eco\eco\menu.inc'
-D:\diplom\eco\eco\eco.asm(26): Including file 'D:\diplom\eco\eco\LCD.inc'
-D:\diplom\eco\eco\eco.asm(27): Including file 'D:\diplom\eco\eco\keyboard.inc'
-D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\core_init.inc'
+D:\diplom\eco\eco\eco.asm(26): Including file 'D:\diplom\eco\eco\int_table.inc'
+D:\diplom\eco\eco\eco.asm(27): Including file 'D:\diplom\eco\eco\menu.inc'
+D:\diplom\eco\eco\eco.asm(28): Including file 'D:\diplom\eco\eco\LCD.inc'
+D:\diplom\eco\eco\eco.asm(29): Including file 'D:\diplom\eco\eco\keyboard.inc'
+D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\timers.inc'
+D:\diplom\eco\eco\eco.asm(33): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  .include "m32def.inc" //include define for ATmega32 controller
                  
@@ -887,6 +888,8 @@ D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\core_init.inc'
 0000b0           sound_msg:			.byte 16	//Sound option message string
 0000c0           test:				.byte 96	//reserve bytes for 2nd string messages
 000120           menu_location:		.byte 1		//current menu location
+000121           tick_count:			.byte 1		//count of button activations
+000122           last_btn:			.byte 1		//number of last pressed button
                  
                  //==========CODE SEGMENT=================================================
                  .cseg
@@ -896,49 +899,48 @@ D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\core_init.inc'
                   */ 
                  
                   //=========INTERRUPT VECTORS TABLE=============================================
-                  .ORG 0x000        ; (RESET) 
-000000 c1a7       RJMP reset
-                  .ORG 0x002
-000002 9518       RETI             ; (INT0) External Interrupt Request 0
-                  .ORG 0x004
-000004 9518       RETI             ; (INT1) External Interrupt Request 1
-                  .ORG 0x006
-000006 9518       RETI			  ; (TIMER2 COMP) Timer/Counter2 Compare Match
-                  .ORG 0x008
-000008 9518       RETI             ; (TIMER2 OVF) Timer/Counter2 Overflow
-                  .ORG 0x00A
-00000a 9518       RETI			  ; (TIMER1 CAPT) Timer/Counter1 Capture Event
-                  .ORG 0x00C 
-00000c 9518       RETI             ; (TIMER1 COMPA) Timer/Counter1 Compare Match A
-                  .ORG 0x00E
-00000e 9518       RETI             ; (TIMER1 COMPB) Timer/Counter1 Compare Match B
-                  .ORG 0x010
-000010 9518       RETI             ; (TIMER1 OVF) Timer/Counter1 Overflow
-                  .ORG 0x012
-000012 9518       RETI             ; (TIMER0 OVF) Timer/Counter0 Overflow
-                  .ORG 0x014
-000014 9518       RETI             ; (SPI,STC) Serial Transfer Complete
-                  .ORG 0x016
-000016 9518       RETI    	      ; (USART,RXC) USART, Rx Complete
-                  .ORG 0x018
-000018 9518       RETI             ; (USART,UDRE) USART Data Register Empty
-                  .ORG 0x01A
-00001a 9518       RETI             ; (USART,TXC) USART, Tx Complete
-                  .ORG 0x01C
-00001c 9518       RETI	          ; (ADC) ADC Conversion Complete
-                  .ORG 0x01E
-00001e 9518       RETI             ; (EE_RDY) EEPROM Ready
-                  .ORG 0x020
-000020 9518       RETI             ; (ANA_COMP) Analog Comparator
-                  .ORG 0x022
-000022 9518       RETI             ; (TWI) 2-wire Serial Interface
-                  .ORG 0x024
-000024 9518       RETI             ; (INT2) External Interrupt Request 2
-                  .ORG 0x026
-000026 9518       RETI             ; (TIMER0 COMP) Timer/Counter0 Compare Match
-                  .ORG 0x028
-000028 9518       RETI             ; (SPM_RDY) Store Program Memory Ready
-                  .ORG 0x030        ; End of table
+                  .org $000 //RESET
+000000 c222       rjmp reset 
+                  .org $002 //INT0 External Interrupt Request 0
+000002 9518       reti
+                  .org $004 //INT1 External Interrupt Request 1
+000004 9518       reti
+                  .org $006 //INT2 External Interrupt Request 2
+000006 9518       reti
+                  .org $008 //TIMER2 COMP Timer/Counter2 Compare Match
+000008 9518       reti
+                  .org $00A //TIMER2 OVF Timer/Counter2 Overflow
+00000a 9518       reti
+                  .org $00C //TIMER1 CAPT Timer/Counter1 Capture Event
+00000c 9518       reti
+                  .org $00E //TIMER1 COMPA Timer/Counter1 Compare Match A
+00000e c1db       rjmp Keyboard_check_interrupt
+                  .org $010 //TIMER1 COMPB Timer/Counter1 Compare Match B
+000010 9518       reti
+                  .org $012 //TIMER1 OVF Timer/Counter1 Overflow
+000012 9518       reti
+                  .org $014 //TIMER0 COMP Timer/Counter0 Compare Match
+000014 9518       reti
+                  .org $016 //TIMER0 OVF Timer/Counter0 Overflow
+000016 9518       reti
+                  .org $018 //SPI, STC Serial Transfer Complete
+000018 9518       reti
+                  .org $01A //USART, RXC USART, Rx Complete
+00001a 9518       reti
+                  .org $01C //USART, UDRE USART Data Register Empty
+00001c 9518       reti
+                  .org $01E //USART, TXC USART, Tx Complete
+00001e 9518       reti
+                  .org $020 //ADC ADC Conversion Complete
+000020 9518       reti
+                  .org $022 //EE_RDY EEPROM Ready
+000022 9518       reti
+                  .org $024 //ANA_COMP Analog Comparator
+000024 9518       reti
+                  .org $026 //TWI Two-wire Serial Interface
+000026 9518       reti
+                  .org $028 //SPM_RDY Store Program Memory Ready
+000028 9518       reti
                  //===============================================================================================
                  
                  .include "menu.inc"			//macro for menu uses
@@ -1114,21 +1116,21 @@ D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                   EEPROM_read_byte:
                   ; Wait for completion of previous write
-000030 99e1       sbic EECR,EEWE
-000031 cffe       rjmp EEPROM_read_byte
+000029 99e1       sbic EECR,EEWE
+00002a cffe       rjmp EEPROM_read_byte
                  
-000032 94f8       cli //disable all interrupts
+00002b 94f8       cli //disable all interrupts
                  
                   ; Set up address (Z register) in address register
-000033 bbff       out EEARH, ZH
-000034 bbee       out EEARL, ZL
+00002c bbff       out EEARH, ZH
+00002d bbee       out EEARL, ZL
                   ; Start eeprom read by writing EERE
-000035 9ae0       sbi EECR,EERE
+00002e 9ae0       sbi EECR,EERE
                   ; Read data from data register
-000036 b30d       in byte,EEDR
+00002f b30d       in byte,EEDR
                  
-000037 9478       sei //enable interrupts
-000038 9508       ret
+000030 9478       sei //enable interrupts
+000031 9508       ret
                  .include "LCD.inc"			//macro and procedures for HD44780 like displays
                  
                   * Macro and procedures
@@ -1138,7 +1140,12 @@ D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                   .equ data = 0x04	   //create constant cmd = 0b00000100 
                   .equ cmd = 0		   //create constant data = 0
+                  .equ RS = 2		   //RS - 2nd pin in port C
                   .equ E = 3			   //E - is strob line, is a 3rd pin in port C
+                  .equ D4 = 4		   //LCD data pins in port C
+                  .equ D5 = 5
+                  .equ D6 = 6
+                  .equ D7 = 7
                  
                   //========MACRO================================================================
                   
@@ -1275,9 +1282,11 @@ D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                   //      set port C as output for working with display
                   .macro LCD_port_init  
-                  ldi temp,0xFC
+                  in temp, ddrc
+                  ori temp, (0 | (1<<RS) | (1<<E) | (1<<D4) | (1<<D5) | (1<<D6) | (1<<D7))
                   out ddrc,temp
-                  clr temp
+                  in temp,portc
+                  andi temp, (~(0 | (1<<RS) | (1<<E) | (1<<D4) | (1<<D5) | (1<<D6) | (1<<D7)))
                   out portc,temp
                   .endm
                  
@@ -1372,72 +1381,72 @@ D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\core_init.inc'
                   delay_proc:
                  
                  delay_proc_label: 
-000039 959a      	dec  r25
-00003a f7f1          brne delay_proc_label
-00003b 958a          dec  r24
-00003c f7e1          brne delay_proc_label
-00003d 957a      	dec  r23
-00003e f7d1          brne delay_proc_label
+000032 959a      	dec  r25
+000033 f7f1          brne delay_proc_label
+000034 958a          dec  r24
+000035 f7e1          brne delay_proc_label
+000036 957a      	dec  r23
+000037 f7d1          brne delay_proc_label
                  
-00003f 9508       ret
+000038 9508       ret
                  
                  //------Send byte to LCD as 4-but mode------------------------------------
                  
                   LCD_send_byte_proc:
-000040 930f       push byte //save symbol to stack
-000041 7014       andi temp,0b0000_0100
-000042 bb15       out portc,temp //setting RS line
+000039 930f       push byte //save symbol to stack
+00003a 7014       andi temp,0b0000_0100
+00003b bb15       out portc,temp //setting RS line
                  
                   //======High half-byte send=======
-000043 7f00       andi byte,0xF0 //clear low half-byte
+00003c 7f00       andi byte,0xF0 //clear low half-byte
                  				//example:
                  				//before ANDI byte was 0b01011111
                  				//after byte is 0b01010000
                  
-000044 2b10       or temp,byte	//add high half-byte to temp register
+00003d 2b10       or temp,byte	//add high half-byte to temp register
                  				//example:
                  				//before: temp = 0b00000100, byte = 0b11110000
                  				//after: temp = 0b11110100
                  
-000045 bb15       out portc,temp //out temp to port C
-000046 95c8       lpm			//3 clocks delay
-000047 9aab       sbi portc,E	//enable E signal
-000048 95c8       lpm			//3 clocks delay
-000049 98ab       cbi portc,E	//disable E signal
-00004a 939f
-00004b 938f
-00004c 937f
-00004d ef90
-00004e e081
-00004f e071
-000050 dfe8
-000051 917f
-000052 918f
-000053 919f       delay 240,1,1 //delay 45us
+00003e bb15       out portc,temp //out temp to port C
+00003f 95c8       lpm			//3 clocks delay
+000040 9aab       sbi portc,E	//enable E signal
+000041 95c8       lpm			//3 clocks delay
+000042 98ab       cbi portc,E	//disable E signal
+000043 939f
+000044 938f
+000045 937f
+000046 ef90
+000047 e081
+000048 e071
+000049 dfe8
+00004a 917f
+00004b 918f
+00004c 919f       delay 240,1,1 //delay 45us
                   //======Low half-byte send========
-000054 7014       andi temp,0b0000_0100
-000055 910f       pop byte		//get symbol from stack
-000056 700f       andi byte,0x0F //clear high half-byte
+00004d 7014       andi temp,0b0000_0100
+00004e 910f       pop byte		//get symbol from stack
+00004f 700f       andi byte,0x0F //clear high half-byte
                  				//example:
                  				//before andi: byte = 0b01011010
                  				//after: byte = 0b00001010
                  
-000057 0f00       lsl byte		//logical shift left
-000058 0f00       lsl byte		//example:
-000059 0f00       lsl byte		//00001010 <- 00010100 <- 00101000 <- 01010000 <- 10100000
-00005a 0f00       lsl byte
+000050 0f00       lsl byte		//logical shift left
+000051 0f00       lsl byte		//example:
+000052 0f00       lsl byte		//00001010 <- 00010100 <- 00101000 <- 01010000 <- 10100000
+000053 0f00       lsl byte
                  
-00005b 2b10       or temp,byte	//add symbol's low half-byte 
-00005c bb15       out portc,temp //out temp to port C
-00005d 95c8       lpm			//3 clocks delay
-00005e 9aab       sbi portc,E	//enable E
-00005f 95c8       lpm			//3 clocks delay
-000060 98ab       cbi portc,E	//disable E
-000061 95c8       lpm			//3 clocks delay
+000054 2b10       or temp,byte	//add symbol's low half-byte 
+000055 bb15       out portc,temp //out temp to port C
+000056 95c8       lpm			//3 clocks delay
+000057 9aab       sbi portc,E	//enable E
+000058 95c8       lpm			//3 clocks delay
+000059 98ab       cbi portc,E	//disable E
+00005a 95c8       lpm			//3 clocks delay
                   //=====Set port C as 0xFF=========
-000062 ef00       ldi byte,0xF0
-000063 bb05       out portc,byte	//out to port C 0b11110000
-000064 9508       ret
+00005b ef00       ldi byte,0xF0
+00005c bb05       out portc,byte	//out to port C 0b11110000
+00005d 9508       ret
                  //------------------------------------------------------------------------
                  //                          sorry for bad english
                  .include "keyboard.inc"		//macro and procedures for 3x4 keyboard
@@ -1454,417 +1463,705 @@ D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\core_init.inc'
                   .equ KBD_1 = 0
                   .equ KBD_2 = 1
                   .equ KBD_3 = 2
+                  .equ count_of_ticks = 5	//count of ticks for prevent false activation macro
                  
-                  //=======PROCEDURES=====================================
-                  //-------On 1 click-----------------------------
-                  On_1_click:
-000065 9b82       sbis pind,2		//wait until button is turned off
-000066 cffe       rjmp PC-1
-000067 9508       ret
-                  //-------On 2 click-----------------------------
-                  On_2_click:
-000068 932f
-000069 93bf
-00006a 93af
-00006b 931f
-00006c 93df
-00006d 93cf
-00006e e0d1
-00006f e2c0
-000070 8128
-000071 e010
-000072 1321
-000073 c001
-000074 c072
-000075 952a
-000076 e110
-000077 9f12
-000078 2da0
-000079 2db1
-00007a e610
-00007b 0fa1
-00007c 2711
-00007d 1fb1
-00007e 931f
-00007f 930f
-000080 931f
-000081 930f
-000082 e010
-000083 e800
-000084 dfbb
-000085 910f
-000086 911f
-000087 939f
-000088 938f
-000089 937f
-00008a ef90
-00008b e081
-00008c e071
-00008d dfab
-00008e 917f
-00008f 918f
-000090 919f
-000091 910f
-000092 911f
-000093 931f
-000094 930f
-000095 93af
-000096 93bf
-000097 933f
-000098 e014
-000099 e131
-00009a 910d
-00009b dfa4
-00009c 939f
-00009d 938f
-00009e 937f
-00009f ef90
-0000a0 e081
-0000a1 e071
-0000a2 df96
-0000a3 917f
-0000a4 918f
-0000a5 919f
-0000a6 953a
-0000a7 f791
-0000a8 913f
-0000a9 91bf
-0000aa 91af
-0000ab 910f
-0000ac 911f
-0000ad e110
-0000ae 9f12
-0000af 2da0
-0000b0 2db1
-0000b1 ec10
-0000b2 0fa1
-0000b3 2711
-0000b4 1fb1
-0000b5 931f
-0000b6 930f
-0000b7 931f
-0000b8 930f
-0000b9 e010
-0000ba ec00
-0000bb df84
-0000bc 910f
-0000bd 911f
-0000be 939f
-0000bf 938f
-0000c0 937f
-0000c1 ef90
-0000c2 e081
-0000c3 e071
-0000c4 df74
-0000c5 917f
-0000c6 918f
-0000c7 919f
-0000c8 910f
-0000c9 911f
-0000ca 931f
-0000cb 930f
-0000cc 93af
-0000cd 93bf
-0000ce 933f
-0000cf e014
-0000d0 e131
-0000d1 910d
-0000d2 df6d
-0000d3 939f
-0000d4 938f
-0000d5 937f
-0000d6 ef90
-0000d7 e081
-0000d8 e071
-0000d9 df5f
-0000da 917f
-0000db 918f
-0000dc 919f
-0000dd 953a
-0000de f791
-0000df 913f
-0000e0 91bf
-0000e1 91af
-0000e2 910f
-0000e3 911f
-0000e4 e0d1
-0000e5 e2c0
-0000e6 8328
-0000e7 91cf
-0000e8 91df
-0000e9 911f
-0000ea 91af
-0000eb 91bf
-0000ec 912f       menu_prev 
-0000ed 9b82       sbis pind,2		//wait until button is turned off
-0000ee cffe       rjmp PC-1
-0000ef 9508       ret
-                  //-------On 3 click-----------------------------
-                  On_3_click:
-0000f0 9b82       sbis pind,2		//wait until button is turned off
-0000f1 cffe       rjmp PC-1
-0000f2 9508       ret
-                  //-------On 4 click-----------------------------
-                  On_4_click:
-0000f3 9b83       sbis pind,3		//wait until button is turned off
-0000f4 cffe       rjmp PC-1
-0000f5 9508       ret
-                  //-------On 5 click-----------------------------
-                  On_5_click:
-0000f6 9b83       sbis pind,3		//wait until button is turned off
-0000f7 cffe       rjmp PC-1
-0000f8 9508       ret
-                  //-------On 6 click-----------------------------
-                  On_6_click:
-0000f9 9b83       sbis pind,3		//wait until button is turned off
-0000fa cffe       rjmp PC-1
-0000fb 9508       ret
-                  //-------On 7 click-----------------------------
-                  On_7_click:
-0000fc 9b84       sbis pind,4		//wait until button is turned off
-0000fd cffe       rjmp PC-1
-0000fe 9508       ret
-                  //-------On 8 click-----------------------------
-                  On_8_click:
-0000ff 932f
-000100 93bf
-000101 93af
-000102 931f
-000103 93df
-000104 93cf
-000105 e0d1
-000106 e2c0
-000107 8128
-000108 e015
-000109 1321
-00010a c001
-00010b c072
-00010c 9523
-00010d e110
-00010e 9f12
-00010f 2da0
-000110 2db1
-000111 e610
-000112 0fa1
-000113 2711
-000114 1fb1
-000115 931f
-000116 930f
-000117 931f
-000118 930f
-000119 e010
-00011a e800
-00011b df24
-00011c 910f
-00011d 911f
-00011e 939f
-00011f 938f
-000120 937f
-000121 ef90
-000122 e081
-000123 e071
-000124 df14
-000125 917f
-000126 918f
-000127 919f
-000128 910f
-000129 911f
-00012a 931f
-00012b 930f
-00012c 93af
-00012d 93bf
-00012e 933f
-00012f e014
-000130 e131
-000131 910d
-000132 df0d
-000133 939f
-000134 938f
-000135 937f
-000136 ef90
-000137 e081
-000138 e071
-000139 deff
-00013a 917f
-00013b 918f
-00013c 919f
-00013d 953a
-00013e f791
-00013f 913f
-000140 91bf
-000141 91af
-000142 910f
-000143 911f
-000144 e110
-000145 9f12
-000146 2da0
-000147 2db1
-000148 ec10
-000149 0fa1
-00014a 2711
-00014b 1fb1
-00014c 931f
-00014d 930f
-00014e 931f
-00014f 930f
-000150 e010
-000151 ec00
-000152 deed
-000153 910f
-000154 911f
-000155 939f
-000156 938f
-000157 937f
-000158 ef90
-000159 e081
-00015a e071
-00015b dedd
-00015c 917f
-00015d 918f
-00015e 919f
-00015f 910f
-000160 911f
-000161 931f
-000162 930f
-000163 93af
-000164 93bf
-000165 933f
-000166 e014
-000167 e131
-000168 910d
-000169 ded6
-00016a 939f
-00016b 938f
-00016c 937f
-00016d ef90
-00016e e081
-00016f e071
-000170 dec8
-000171 917f
-000172 918f
-000173 919f
-000174 953a
-000175 f791
-000176 913f
-000177 91bf
-000178 91af
-000179 910f
-00017a 911f
-00017b e0d1
-00017c e2c0
-00017d 8328
-00017e 91cf
-00017f 91df
-000180 911f
-000181 91af
-000182 91bf
-000183 912f       menu_next
-000184 9b84       sbis pind,4		//wait until button is turned off
-000185 cffe       rjmp PC-1
-000186 9508       ret
-                  //-------On 9 click-----------------------------
-                  On_9_click:
-000187 9b84       sbis pind,4		//wait until button is turned off
-000188 cffe       rjmp PC-1
-000189 9508       ret
-                  //-------On 0 click-----------------------------
-                  On_0_click:
-00018a 931f
-00018b 930f
-00018c 931f
-00018d 930f
-00018e e010
-00018f e001
-000190 deaf
-000191 910f
-000192 911f
-000193 939f
-000194 938f
-000195 937f
-000196 e89e
-000197 e28a
-000198 e071
-000199 de9f
-00019a 917f
-00019b 918f
-00019c 919f
-00019d 910f
-00019e 911f       LCD_clear
-00019f 9b85       sbis pind,5		//wait until button is turned off
-0001a0 cffe       rjmp PC-1
-0001a1 9508       ret
-                  //-------On * click-----------------------------
-                  On_asterisk_click:
-0001a2 9b85       sbis pind,5		//wait until button is turned off
-0001a3 cffe       rjmp PC-1
-0001a4 9508       ret
-                  //-------On # click-----------------------------
-                  On_grid_click:
-0001a5 9b85       sbis pind,5		//wait until button is turned off
-0001a6 cffe       rjmp PC-1
-0001a7 9508       ret
-                  //----------------------------------------------
                   //=======MACRO==========================================
+                  //-------Preventing false activation----------------------------
+                  .macro Anti_false_activation
+                  
+                  ldi YH,high(tick_count)
+                  ldi YL,low(tick_count)
+                  ld temp,Y+						//load to temp count of ticks
+                  ld r16,Y						//load to r16 number of last pressed button
+                 
+                  cpi r16,@0							//compare block
+                  brne end_of_activation_macro		//example on C language:
+                  cpi temp,3							//	if(last_btn == @0)
+                  brsh end_of_activation_macro		//	{
+                 									//		if(tick > count_of_ticks)
+                 									//		{
+                 									//			tick = 0;
+                 									//			do_something...
+                 									//		}
+                 									//		else
+                 									//		{
+                 									//			return of On_(button)_Click
+                 									//		}
+                 									//	}
+                 									//	else
+                 									//	{
+                 									//		tick = 0;
+                 									//		do_something...
+                 									//	}
+                 									//	last_btn=@0
+                 
+                  rjmp @1							//return of On_(some_btn)_Click
+                 
+                  end_of_activation_macro:			//label to end of macro for continue
+                 
+                  ldi temp,0							//saving to RAM
+                  ldi r16,@0
+                  ldi YH,high(tick_count)
+                  ldi YL,low(tick_count)
+                  st Y+,temp
+                  st Y,r16
+                 
+                  .endm
                   //-------Initialization ports for working with keyboard---------
                   .macro keyboard_init
-                  ldi temp,0b0000_0111	//set KBD_1 KBD_2 KBD_3 as output
-                  out ddrb,temp
-                  ldi temp,0b1000_0000	//set KBD_A KBD_B KBD_C KBD_D as input
-                  out ddrd,temp
-                  ldi temp,0b0011_1100	//activate pull-ups
-                  out portd,temp
+                  in temp,ddrb
+                  andi temp, (~(0 | (1<<KBD_1) | (1<<KBD_2) | (1<<KBD_3)))
+                  out ddrb,temp			//set KBD_1 KBD_2 KBD_3 as input
+                 
+                  in temp,portb
+                  ori temp, (0 | (1<<KBD_1) | (1<<KBD_2) | (1<<KBD_3))
+                  out portb,temp			//enable pull-ups for KBD_1 KBD_2 KBD_3
+                 
+                  in temp,ddrd
+                  ori temp, (0 | (1<<KBD_A) | (1<<KBD_B) | (1<<KBD_C) | (1<<KBD_D))
+                  out ddrd,temp			//set KBD_A KBD_B KBD_C KBD_D as output
                   .endm
                   //-------Check buttons------------------------------------------
                   .macro keyboard_check
                  
-                 	ldi temp,0b0000_0110		//check 1st column
-                 	out portb,temp
+                 	in temp,pind		//set pins without corruption of other pins
+                 	ori temp, 0 | (1<<KBD_A) | (1<<KBD_B) | (1<<KBD_C) | (1<<KBD_D)
+                 	andi temp, (~(0 | (1<<KBD_A)))//set KBD_A as 0, and KBD_B,C,D as 1
+                 	out portd,temp
                  
-                 		sbis pind,KBD_A			//sbic - skip if bit in port is set
-                 		rcall On_1_click		//if bit 2 in pind is 1 this instruction 
-                 								//will be skipped
-                 		sbis pind,KBD_B			//that mean if button was pressed
-                 		rcall On_4_click		//the next instruction is call procedure
-                 								//which do something what you need...
-                 		sbis pind,KBD_C			//and after that program counter going back
-                 		rcall On_7_click		//to key survay
+                 		sbis pinb,KBD_3
+                 		rcall On_asterisk_Click
                  
-                 		sbis pind,KBD_D
-                 		rcall On_asterisk_click
+                 		sbis pinb,KBD_2
+                 		rcall On_2_Click
                  
-                 	ldi temp,0b0000_0101		//check 2nd column
-                 	out portb,temp
+                 		sbis pinb,KBD_1
+                 		rcall On_3_Click
                  
-                 		sbis pind,KBD_A			//the same like in previous
-                 		rcall On_2_click		//but for next column
+                 	in temp,pind		//set pins without corruption of other pins
+                 	ori temp, 0 | (1<<KBD_A) | (1<<KBD_B) | (1<<KBD_C) | (1<<KBD_D)
+                 	andi temp, (~(0 | (1<<KBD_B)))//set KBD_B as 0, and KBD_A,C,D as 1
+                 	out portd,temp
                  
-                 		sbis pind,KBD_B
-                 		rcall On_5_click
+                 		sbis pinb,KBD_3
+                 		rcall On_1_Click
                  
-                 		sbis pind,KBD_C
-                 		rcall On_8_click
+                 		sbis pinb,KBD_2
+                 		rcall On_5_Click
                  
-                 		sbis pind,KBD_D
-                 		rcall On_0_click
+                 		sbis pinb,KBD_1
+                 		rcall On_6_Click
                  
+                 	in temp,pind		//set pins without corruption of other pins
+                 	ori temp, 0 | (1<<KBD_A) | (1<<KBD_B) | (1<<KBD_C) | (1<<KBD_D)
+                 	andi temp, (~(0 | (1<<KBD_C)))//set KBD_C as 0, and KBD_A,B,D as 1
+                 	out portd,temp
                  
-                 	ldi temp,0b0000_0011		//check 3rd column
-                 	out portb,temp
+                 		sbis pinb,KBD_3
+                 		rcall On_4_Click
                  
-                 		sbis pind,KBD_A
-                 		rcall On_3_click
+                 		sbis pinb,KBD_2
+                 		rcall On_8_Click
                  
-                 		sbis pind,KBD_B
-                 		rcall On_6_click
+                 		sbis pinb,KBD_1
+                 		rcall On_9_Click
                  
-                 		sbis pind,KBD_C
-                 		rcall On_9_click
+                 	in temp,pind		//set pins without corruption of other pins
+                 	ori temp, 0 | (1<<KBD_A) | (1<<KBD_B) | (1<<KBD_C) | (1<<KBD_D)
+                 	andi temp, (~(0 | (1<<KBD_D)))//set KBD_D as 0, and KBD_A,B,C as 1
+                 	out portd,temp
                  
-                 		sbis pind,KBD_D
-                 		rcall On_grid_click
+                 		sbis pinb,KBD_3
+                 		rcall On_7_Click
+                 
+                 		sbis pinb,KBD_2
+                 		rcall On_0_Click
+                 
+                 		sbis pinb,KBD_1
+                 		rcall On_grid_Click
                  
                   .endm
+                 
+                  //=======PROCEDURES=====================================
+                  //-------On 1 click-----------------------------
+                  On_1_click:
+00005e 931f       push temp
+00005f 93df       push YH
+000060 93cf       push YL
+000061 930f       push r16
+                 
+000062 e0d1
+000063 e2c1
+000064 9119
+000065 8108
+000066 3301
+000067 f419
+000068 3013
+000069 f408
+00006a c00d
+00006b e010
+00006c e301
+00006d e0d1
+00006e e2c1
+00006f 9319
+000070 8308       Anti_false_activation '1', return_On_1_Click
+                 
+000071 931f
+000072 930f
+000073 e014
+000074 e301
+000075 dfc3
+000076 910f
+000077 911f       LCD_send_symbol '1'
+                 
+                  return_On_1_Click:
+000078 910f       pop r16
+000079 91cf       pop YL
+00007a 91df       pop YH
+00007b 911f       pop temp
+                 
+00007c 9bb2       sbis pinb,KBD_3		//wait until button is turned off
+00007d cffe       rjmp PC-1
+00007e 9508       ret
+                  //-------On 2 click-----------------------------
+                  On_2_click:
+00007f 931f       push temp
+000080 93df       push YH
+000081 93cf       push YL
+000082 930f       push r16
+                 
+000083 e0d1
+000084 e2c1
+000085 9119
+000086 8108
+000087 3302
+000088 f419
+000089 3013
+00008a f408
+00008b c00d
+00008c e010
+00008d e302
+00008e e0d1
+00008f e2c1
+000090 9319
+000091 8308       Anti_false_activation '2', return_On_2_Click
+                 
+000092 931f
+000093 930f
+000094 e014
+000095 e302
+000096 dfa2
+000097 910f
+000098 911f       LCD_send_symbol '2'
+                  //menu_prev
+                 
+                  return_On_2_Click:
+000099 910f       pop r16
+00009a 91cf       pop YL
+00009b 91df       pop YH
+00009c 911f       pop temp
+                 
+00009d 9bb1       sbis pinb,KBD_2		//wait until button is turned off
+00009e cffe       rjmp PC-1
+00009f 9508       ret
+                  //-------On 3 click-----------------------------
+                  On_3_click:
+0000a0 931f       push temp
+0000a1 93df       push YH
+0000a2 93cf       push YL
+0000a3 930f       push r16
+                 
+0000a4 e0d1
+0000a5 e2c1
+0000a6 9119
+0000a7 8108
+0000a8 3303
+0000a9 f419
+0000aa 3013
+0000ab f408
+0000ac c00d
+0000ad e010
+0000ae e303
+0000af e0d1
+0000b0 e2c1
+0000b1 9319
+0000b2 8308       Anti_false_activation '3', return_On_3_Click
+                 
+0000b3 931f
+0000b4 930f
+0000b5 e014
+0000b6 e303
+0000b7 df81
+0000b8 910f
+0000b9 911f       LCD_send_symbol '3'
+                 
+                  return_On_3_Click:
+0000ba 910f       pop r16
+0000bb 91cf       pop YL
+0000bc 91df       pop YH
+0000bd 911f       pop temp
+                 
+0000be 9bb0       sbis pinb,KBD_1		//wait until button is turned off
+0000bf cffe       rjmp PC-1
+0000c0 9508       ret
+                  //-------On 4 click-----------------------------
+                  On_4_click:
+0000c1 931f       push temp
+0000c2 93df       push YH
+0000c3 93cf       push YL
+0000c4 930f       push r16
+                 
+0000c5 e0d1
+0000c6 e2c1
+0000c7 9119
+0000c8 8108
+0000c9 3304
+0000ca f419
+0000cb 3013
+0000cc f408
+0000cd c00d
+0000ce e010
+0000cf e304
+0000d0 e0d1
+0000d1 e2c1
+0000d2 9319
+0000d3 8308       Anti_false_activation '4', return_On_4_Click
+                 
+0000d4 931f
+0000d5 930f
+0000d6 e014
+0000d7 e304
+0000d8 df60
+0000d9 910f
+0000da 911f       LCD_send_symbol '4'
+                 
+                  return_On_4_Click:
+0000db 910f       pop r16
+0000dc 91cf       pop YL
+0000dd 91df       pop YH
+0000de 911f       pop temp
+                 
+0000df 9bb0       sbis pinb,KBD_1		//wait until button is turned off
+0000e0 cffe       rjmp PC-1
+0000e1 9508       ret
+                  //-------On 5 click-----------------------------
+                  On_5_click:
+0000e2 931f       push temp
+0000e3 93df       push YH
+0000e4 93cf       push YL
+0000e5 930f       push r16
+                 
+0000e6 e0d1
+0000e7 e2c1
+0000e8 9119
+0000e9 8108
+0000ea 3305
+0000eb f419
+0000ec 3013
+0000ed f408
+0000ee c00d
+0000ef e010
+0000f0 e305
+0000f1 e0d1
+0000f2 e2c1
+0000f3 9319
+0000f4 8308       Anti_false_activation '5', return_On_5_Click
+                 
+0000f5 931f
+0000f6 930f
+0000f7 e014
+0000f8 e305
+0000f9 df3f
+0000fa 910f
+0000fb 911f       LCD_send_symbol '5'
+                 
+                  return_On_5_Click:
+0000fc 910f       pop r16
+0000fd 91cf       pop YL
+0000fe 91df       pop YH
+0000ff 911f       pop temp
+                 
+000100 9bb1       sbis pinb,KBD_2		//wait until button is turned off
+000101 cffe       rjmp PC-1
+000102 9508       ret
+                  //-------On 6 click-----------------------------
+                  On_6_click:
+000103 931f       push temp
+000104 93df       push YH
+000105 93cf       push YL
+000106 930f       push r16
+                 
+000107 e0d1
+000108 e2c1
+000109 9119
+00010a 8108
+00010b 3306
+00010c f419
+00010d 3013
+00010e f408
+00010f c00d
+000110 e010
+000111 e306
+000112 e0d1
+000113 e2c1
+000114 9319
+000115 8308       Anti_false_activation '6', return_On_6_Click
+                 
+000116 931f
+000117 930f
+000118 e014
+000119 e306
+00011a df1e
+00011b 910f
+00011c 911f       LCD_send_symbol '6'
+                 
+                  return_On_6_Click:
+00011d 910f       pop r16
+00011e 91cf       pop YL
+00011f 91df       pop YH
+000120 911f       pop temp
+                 
+000121 9bb0       sbis pinb,KBD_1		//wait until button is turned off
+000122 cffe       rjmp PC-1
+000123 9508       ret
+                  //-------On 7 click-----------------------------
+                  On_7_click:
+000124 931f       push temp
+000125 93df       push YH
+000126 93cf       push YL
+000127 930f       push r16
+                 
+000128 e0d1
+000129 e2c1
+00012a 9119
+00012b 8108
+00012c 3307
+00012d f419
+00012e 3013
+00012f f408
+000130 c00d
+000131 e010
+000132 e307
+000133 e0d1
+000134 e2c1
+000135 9319
+000136 8308       Anti_false_activation '7', return_On_7_Click
+                 
+000137 931f
+000138 930f
+000139 e014
+00013a e307
+00013b defd
+00013c 910f
+00013d 911f       LCD_send_symbol '7'
+                 
+                  return_On_7_Click:
+00013e 910f       pop r16
+00013f 91cf       pop YL
+000140 91df       pop YH
+000141 911f       pop temp
+                 
+000142 9bb2       sbis pinb,KBD_3		//wait until button is turned off
+000143 cffe       rjmp PC-1
+000144 9508       ret
+                  //-------On 8 click-----------------------------
+                  On_8_click:
+000145 931f       push temp
+000146 93df       push YH
+000147 93cf       push YL
+000148 930f       push r16
+                 
+000149 e0d1
+00014a e2c1
+00014b 9119
+00014c 8108
+00014d 3308
+00014e f419
+00014f 3013
+000150 f408
+000151 c00d
+000152 e010
+000153 e308
+000154 e0d1
+000155 e2c1
+000156 9319
+000157 8308       Anti_false_activation '8', return_On_8_Click
+                 
+000158 931f
+000159 930f
+00015a e014
+00015b e308
+00015c dedc
+00015d 910f
+00015e 911f       LCD_send_symbol '8'
+                  //menu_next
+                 
+                  return_On_8_Click:
+00015f 910f       pop r16
+000160 91cf       pop YL
+000161 91df       pop YH
+000162 911f       pop temp
+                 
+000163 9bb1       sbis pinb,KBD_2		//wait until button is turned off
+000164 cffe       rjmp PC-1
+000165 9508       ret
+                  //-------On 9 click-----------------------------
+                  On_9_click:
+000166 931f       push temp
+000167 93df       push YH
+000168 93cf       push YL
+000169 930f       push r16
+                 
+00016a e0d1
+00016b e2c1
+00016c 9119
+00016d 8108
+00016e 3309
+00016f f419
+000170 3013
+000171 f408
+000172 c00d
+000173 e010
+000174 e309
+000175 e0d1
+000176 e2c1
+000177 9319
+000178 8308       Anti_false_activation '9', return_On_9_Click
+                 
+000179 931f
+00017a 930f
+00017b e014
+00017c e309
+00017d debb
+00017e 910f
+00017f 911f       LCD_send_symbol '9'
+                 
+                  return_On_9_Click:
+000180 910f       pop r16
+000181 91cf       pop YL
+000182 91df       pop YH
+000183 911f       pop temp
+                 
+000184 9bb0       sbis pinb,KBD_1		//wait until button is turned off
+000185 cffe       rjmp PC-1
+000186 9508       ret
+                  //-------On * click-----------------------------
+                  On_asterisk_click:
+000187 931f       push temp
+000188 93df       push YH
+000189 93cf       push YL
+00018a 930f       push r16
+                 
+00018b e0d1
+00018c e2c1
+00018d 9119
+00018e 8108
+00018f 320a
+000190 f419
+000191 3013
+000192 f408
+000193 c00d
+000194 e010
+000195 e20a
+000196 e0d1
+000197 e2c1
+000198 9319
+000199 8308       Anti_false_activation '*', return_On_asterisk_Click
+                 
+00019a 931f
+00019b 930f
+00019c e014
+00019d e20a
+00019e de9a
+00019f 910f
+0001a0 911f       LCD_send_symbol '*'
+                 
+                  return_On_asterisk_Click:
+0001a1 910f       pop r16
+0001a2 91cf       pop YL
+0001a3 91df       pop YH
+0001a4 911f       pop temp
+                 
+0001a5 9bb2       sbis pinb,KBD_3		//wait until button is turned off
+0001a6 cffe       rjmp PC-1
+0001a7 9508       ret
+                  //-------On 0 click-----------------------------
+                  On_0_click:
+0001a8 931f       push temp
+0001a9 93df       push YH
+0001aa 93cf       push YL
+0001ab 930f       push r16
+                 
+0001ac e0d1
+0001ad e2c1
+0001ae 9119
+0001af 8108
+0001b0 3300
+0001b1 f419
+0001b2 3013
+0001b3 f408
+0001b4 c00d
+0001b5 e010
+0001b6 e300
+0001b7 e0d1
+0001b8 e2c1
+0001b9 9319
+0001ba 8308       Anti_false_activation '0', return_On_0_Click
+                 
+0001bb 931f
+0001bc 930f
+0001bd e014
+0001be e300
+0001bf de79
+0001c0 910f
+0001c1 911f       LCD_send_symbol '0'
+                 
+                  return_On_0_Click:
+0001c2 910f       pop r16
+0001c3 91cf       pop YL
+0001c4 91df       pop YH
+0001c5 911f       pop temp
+                 
+0001c6 9bb1       sbis pinb,KBD_2		//wait until button is turned off
+0001c7 cffe       rjmp PC-1
+0001c8 9508       ret
+                  //-------On # click-----------------------------
+                  On_grid_click:
+0001c9 931f       push temp
+0001ca 93df       push YH
+0001cb 93cf       push YL
+0001cc 930f       push r16
+                 
+0001cd e0d1
+0001ce e2c1
+0001cf 9119
+0001d0 8108
+0001d1 3203
+0001d2 f419
+0001d3 3013
+0001d4 f408
+0001d5 c00d
+0001d6 e010
+0001d7 e203
+0001d8 e0d1
+0001d9 e2c1
+0001da 9319
+0001db 8308       Anti_false_activation '#', return_On_grid_Click
+                 
+0001dc 931f
+0001dd 930f
+0001de e014
+0001df e203
+0001e0 de58
+0001e1 910f
+0001e2 911f       LCD_send_symbol '#'
+                 
+                  return_On_grid_Click:
+0001e3 910f       pop r16
+0001e4 91cf       pop YL
+0001e5 91df       pop YH
+0001e6 911f       pop temp
+                 
+0001e7 9bb2       sbis pinb,KBD_3		//wait until button is turned off
+0001e8 cffe       rjmp PC-1
+0001e9 9508       ret
+                  //----------------------------------------------
                  //================================================================
+                 .include "timers.inc"
+                 
+                  * timers.inc
+                  *
+                  *  Created: 05.11.2015 0:04:38
+                  *   Author: Hogs
+                  */ 
+                 
+                  //==============TIMER 1 (16-bit)============================================
+                 
+                  //======MACRO========================
+                  //------Timer 1 Init-----------
+                  .macro Timer1_Init
+                  cli
+                  ldi temp, 0 | (1<<OCIE1A)  //enable A Match Interrupt
+                  out TIMSK,temp 
+                  clr temp
+                  out TCCR1A,temp		//Normal Timer Mode
+                  ldi temp,0b0000_0011
+                  out TCCR1B,temp		//Set prescaler 1/64
+                  ldi r16,0x61			
+                  ldi r17,0xA8
+                  out OCR1AH,r16			//set A as 25000
+                  out OCR1AL,r17			//that mean timer tick is 0.1sec
+                  clr temp
+                  out TCNT1H,temp		//set current timer/counter as 0
+                  out TCNT1L,temp
+                  sei
+                  .endm
+                  //-----------------------------
+                  //======INTERRUPTS AND PROC==========
+                  //------On Match A Interrupt------
+                  Keyboard_check_interrupt:
+0001ea 94f8       cli
+0001eb 931f       push temp
+0001ec 93df       push YH
+0001ed 93cf       push YL
+                 
+0001ee b310
+0001ef 631c
+0001f0 7f1b
+0001f1 bb12
+0001f2 9bb2
+0001f3 df93
+0001f4 9bb1
+0001f5 de89
+0001f6 9bb0
+0001f7 dea8
+0001f8 b310
+0001f9 631c
+0001fa 7f17
+0001fb bb12
+0001fc 9bb2
+0001fd de60
+0001fe 9bb1
+0001ff dee2
+000200 9bb0
+000201 df01
+000202 b310
+000203 631c
+000204 7e1f
+000205 bb12
+000206 9bb2
+000207 deb9
+000208 9bb1
+000209 df3b
+00020a 9bb0
+00020b df5a
+00020c b310
+00020d 631c
+00020e 7d1f
+00020f bb12
+000210 9bb2
+000211 df12
+000212 9bb1
+000213 df94
+000214 9bb0
+000215 dfb3       keyboard_check
+                 
+000216 2711       clr temp
+000217 bd1d       out TCNT1H,temp		//set current timer/counter as 0
+000218 bd1c       out TCNT1L,temp
+                 
+000219 e0d1       ldi YH,high(tick_count)
+00021a e2c1       ldi YL,low(tick_count)
+00021b 8118       ld temp,Y
+00021c 9513       inc temp
+00021d 8318       st Y,temp	
+                 
+00021e 91cf       pop YL
+00021f 91df       pop YH
+000220 911f       pop temp
+000221 9478       sei
+000222 9518       reti
+                  //--------------------------------
                  
                  reset:
                  .include "core_init.inc"	//clear sram, registers and stack init
@@ -1875,592 +2172,493 @@ D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  //================SRAM CLEAR=================================
                  RAM_Flush:	
-0001a8 e6e0      LDI	ZL,Low(SRAM_START)
-0001a9 e0f0      LDI	ZH,High(SRAM_START)
-0001aa 2700      CLR	R16
+000223 e6e0      LDI	ZL,Low(SRAM_START)
+000224 e0f0      LDI	ZH,High(SRAM_START)
+000225 2700      CLR	R16
                  Flush:
-0001ab 9301      ST Z+,R16
-0001ac 30f8      CPI	ZH,High(RAMEND+1)
-0001ad f7e9      BRNE Flush
-0001ae 36e0      CPI	ZL,Low(RAMEND+1)	
-0001af f7d9      BRNE Flush 
-0001b0 27ee      CLR	ZL
-0001b1 27ff      CLR	ZH
+000226 9301      ST Z+,R16
+000227 30f8      CPI	ZH,High(RAMEND+1)
+000228 f7e9      BRNE Flush
+000229 36e0      CPI	ZL,Low(RAMEND+1)	
+00022a f7d9      BRNE Flush 
+00022b 27ee      CLR	ZL
+00022c 27ff      CLR	ZH
                  //===============REGISTERS CLEAR=============================
-0001b2 e1ee      LDI	ZL, 30			
-0001b3 27ff      CLR	ZH		
-0001b4 95ea      DEC	ZL		
-0001b5 83f0      ST Z,ZH		
-0001b6 f7e9      BRNE PC-2		
+00022d e1ee      LDI	ZL, 30			
+00022e 27ff      CLR	ZH		
+00022f 95ea      DEC	ZL		
+000230 83f0      ST Z,ZH		
+000231 f7e9      BRNE PC-2		
                  //===============STACK INIT==================================
-0001b7 e50f      LDI R16,Low(RAMEND)		
-0001b8 bf0d      OUT SPL,R16			
-0001b9 e008      LDI R16,High(RAMEND)
-0001ba bf0e      OUT SPH,R16
+000232 e50f      LDI R16,Low(RAMEND)		
+000233 bf0d      OUT SPL,R16			
+000234 e008      LDI R16,High(RAMEND)
+000235 bf0e      OUT SPH,R16
                  //-----------Program start-------------------------
                  
-0001bb e017
-0001bc bb17
-0001bd e810
-0001be bb11
-0001bf e31c
-0001c0 bb12      keyboard_init				//initialization of ports for keyboard
-0001c1 ef1c
-0001c2 bb14
-0001c3 2711
-0001c4 bb15
-0001c5 939f
-0001c6 938f
-0001c7 937f
-0001c8 ef92
-0001c9 e08f
-0001ca e075
-0001cb de6d
-0001cc 917f
-0001cd 918f
-0001ce 919f
-0001cf e310
-0001d0 bb15
-0001d1 9aab
-0001d2 95c8
-0001d3 98ab
-0001d4 939f
-0001d5 938f
-0001d6 937f
-0001d7 ee95
-0001d8 e18e
-0001d9 e079
-0001da de5e
-0001db 917f
-0001dc 918f
-0001dd 919f
-0001de 9aab
-0001df 95c8
-0001e0 98ab
-0001e1 939f
-0001e2 938f
-0001e3 937f
-0001e4 ef92
-0001e5 e08f
-0001e6 e075
-0001e7 de51
-0001e8 917f
-0001e9 918f
-0001ea 919f
-0001eb 9aab
-0001ec 95c8
-0001ed 98ab
-0001ee 939f
-0001ef 938f
-0001f0 937f
-0001f1 ef92
-0001f2 e08f
-0001f3 e075
-0001f4 de44
-0001f5 917f
-0001f6 918f
-0001f7 919f
-0001f8 e210
-0001f9 bb15
-0001fa 9aab
-0001fb 95c8
-0001fc 98ab
-0001fd 939f
-0001fe 938f
-0001ff 937f
-000200 ef90
-000201 e081
-000202 e071
-000203 de35
-000204 917f
-000205 918f
-000206 919f
-000207 931f
-000208 930f
-000209 e010
-00020a e208
-00020b de34
-00020c 910f
-00020d 911f
-00020e 939f
-00020f 938f
-000210 937f
-000211 ef90
-000212 e081
-000213 e071
-000214 de24
-000215 917f
-000216 918f
-000217 919f
-000218 931f
-000219 930f
-00021a e010
-00021b e001
-00021c de23
-00021d 910f
-00021e 911f
-00021f 939f
-000220 938f
-000221 937f
-000222 e89e
-000223 e28a
-000224 e071
-000225 de13
-000226 917f
-000227 918f
-000228 919f
-000229 931f
-00022a 930f
-00022b e010
-00022c e00f
-00022d de12
-00022e 910f
-00022f 911f
-000230 939f
-000231 938f
-000232 937f
-000233 e89e
-000234 e28a
-000235 e071
-000236 de02
-000237 917f
-000238 918f
-000239 919f
-00023a 931f
-00023b 930f
-00023c e010
-00023d e400
-00023e de01
-00023f 910f
-000240 911f
-000241 939f
-000242 938f
-000243 937f
-000244 ef90
-000245 e081
-000246 e071
-000247 ddf1
-000248 917f
-000249 918f
-00024a 919f
-00024b 931f
-00024c 930f
-00024d e014
-00024e e000
-00024f ddf0
-000250 910f
-000251 911f
-000252 939f
-000253 938f
-000254 937f
-000255 ef90
-000256 e081
-000257 e071
-000258 dde0
-000259 917f
-00025a 918f
-00025b 919f
-00025c 931f
-00025d 930f
-00025e e014
-00025f e000
-000260 dddf
-000261 910f
-000262 911f
+000236 94f8
+000237 e110
+000238 bf19
+000239 2711
+00023a bd1f
+00023b e013
+00023c bd1e
+00023d e601
+00023e ea18
+00023f bd0b
+000240 bd1a
+000241 2711
+000242 bd1d
+000243 bd1c
+000244 9478      Timer1_Init
+000245 b317
+000246 7f18
+000247 bb17
+000248 b318
+000249 6017
+00024a bb18
+00024b b311
+00024c 631c
+00024d bb11      keyboard_init				//initialization of ports for keyboard
+00024e b314
+00024f 6f1c
+000250 bb14
+000251 b315
+000252 7013
+000253 bb15
+000254 939f
+000255 938f
+000256 937f
+000257 ef92
+000258 e08f
+000259 e075
+00025a ddd7
+00025b 917f
+00025c 918f
+00025d 919f
+00025e e310
+00025f bb15
+000260 9aab
+000261 95c8
+000262 98ab
 000263 939f
 000264 938f
 000265 937f
-000266 ef90
-000267 e081
-000268 e071
-000269 ddcf
+000266 ee95
+000267 e18e
+000268 e079
+000269 ddc8
 00026a 917f
 00026b 918f
 00026c 919f
-00026d 931f
-00026e 930f
-00026f e014
-000270 e000
-000271 ddce
-000272 910f
-000273 911f
-000274 939f
-000275 938f
-000276 937f
-000277 ef90
-000278 e081
-000279 e071
-00027a ddbe
-00027b 917f
-00027c 918f
-00027d 919f
-00027e 931f
-00027f 930f
-000280 e014
-000281 e000
-000282 ddbd
-000283 910f
-000284 911f
-000285 939f
-000286 938f
-000287 937f
-000288 ef90
-000289 e081
-00028a e071
-00028b ddad
-00028c 917f
-00028d 918f
-00028e 919f
-00028f 931f
-000290 930f
-000291 e014
-000292 e004
-000293 ddac
-000294 910f
-000295 911f
-000296 939f
-000297 938f
-000298 937f
-000299 ef90
-00029a e081
-00029b e071
-00029c dd9c
-00029d 917f
-00029e 918f
-00029f 919f
-0002a0 931f
-0002a1 930f
-0002a2 e014
-0002a3 e00e
-0002a4 dd9b
-0002a5 910f
-0002a6 911f
-0002a7 939f
-0002a8 938f
-0002a9 937f
-0002aa ef90
-0002ab e081
-0002ac e071
-0002ad dd8b
-0002ae 917f
-0002af 918f
-0002b0 919f
-0002b1 931f
-0002b2 930f
-0002b3 e014
-0002b4 e10f
-0002b5 dd8a
-0002b6 910f
-0002b7 911f
-0002b8 939f
-0002b9 938f
-0002ba 937f
-0002bb ef90
-0002bc e081
-0002bd e071
-0002be dd7a
-0002bf 917f
-0002c0 918f
-0002c1 919f
-0002c2 931f
-0002c3 930f
-0002c4 e014
-0002c5 e000
-0002c6 dd79
-0002c7 910f
-0002c8 911f
-0002c9 939f
-0002ca 938f
-0002cb 937f
-0002cc ef90
-0002cd e081
-0002ce e071
-0002cf dd69
-0002d0 917f
-0002d1 918f
-0002d2 919f
-0002d3 931f
-0002d4 930f
-0002d5 e014
-0002d6 e000
-0002d7 dd68
-0002d8 910f
-0002d9 911f
-0002da 939f
-0002db 938f
-0002dc 937f
-0002dd ef90
-0002de e081
-0002df e071
-0002e0 dd58
-0002e1 917f
-0002e2 918f
-0002e3 919f
-0002e4 931f
-0002e5 930f
-0002e6 e014
-0002e7 e10f
-0002e8 dd57
-0002e9 910f
-0002ea 911f
-0002eb 939f
-0002ec 938f
-0002ed 937f
-0002ee ef90
-0002ef e081
-0002f0 e071
-0002f1 dd47
-0002f2 917f
-0002f3 918f
-0002f4 919f
-0002f5 931f
-0002f6 930f
-0002f7 e014
-0002f8 e00e
-0002f9 dd46
-0002fa 910f
-0002fb 911f
-0002fc 939f
-0002fd 938f
-0002fe 937f
-0002ff ef90
-000300 e081
-000301 e071
-000302 dd36
-000303 917f
-000304 918f
-000305 919f
-000306 931f
-000307 930f
-000308 e014
-000309 e004
-00030a dd35
-00030b 910f
-00030c 911f
-00030d 939f
-00030e 938f
-00030f 937f
-000310 ef90
-000311 e081
-000312 e071
-000313 dd25
-000314 917f
-000315 918f
-000316 919f
-000317 931f
-000318 930f
-000319 e014
-00031a e000
-00031b dd24
-00031c 910f
-00031d 911f
-00031e 939f
-00031f 938f
-000320 937f
-000321 ef90
-000322 e081
-000323 e071
-000324 dd14
-000325 917f
-000326 918f
-000327 919f
-000328 931f
-000329 930f
-00032a e014
-00032b e000
-00032c dd13
-00032d 910f
-00032e 911f
-00032f 939f
-000330 938f
-000331 937f
-000332 ef90
-000333 e081
-000334 e071
-000335 dd03
-000336 917f
-000337 918f
-000338 919f
-000339 931f
-00033a 930f
-00033b e014
-00033c e000
-00033d dd02
-00033e 910f
-00033f 911f
-000340 939f
-000341 938f
-000342 937f
-000343 ef90
-000344 e081
-000345 e071
-000346 dcf2
-000347 917f
-000348 918f
-000349 919f
-00034a 931f
-00034b 930f
-00034c e014
-00034d e000
-00034e dcf1
-00034f 910f
-000350 911f
-000351 939f
-000352 938f
-000353 937f
-000354 ef90
-000355 e081
-000356 e071
-000357 dce1
-000358 917f
-000359 918f
-00035a 919f
-00035b 931f
-00035c 930f
-00035d 931f
-00035e 930f
-00035f e010
-000360 e800
-000361 dcde
-000362 910f
-000363 911f
-000364 939f
-000365 938f
-000366 937f
-000367 ef90
-000368 e081
-000369 e071
-00036a dcce
-00036b 917f
-00036c 918f
-00036d 919f
-00036e 910f
-00036f 911f      LCD_init					//LCD initialization
-000370 27dd
-000371 e6c0
-000372 27ee
-000373 27ff
-000374 ec31
-000375 dcba
-000376 9309
-000377 95e3
-000378 953a
-000379 f7d9
-00037a e0d1
-00037b e2c0
-00037c e010
-00037d 8318
-00037e 93ff
-00037f 93ef
-000380 931f
-000381 930f
-000382 933f
-000383 e0f0
-000384 e6e0
-000385 e014
-000386 e131
-000387 9101
-000388 dcb7
-000389 939f
-00038a 938f
-00038b 937f
-00038c ef90
-00038d e081
-00038e e071
-00038f dca9
-000390 917f
-000391 918f
-000392 919f
-000393 953a
-000394 f791
-000395 913f
-000396 910f
-000397 911f
-000398 91ef
-000399 91ff
-00039a 931f
-00039b 930f
-00039c 931f
-00039d 930f
-00039e e010
-00039f ec00
-0003a0 dc9f
-0003a1 910f
-0003a2 911f
-0003a3 939f
-0003a4 938f
-0003a5 937f
-0003a6 ef90
-0003a7 e081
-0003a8 e071
-0003a9 dc8f
-0003aa 917f
-0003ab 918f
-0003ac 919f
-0003ad 910f
-0003ae 911f
-0003af 93ff
-0003b0 93ef
-0003b1 931f
-0003b2 930f
-0003b3 933f
-0003b4 e0f0
-0003b5 ece0
-0003b6 e014
-0003b7 e131
-0003b8 9101
-0003b9 dc86
-0003ba 939f
-0003bb 938f
-0003bc 937f
-0003bd ef90
-0003be e081
-0003bf e071
-0003c0 dc78
-0003c1 917f
-0003c2 918f
-0003c3 919f
-0003c4 953a
-0003c5 f791
-0003c6 913f
-0003c7 910f
-0003c8 911f
-0003c9 91ef
-0003ca 91ff      menu_init
+00026d 9aab
+00026e 95c8
+00026f 98ab
+000270 939f
+000271 938f
+000272 937f
+000273 ef92
+000274 e08f
+000275 e075
+000276 ddbb
+000277 917f
+000278 918f
+000279 919f
+00027a 9aab
+00027b 95c8
+00027c 98ab
+00027d 939f
+00027e 938f
+00027f 937f
+000280 ef92
+000281 e08f
+000282 e075
+000283 ddae
+000284 917f
+000285 918f
+000286 919f
+000287 e210
+000288 bb15
+000289 9aab
+00028a 95c8
+00028b 98ab
+00028c 939f
+00028d 938f
+00028e 937f
+00028f ef90
+000290 e081
+000291 e071
+000292 dd9f
+000293 917f
+000294 918f
+000295 919f
+000296 931f
+000297 930f
+000298 e010
+000299 e208
+00029a dd9e
+00029b 910f
+00029c 911f
+00029d 939f
+00029e 938f
+00029f 937f
+0002a0 ef90
+0002a1 e081
+0002a2 e071
+0002a3 dd8e
+0002a4 917f
+0002a5 918f
+0002a6 919f
+0002a7 931f
+0002a8 930f
+0002a9 e010
+0002aa e001
+0002ab dd8d
+0002ac 910f
+0002ad 911f
+0002ae 939f
+0002af 938f
+0002b0 937f
+0002b1 e89e
+0002b2 e28a
+0002b3 e071
+0002b4 dd7d
+0002b5 917f
+0002b6 918f
+0002b7 919f
+0002b8 931f
+0002b9 930f
+0002ba e010
+0002bb e00f
+0002bc dd7c
+0002bd 910f
+0002be 911f
+0002bf 939f
+0002c0 938f
+0002c1 937f
+0002c2 e89e
+0002c3 e28a
+0002c4 e071
+0002c5 dd6c
+0002c6 917f
+0002c7 918f
+0002c8 919f
+0002c9 931f
+0002ca 930f
+0002cb e010
+0002cc e400
+0002cd dd6b
+0002ce 910f
+0002cf 911f
+0002d0 939f
+0002d1 938f
+0002d2 937f
+0002d3 ef90
+0002d4 e081
+0002d5 e071
+0002d6 dd5b
+0002d7 917f
+0002d8 918f
+0002d9 919f
+0002da 931f
+0002db 930f
+0002dc e014
+0002dd e000
+0002de dd5a
+0002df 910f
+0002e0 911f
+0002e1 939f
+0002e2 938f
+0002e3 937f
+0002e4 ef90
+0002e5 e081
+0002e6 e071
+0002e7 dd4a
+0002e8 917f
+0002e9 918f
+0002ea 919f
+0002eb 931f
+0002ec 930f
+0002ed e014
+0002ee e000
+0002ef dd49
+0002f0 910f
+0002f1 911f
+0002f2 939f
+0002f3 938f
+0002f4 937f
+0002f5 ef90
+0002f6 e081
+0002f7 e071
+0002f8 dd39
+0002f9 917f
+0002fa 918f
+0002fb 919f
+0002fc 931f
+0002fd 930f
+0002fe e014
+0002ff e000
+000300 dd38
+000301 910f
+000302 911f
+000303 939f
+000304 938f
+000305 937f
+000306 ef90
+000307 e081
+000308 e071
+000309 dd28
+00030a 917f
+00030b 918f
+00030c 919f
+00030d 931f
+00030e 930f
+00030f e014
+000310 e000
+000311 dd27
+000312 910f
+000313 911f
+000314 939f
+000315 938f
+000316 937f
+000317 ef90
+000318 e081
+000319 e071
+00031a dd17
+00031b 917f
+00031c 918f
+00031d 919f
+00031e 931f
+00031f 930f
+000320 e014
+000321 e004
+000322 dd16
+000323 910f
+000324 911f
+000325 939f
+000326 938f
+000327 937f
+000328 ef90
+000329 e081
+00032a e071
+00032b dd06
+00032c 917f
+00032d 918f
+00032e 919f
+00032f 931f
+000330 930f
+000331 e014
+000332 e00e
+000333 dd05
+000334 910f
+000335 911f
+000336 939f
+000337 938f
+000338 937f
+000339 ef90
+00033a e081
+00033b e071
+00033c dcf5
+00033d 917f
+00033e 918f
+00033f 919f
+000340 931f
+000341 930f
+000342 e014
+000343 e10f
+000344 dcf4
+000345 910f
+000346 911f
+000347 939f
+000348 938f
+000349 937f
+00034a ef90
+00034b e081
+00034c e071
+00034d dce4
+00034e 917f
+00034f 918f
+000350 919f
+000351 931f
+000352 930f
+000353 e014
+000354 e000
+000355 dce3
+000356 910f
+000357 911f
+000358 939f
+000359 938f
+00035a 937f
+00035b ef90
+00035c e081
+00035d e071
+00035e dcd3
+00035f 917f
+000360 918f
+000361 919f
+000362 931f
+000363 930f
+000364 e014
+000365 e000
+000366 dcd2
+000367 910f
+000368 911f
+000369 939f
+00036a 938f
+00036b 937f
+00036c ef90
+00036d e081
+00036e e071
+00036f dcc2
+000370 917f
+000371 918f
+000372 919f
+000373 931f
+000374 930f
+000375 e014
+000376 e10f
+000377 dcc1
+000378 910f
+000379 911f
+00037a 939f
+00037b 938f
+00037c 937f
+00037d ef90
+00037e e081
+00037f e071
+000380 dcb1
+000381 917f
+000382 918f
+000383 919f
+000384 931f
+000385 930f
+000386 e014
+000387 e00e
+000388 dcb0
+000389 910f
+00038a 911f
+00038b 939f
+00038c 938f
+00038d 937f
+00038e ef90
+00038f e081
+000390 e071
+000391 dca0
+000392 917f
+000393 918f
+000394 919f
+000395 931f
+000396 930f
+000397 e014
+000398 e004
+000399 dc9f
+00039a 910f
+00039b 911f
+00039c 939f
+00039d 938f
+00039e 937f
+00039f ef90
+0003a0 e081
+0003a1 e071
+0003a2 dc8f
+0003a3 917f
+0003a4 918f
+0003a5 919f
+0003a6 931f
+0003a7 930f
+0003a8 e014
+0003a9 e000
+0003aa dc8e
+0003ab 910f
+0003ac 911f
+0003ad 939f
+0003ae 938f
+0003af 937f
+0003b0 ef90
+0003b1 e081
+0003b2 e071
+0003b3 dc7e
+0003b4 917f
+0003b5 918f
+0003b6 919f
+0003b7 931f
+0003b8 930f
+0003b9 e014
+0003ba e000
+0003bb dc7d
+0003bc 910f
+0003bd 911f
+0003be 939f
+0003bf 938f
+0003c0 937f
+0003c1 ef90
+0003c2 e081
+0003c3 e071
+0003c4 dc6d
+0003c5 917f
+0003c6 918f
+0003c7 919f
+0003c8 931f
+0003c9 930f
+0003ca e014
+0003cb e000
+0003cc dc6c
+0003cd 910f
+0003ce 911f
+0003cf 939f
+0003d0 938f
+0003d1 937f
+0003d2 ef90
+0003d3 e081
+0003d4 e071
+0003d5 dc5c
+0003d6 917f
+0003d7 918f
+0003d8 919f
+0003d9 931f
+0003da 930f
+0003db e014
+0003dc e000
+0003dd dc5b
+0003de 910f
+0003df 911f
+0003e0 939f
+0003e1 938f
+0003e2 937f
+0003e3 ef90
+0003e4 e081
+0003e5 e071
+0003e6 dc4b
+0003e7 917f
+0003e8 918f
+0003e9 919f
+0003ea 931f
+0003eb 930f
+0003ec 931f
+0003ed 930f
+0003ee e010
+0003ef e800
+0003f0 dc48
+0003f1 910f
+0003f2 911f
+0003f3 939f
+0003f4 938f
+0003f5 937f
+0003f6 ef90
+0003f7 e081
+0003f8 e071
+0003f9 dc38
+0003fa 917f
+0003fb 918f
+0003fc 919f
+0003fd 910f
+0003fe 911f      LCD_init					//LCD initialization
+                 //menu_init
                  
                  //-----------MAIN----------------------------------
                  main:			
-0003cb e016
-0003cc bb18
-0003cd 9b82
-0003ce dc96
-0003cf 9b83
-0003d0 dd22
-0003d1 9b84
-0003d2 dd29
-0003d3 9b85
-0003d4 ddcd
-0003d5 e015
-0003d6 bb18
-0003d7 9b82
-0003d8 dc8f
-0003d9 9b83
-0003da dd1b
-0003db 9b84
-0003dc dd22
-0003dd 9b85
-0003de ddab
-0003df e013
-0003e0 bb18
-0003e1 9b82
-0003e2 dd0d
-0003e3 9b83
-0003e4 dd14
-0003e5 9b84
-0003e6 dda0
-0003e7 9b85
-0003e8 ddbc      	keyboard_check		//check for buttons press
-0003e9 cfe1      rjmp main		
+0003ff 0000      	nop
+000400 cffe      rjmp main		
                  //-------------------------------------------------
                  //========EEPROM SEGMENT=================================================
                  .eseg
@@ -2675,40 +2873,40 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega32" register use summary:
-r0 :   4 r1 :   4 r2 :   0 r3 :   0 r4 :   0 r5 :   0 r6 :   0 r7 :   0 
+r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 r5 :   0 r6 :   0 r7 :   0 
 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 r13:   0 r14:   0 r15:   0 
-r16: 133 r17: 174 r18:  16 r19:  26 r20:   0 r21:   0 r22:   0 r23: 118 
-r24: 118 r25: 118 r26:  20 r27:  20 r28:  10 r29:  10 r30:  14 r31:  13 
-x  :   4 y  :   6 z  :   4 
-Registers used: 18 out of 35 (51.4%)
+r16: 194 r17: 234 r18:   0 r19:   0 r20:   0 r21:   0 r22:   0 r23:  82 
+r24:  82 r25:  82 r26:   0 r27:   0 r28:  51 r29:  51 r30:   6 r31:   6 
+x  :   0 y  :  50 z  :   2 
+Registers used: 11 out of 35 (31.4%)
 
 "ATmega32" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   4 add   :   4 adiw  :   0 and   :   0 
-andi  :   4 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
+andi  :  10 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :  13 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brne  :  18 brpl  :   0 brsh  :  12 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   6 cbr   :   0 
-clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :  12 cls   :   0 
+clc   :   0 clh   :   0 cli   :   3 cln   :   0 clr   :   7 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   2 cpse  :   2 dec   :  12 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 inc   :   2 jmp   :   0 
-ld    :   8 ldd   :   0 ldi   : 225 lds   :   0 lpm   :  27 lsl   :   4 
-lsr   :   0 mov   :   8 movw  :   0 mul   :   4 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   2 ori   :   0 out   :  18 pop   : 228 
-push  : 228 rcall :  85 ret   :  15 reti  :  20 rjmp  :  19 rol   :   0 
+cpi   :  26 cpse  :   0 dec   :   4 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :  10 inc   :   1 jmp   :   0 
+ld    :  25 ldd   :   0 ldi   : 233 lds   :   0 lpm   :  27 lsl   :   4 
+lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
+neg   :   0 nop   :   1 or    :   2 ori   :   7 out   :  28 pop   : 201 
+push  : 201 rcall :  72 ret   :  15 reti  :  20 rjmp  :  28 rol   :   0 
 ror   :   0 sbc   :   0 sbci  :   0 sbi   :   7 sbic  :   1 sbis  :  24 
 sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
-sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
-sez   :   0 sleep :   0 spm   :   0 st    :   6 std   :   0 sts   :   0 
+sei   :   3 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
+sez   :   0 sleep :   0 spm   :   0 st    :  27 std   :   0 sts   :   0 
 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 31 out of 113 (27.4%)
+Instructions used: 29 out of 113 (25.7%)
 
 "ATmega32" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0007d4   1950      0   1950   32768   6.0%
-[.dseg] 0x000060 0x000121      0    193    193    2048   9.4%
+[.cseg] 0x000000 0x000802   2010      0   2010   32768   6.1%
+[.dseg] 0x000060 0x000123      0    195    195    2048   9.5%
 [.eseg] 0x000000 0x0000c0      0    192    192    1024  18.8%
 
 Assembly complete, 0 errors, 0 warnings

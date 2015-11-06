@@ -18,6 +18,8 @@ coords_msg:			.byte 16	//Coordinates message string
 sound_msg:			.byte 16	//Sound option message string
 test:				.byte 96	//reserve bytes for 2nd string messages
 menu_location:		.byte 1		//current menu location
+tick_count:			.byte 1		//count of button activations
+last_btn:			.byte 1		//number of last pressed button
 
 //==========CODE SEGMENT=================================================
 .cseg
@@ -25,18 +27,20 @@ menu_location:		.byte 1		//current menu location
 .include "menu.inc"			//macro for menu uses
 .include "LCD.inc"			//macro and procedures for HD44780 like displays
 .include "keyboard.inc"		//macro and procedures for 3x4 keyboard
+.include "timers.inc"
 
 reset:
 .include "core_init.inc"	//clear sram, registers and stack init
 //-----------Program start-------------------------
 
+Timer1_Init
 keyboard_init				//initialization of ports for keyboard
 LCD_init					//LCD initialization
-menu_init
+//menu_init
 
 //-----------MAIN----------------------------------
 main:			
-	keyboard_check		//check for buttons press
+	nop
 rjmp main		
 //-------------------------------------------------
 //========EEPROM SEGMENT=================================================

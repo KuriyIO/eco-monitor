@@ -3,48 +3,47 @@
  */ 
 
  //=========INTERRUPT VECTORS TABLE=============================================
- .ORG 0x000        ; (RESET) 
- RJMP reset
- .ORG 0x002
- RETI             ; (INT0) External Interrupt Request 0
- .ORG 0x004
- RETI             ; (INT1) External Interrupt Request 1
- .ORG 0x006
- RETI			  ; (TIMER2 COMP) Timer/Counter2 Compare Match
- .ORG 0x008
- RETI             ; (TIMER2 OVF) Timer/Counter2 Overflow
- .ORG 0x00A
- RETI			  ; (TIMER1 CAPT) Timer/Counter1 Capture Event
- .ORG 0x00C 
- RETI             ; (TIMER1 COMPA) Timer/Counter1 Compare Match A
- .ORG 0x00E
- RETI             ; (TIMER1 COMPB) Timer/Counter1 Compare Match B
- .ORG 0x010
- RETI             ; (TIMER1 OVF) Timer/Counter1 Overflow
- .ORG 0x012
- RETI             ; (TIMER0 OVF) Timer/Counter0 Overflow
- .ORG 0x014
- RETI             ; (SPI,STC) Serial Transfer Complete
- .ORG 0x016
- RETI    	      ; (USART,RXC) USART, Rx Complete
- .ORG 0x018
- RETI             ; (USART,UDRE) USART Data Register Empty
- .ORG 0x01A
- RETI             ; (USART,TXC) USART, Tx Complete
- .ORG 0x01C
- RETI	          ; (ADC) ADC Conversion Complete
- .ORG 0x01E
- RETI             ; (EE_RDY) EEPROM Ready
- .ORG 0x020
- RETI             ; (ANA_COMP) Analog Comparator
- .ORG 0x022
- RETI             ; (TWI) 2-wire Serial Interface
- .ORG 0x024
- RETI             ; (INT2) External Interrupt Request 2
- .ORG 0x026
- RETI             ; (TIMER0 COMP) Timer/Counter0 Compare Match
- .ORG 0x028
- RETI             ; (SPM_RDY) Store Program Memory Ready
- .ORG 0x030        ; End of table
+ .org $000 //RESET
+ rjmp reset 
+ .org $002 //INT0 External Interrupt Request 0
+ reti
+ .org $004 //INT1 External Interrupt Request 1
+ reti
+ .org $006 //INT2 External Interrupt Request 2
+ reti
+ .org $008 //TIMER2 COMP Timer/Counter2 Compare Match
+ reti
+ .org $00A //TIMER2 OVF Timer/Counter2 Overflow
+ reti
+ .org $00C //TIMER1 CAPT Timer/Counter1 Capture Event
+ reti
+ .org $00E //TIMER1 COMPA Timer/Counter1 Compare Match A
+ rjmp Keyboard_check_interrupt
+ .org $010 //TIMER1 COMPB Timer/Counter1 Compare Match B
+ reti
+ .org $012 //TIMER1 OVF Timer/Counter1 Overflow
+ reti
+ .org $014 //TIMER0 COMP Timer/Counter0 Compare Match
+ reti
+ .org $016 //TIMER0 OVF Timer/Counter0 Overflow
+ reti
+ .org $018 //SPI, STC Serial Transfer Complete
+ reti
+ .org $01A //USART, RXC USART, Rx Complete
+ reti
+ .org $01C //USART, UDRE USART Data Register Empty
+ reti
+ .org $01E //USART, TXC USART, Tx Complete
+ reti
+ .org $020 //ADC ADC Conversion Complete
+ reti
+ .org $022 //EE_RDY EEPROM Ready
+ reti
+ .org $024 //ANA_COMP Analog Comparator
+ reti
+ .org $026 //TWI Two-wire Serial Interface
+ reti
+ .org $028 //SPM_RDY Store Program Memory Ready
+ reti
 //===============================================================================================
 
