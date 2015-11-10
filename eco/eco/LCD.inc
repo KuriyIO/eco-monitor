@@ -259,6 +259,7 @@ delay_proc_label:
 //------Send byte to LCD as 4-but mode------------------------------------
 
  LCD_send_byte_proc:
+ cli
  push byte //save symbol to stack
  andi temp,0b0000_0100
  out portc,temp //setting RS line
@@ -303,6 +304,7 @@ delay_proc_label:
  //=====Set port C as 0xFF=========
  ldi byte,0xF0
  out portc,byte	//out to port C 0b11110000
+ sei
  ret
 //------------------------------------------------------------------------
 //                          sorry for bad english

@@ -11,7 +11,7 @@
  .equ KBD_1 = 0
  .equ KBD_2 = 1
  .equ KBD_3 = 2
- .equ count_of_ticks = 5	//count of ticks for prevent false activation macro
+ .equ count_of_ticks = 3	//count of ticks for prevent false activation macro
 
  //=======MACRO==========================================
  //-------Preventing false activation----------------------------
@@ -214,12 +214,34 @@
 
  Anti_false_activation '5', return_On_5_Click
 
+ ldi YH, high(menu_location)
+ ldi YL, low(menu_location)
+ ld temp, Y			//load current menu page to temp
+ cpi temp,5			//if current page is sound
+ brne return_On_5_Click	//then continue, else return
+ ldi YH,high(sound_status)	//
+ ldi YL,low(sound_status)	//read sound status from RAM
+ ld temp,Y
+
+ sbrc temp,sound_general_status	//if sound is generally off then set sound on
+ rjmp sound_off					//else set sound off
+
+ //sound_alarm_enable
+ Timer0_enable
+ rjmp return_On_5_Click
+
+ sound_off:
+
+ //sound_alarm_disable
+ Timer0_disable
+
  return_On_5_Click:
  pop r16
  pop YL
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_2		//wait until button is turned off
  rjmp PC-1
  ret

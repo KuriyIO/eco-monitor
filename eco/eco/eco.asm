@@ -20,14 +20,17 @@ test:				.byte 96	//reserve bytes for 2nd string messages
 menu_location:		.byte 1		//current menu location
 tick_count:			.byte 1		//count of button activations
 last_btn:			.byte 1		//number of last pressed button
+sound_status:		.byte 1		//status of sound
 
 //==========CODE SEGMENT=================================================
 .cseg
 .include "int_table.inc"	//interrupt vectors
+.include "sound.inc"		//macro and procedures for buzzer sound
 .include "menu.inc"			//macro for menu uses
 .include "LCD.inc"			//macro and procedures for HD44780 like displays
 .include "keyboard.inc"		//macro and procedures for 3x4 keyboard
-.include "timers.inc"
+.include "timers.inc"		//macro and procedures for timer(s)
+
 
 reset:
 .include "core_init.inc"	//clear sram, registers and stack init
@@ -37,6 +40,8 @@ Timer1_Init
 keyboard_init				//initialization of ports for keyboard
 LCD_init					//LCD initialization
 menu_init
+sound_init
+sound_alarm_disable
 
 //-----------MAIN----------------------------------
 main:			
@@ -57,6 +62,6 @@ ee_test_msg2:	.db "test str 2     ",1
 ee_test_msg3:	.db "test str 3     ",1
 ee_test_msg4:	.db "test str 4     ",1
 ee_test_msg5:	.db "test str 5     ",1
-ee_test_msg6:	.db "test str 6      "
+ee_test_msg6:	.db "Press 5 to test "
 //=======================================================================
 //                   Sorry for bad english

@@ -85,6 +85,9 @@
     <Compile Include="menu.inc">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="sound.inc">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="timers.inc">
       <SubType>Code</SubType>
     </Compile>

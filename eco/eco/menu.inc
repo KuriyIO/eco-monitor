@@ -33,9 +33,11 @@
  push YH
  push YL
 
+ cli
  ldi YH,high(menu_location)		//load to Y register adress of
  ldi YL,low(menu_location)		//current menu page
  ld menu_loc,Y					//read from SRAM current menu page
+ sei
 
  ldi temp,0					//if current page is first
  cpse menu_loc,temp			//then going out of procedure
@@ -53,9 +55,11 @@
  clr temp					//
  adc XH,temp				//
 
+ cli
  first_line					//set first line for print
  LCD_print_str_reg			//print message from adress (in X register)
- 
+ sei
+
  ldi temp,16				//
  mul temp,menu_loc			//counting adress of string
  mov XL,r0					//which contain second string
@@ -65,12 +69,14 @@
  clr temp					//
  adc XH,temp				//
 
+ cli
  second_line				//set second line for print
  LCD_print_str_reg			//print second string
 
  ldi YH,high(menu_location)	//
  ldi YL,low(menu_location)	//Save current page status to SRAM
  st Y,menu_loc				//
+ sei
 
  Return_On_2_Click:			
  pop YL					//return all of used registers
@@ -93,9 +99,11 @@
  push YH
  push YL
 
+ cli
  ldi YH,high(menu_location)	//
  ldi YL,low(menu_location)	//read number of current page from SRAM
  ld menu_loc,Y				//
+ sei
 
  ldi temp,5					//if this page is last
  cpse menu_loc,temp			//then go to return of procedure
@@ -113,8 +121,10 @@
  clr temp
  adc XH,temp
 
+ cli
  first_line			//
  LCD_print_str_reg	//printing first line
+ sei
 
  ldi temp,16		//counting of second string adress
  mul temp,menu_loc	//and move it to X register
@@ -125,12 +135,14 @@
  clr temp
  adc XH,temp
 
+ cli
  second_line		//
  LCD_print_str_reg	//printing second line
 
  ldi YH,high(menu_location)	//
  ldi YL,low(menu_location)	//save new current page to SRAM
  st Y,menu_loc				//
+ sei
 
  Return_On_8_Click:
  pop YL				//return all of used registers
@@ -145,6 +157,7 @@
 
  //      Read from EEPROM and write it in SRAM
  .macro load_strings_to_SRAM
+ cli
  clr YH		 //load to YH register 0
  ldi YL,0x60 //load to YL 0x60 coz 0x0060 - sram start
  clr ZL		 //clear Z register
@@ -161,6 +174,7 @@
 
  dec r19				//loop things...
  brne EE_read_loop		//go to EE_read_loop label if r19 is not 0
+ sei
  .endm
 
 //--------------------------------------------
