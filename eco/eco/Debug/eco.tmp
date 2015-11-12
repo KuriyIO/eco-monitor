@@ -42,53 +42,56 @@
   <sound_status><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>23</LINE></sound_status>
   <reset><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>35</LINE></reset>
   <Keyboard_check_interrupt><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>43</LINE></Keyboard_check_interrupt>
-  <Sound_generation><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>103</LINE></Sound_generation>
-  <Buzzer_set_1><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>112</LINE></Buzzer_set_1>
-  <Sound_play_and_pause><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>120</LINE></Sound_play_and_pause>
-  <sound_pause><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>146</LINE></sound_pause>
+  <Sound_play_and_pause><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>137</LINE></Sound_play_and_pause>
+  <Sound_generation><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>127</LINE></Sound_generation>
+  <sound_alarm_enable><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>65</LINE></sound_alarm_enable>
+  <sound_alarm_disable><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>87</LINE></sound_alarm_disable>
+  <Buzzer_set_1><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>132</LINE></Buzzer_set_1>
   <EEPROM_read_byte><FILE>D:\diplom\eco\eco\menu.inc</FILE><LINE>185</LINE></EEPROM_read_byte>
   <delay_proc><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>247</LINE></delay_proc>
   <delay_proc_label><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>249</LINE></delay_proc_label>
   <LCD_send_byte_proc><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>261</LINE></LCD_send_byte_proc>
   <On_1_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>135</LINE></On_1_click>
   <return_On_1_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>143</LINE></return_On_1_Click>
-  <On_2_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>153</LINE></On_2_click>
-  <return_On_2_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>163</LINE></return_On_2_Click>
-  <On_3_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>173</LINE></On_3_click>
-  <return_On_3_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>181</LINE></return_On_3_Click>
-  <On_4_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>191</LINE></On_4_click>
-  <return_On_4_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>199</LINE></return_On_4_Click>
-  <On_5_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>209</LINE></On_5_click>
-  <return_On_5_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>238</LINE></return_On_5_Click>
-  <sound_off><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>233</LINE></sound_off>
-  <On_6_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>249</LINE></On_6_click>
-  <return_On_6_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>257</LINE></return_On_6_Click>
-  <On_7_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>267</LINE></On_7_click>
-  <return_On_7_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>275</LINE></return_On_7_Click>
-  <On_8_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>285</LINE></On_8_click>
-  <return_On_8_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>295</LINE></return_On_8_Click>
-  <On_9_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>305</LINE></On_9_click>
-  <return_On_9_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>313</LINE></return_On_9_Click>
-  <On_asterisk_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>323</LINE></On_asterisk_click>
-  <return_On_asterisk_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>331</LINE></return_On_asterisk_Click>
-  <On_0_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>341</LINE></On_0_click>
-  <return_On_0_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>349</LINE></return_On_0_Click>
-  <On_grid_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>359</LINE></On_grid_click>
-  <return_On_grid_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>367</LINE></return_On_grid_Click>
+  <On_2_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>154</LINE></On_2_click>
+  <return_On_2_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>164</LINE></return_On_2_Click>
+  <On_3_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>175</LINE></On_3_click>
+  <return_On_3_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>183</LINE></return_On_3_Click>
+  <On_4_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>194</LINE></On_4_click>
+  <return_On_4_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>202</LINE></return_On_4_Click>
+  <On_5_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>213</LINE></On_5_click>
+  <return_On_5_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>239</LINE></return_On_5_Click>
+  <sound_off><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>236</LINE></sound_off>
+  <On_6_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>250</LINE></On_6_click>
+  <return_On_6_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>258</LINE></return_On_6_Click>
+  <On_7_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>269</LINE></On_7_click>
+  <return_On_7_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>277</LINE></return_On_7_Click>
+  <On_8_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>288</LINE></On_8_click>
+  <return_On_8_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>298</LINE></return_On_8_Click>
+  <On_9_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>309</LINE></On_9_click>
+  <return_On_9_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>317</LINE></return_On_9_Click>
+  <On_asterisk_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>328</LINE></On_asterisk_click>
+  <return_On_asterisk_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>336</LINE></return_On_asterisk_Click>
+  <On_0_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>347</LINE></On_0_click>
+  <return_On_0_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>355</LINE></return_On_0_Click>
+  <On_grid_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>366</LINE></On_grid_click>
+  <return_On_grid_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>374</LINE></return_On_grid_Click>
+  <skip_A_addition><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>71</LINE></skip_A_addition>
+  <continue_A_add><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>80</LINE></continue_A_add>
   <RAM_Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>7</LINE></RAM_Flush>
   <Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>11</LINE></Flush>
-  <main><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>47</LINE></main>
-  <ee_hello_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>54</LINE></ee_hello_msg>
-  <ee_CH4_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>55</LINE></ee_CH4_msg>
-  <ee_temp_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>56</LINE></ee_temp_msg>
-  <ee_coords_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>57</LINE></ee_coords_msg>
-  <ee_time_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>58</LINE></ee_time_msg>
-  <ee_sound_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>59</LINE></ee_sound_msg>
-  <ee_test_msg1><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>60</LINE></ee_test_msg1>
-  <ee_test_msg2><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>61</LINE></ee_test_msg2>
-  <ee_test_msg3><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>62</LINE></ee_test_msg3>
-  <ee_test_msg4><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>63</LINE></ee_test_msg4>
-  <ee_test_msg5><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>64</LINE></ee_test_msg5>
-  <ee_test_msg6><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>65</LINE></ee_test_msg6>
+  <main><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>46</LINE></main>
+  <ee_hello_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>53</LINE></ee_hello_msg>
+  <ee_CH4_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>54</LINE></ee_CH4_msg>
+  <ee_temp_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>55</LINE></ee_temp_msg>
+  <ee_coords_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>56</LINE></ee_coords_msg>
+  <ee_time_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>57</LINE></ee_time_msg>
+  <ee_sound_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>58</LINE></ee_sound_msg>
+  <ee_test_msg1><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>59</LINE></ee_test_msg1>
+  <ee_test_msg2><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>60</LINE></ee_test_msg2>
+  <ee_test_msg3><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>61</LINE></ee_test_msg3>
+  <ee_test_msg4><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>62</LINE></ee_test_msg4>
+  <ee_test_msg5><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>63</LINE></ee_test_msg5>
+  <ee_test_msg6><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>64</LINE></ee_test_msg6>
  </LABELS>
 </ASSEMBLER_INFO>

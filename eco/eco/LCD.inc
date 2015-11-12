@@ -284,15 +284,14 @@ delay_proc_label:
  //======Low half-byte send========
  andi temp,0b0000_0100
  pop byte		//get symbol from stack
- andi byte,0x0F //clear high half-byte
+ swap byte		//swap byte register
+				//example:
+				//before swap byte was: 0b01011010
+				//after swap byte is:   0b10100101
+ andi byte,0xF0 //clear high half-byte
 				//example:
 				//before andi: byte = 0b01011010
-				//after: byte = 0b00001010
-
- lsl byte		//logical shift left
- lsl byte		//example:
- lsl byte		//00001010 <- 00010100 <- 00101000 <- 01010000 <- 10100000
- lsl byte
+				//after: byte = 0b01010000
 
  or temp,byte	//add symbol's low half-byte 
  out portc,temp //out temp to port C

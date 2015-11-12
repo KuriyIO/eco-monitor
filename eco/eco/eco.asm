@@ -41,7 +41,6 @@ keyboard_init				//initialization of ports for keyboard
 LCD_init					//LCD initialization
 menu_init
 sound_init
-sound_alarm_disable
 
 //-----------MAIN----------------------------------
 main:			

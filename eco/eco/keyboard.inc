@@ -11,7 +11,7 @@
  .equ KBD_1 = 0
  .equ KBD_2 = 1
  .equ KBD_3 = 2
- .equ count_of_ticks = 3	//count of ticks for prevent false activation macro
+ .equ count_of_ticks = 1	//count of ticks for prevent false activation macro
 
  //=======MACRO==========================================
  //-------Preventing false activation----------------------------
@@ -24,7 +24,7 @@
 
  cpi r16,@0							//compare block
  brne end_of_activation_macro		//example on C language:
- cpi temp,3							//	if(last_btn == @0)
+ cpi temp,count_of_ticks			//	if(last_btn == @0)
  brsh end_of_activation_macro		//	{
 									//		if(tick > count_of_ticks)
 									//		{
@@ -146,6 +146,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_3		//wait until button is turned off
  rjmp PC-1
  ret
@@ -166,6 +167,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_2		//wait until button is turned off
  rjmp PC-1
  ret
@@ -184,6 +186,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_1		//wait until button is turned off
  rjmp PC-1
  ret
@@ -202,6 +205,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_1		//wait until button is turned off
  rjmp PC-1
  ret
@@ -226,14 +230,11 @@
  sbrc temp,sound_general_status	//if sound is generally off then set sound on
  rjmp sound_off					//else set sound off
 
- //sound_alarm_enable
- Timer0_enable
+ rcall sound_alarm_enable
  rjmp return_On_5_Click
 
  sound_off:
-
- //sound_alarm_disable
- Timer0_disable
+ rcall sound_alarm_disable
 
  return_On_5_Click:
  pop r16
@@ -260,6 +261,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_1		//wait until button is turned off
  rjmp PC-1
  ret
@@ -278,6 +280,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_3		//wait until button is turned off
  rjmp PC-1
  ret
@@ -298,6 +301,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_2		//wait until button is turned off
  rjmp PC-1
  ret
@@ -316,6 +320,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_1		//wait until button is turned off
  rjmp PC-1
  ret
@@ -334,6 +339,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_3		//wait until button is turned off
  rjmp PC-1
  ret
@@ -352,6 +358,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_2		//wait until button is turned off
  rjmp PC-1
  ret
@@ -370,6 +377,7 @@
  pop YH
  pop temp
 
+ sei
  sbis pinb,KBD_3		//wait until button is turned off
  rjmp PC-1
  ret
