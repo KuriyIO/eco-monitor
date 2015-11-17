@@ -73,6 +73,9 @@
     <Compile Include="eco.asm">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="I2C_Real_Time_Clock.inc">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="int_table.inc">
       <SubType>Code</SubType>
     </Compile>
@@ -89,6 +92,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="timers.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TimeSet.inc">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

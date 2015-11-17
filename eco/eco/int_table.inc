@@ -4,7 +4,7 @@
 
  //=========INTERRUPT VECTORS TABLE=============================================
  .org $000 //RESET
- rjmp reset 
+ jmp reset 
  .org $002 //INT0 External Interrupt Request 0
  reti
  .org $004 //INT1 External Interrupt Request 1
@@ -18,7 +18,7 @@
  .org $00C //TIMER1 CAPT Timer/Counter1 Capture Event
  reti
  .org $00E //TIMER1 COMPA Timer/Counter1 Compare Match A
- rjmp Keyboard_check_interrupt
+ jmp Keyboard_check_interrupt
  .org $010 //TIMER1 COMPB Timer/Counter1 Compare Match B
  rjmp Sound_play_and_pause
  .org $012 //TIMER1 OVF Timer/Counter1 Overflow
@@ -42,7 +42,7 @@
  .org $024 //ANA_COMP Analog Comparator
  reti
  .org $026 //TWI Two-wire Serial Interface
- reti
+ rjmp I2C_Interrupt
  .org $028 //SPM_RDY Store Program Memory Ready
  reti
 //===============================================================================================

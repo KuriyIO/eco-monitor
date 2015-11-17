@@ -11,6 +11,26 @@
  .equ sound_freq = 23			//frequency of sound
 
  //=======Sound macro=======================================
+ //-------Sound test---------------------------
+ .macro sound_test
+ ldi YH, high(menu_location)
+ ldi YL, low(menu_location)
+ ld temp, Y			//load current menu page to temp
+ cpi temp,5			//if current page is sound
+ brne @0			//then continue, else return
+ ldi YH,high(sound_status)	//
+ ldi YL,low(sound_status)	//read sound status from RAM
+ ld temp,Y
+
+ sbrc temp,sound_general_status	//if sound is generally off then set sound on
+ rjmp sound_off					//else set sound off
+
+ rcall sound_alarm_enable
+ rjmp @0
+
+ sound_off:
+ rcall sound_alarm_disable
+ .endm
  //-------Sound Init---------------------------
  .macro sound_init
  in temp, ddrd

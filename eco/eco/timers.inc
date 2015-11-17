@@ -45,6 +45,14 @@
  push YH
  push YL
 
+ ldi YH,high(time_set_blink_count)
+ ldi YL,low(time_set_blink_count)
+ ld temp,Y
+ inc temp
+ st Y,temp
+
+ rcall time_set_blink
+
  keyboard_check
 
  ldi YH,high(sound_status)	//

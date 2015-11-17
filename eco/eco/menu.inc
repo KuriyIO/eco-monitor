@@ -22,6 +22,52 @@
  LCD_print_str CO_msg+96
  .endm
  //------------------------------------------
+ //--------Menu refresh page----------------
+ .macro menu_refresh
+
+ push menu_loc			//Save all register which will be used
+ push XH				//
+ push XL				//
+ push temp
+ push YH
+ push YL
+
+ ldi YH,high(menu_location)		//load to Y register adress of
+ ldi YL,low(menu_location)		//current menu page
+ ld menu_loc,Y					//read from SRAM current menu page
+ 
+ ldi temp,16				//
+ mul temp,menu_loc			//counting adress of string
+ mov XL,r0					//which contain first string
+ mov XH,r1					//of menu message
+ ldi temp,0x60				//
+ add XL,temp				//adress = ((page - 1)*16)+96
+ clr temp					//
+ adc XH,temp				//
+
+ first_line					//set first line for print
+ LCD_print_str_reg			//print message from adress (in X register)
+
+ ldi temp,16				//
+ mul temp,menu_loc			//counting adress of string
+ mov XL,r0					//which contain second string
+ mov XH,r1					//of menu message
+ ldi temp,0xC0				//
+ add XL,temp				//adress = ((page - 1) * 16)+192
+ clr temp					//
+ adc XH,temp				//
+
+ second_line				//set second line for print
+ LCD_print_str_reg			//print second string
+		
+ pop YL					//return all of used registers
+ pop YH					//to their place
+ pop temp
+ pop XL
+ pop XH
+ pop menu_loc
+
+ .endm
 
  //--------Menu previous page----------------
  .macro menu_prev
@@ -33,16 +79,14 @@
  push YH
  push YL
 
- cli
  ldi YH,high(menu_location)		//load to Y register adress of
  ldi YL,low(menu_location)		//current menu page
  ld menu_loc,Y					//read from SRAM current menu page
- sei
 
  ldi temp,0					//if current page is first
  cpse menu_loc,temp			//then going out of procedure
  rjmp PC+2					//else - continue
- rjmp Return_On_2_Click		//
+ rjmp return_menu_prev		//
 
  dec menu_loc				//decrease page because menu moving up
  
@@ -55,10 +99,8 @@
  clr temp					//
  adc XH,temp				//
 
- cli
  first_line					//set first line for print
  LCD_print_str_reg			//print message from adress (in X register)
- sei
 
  ldi temp,16				//
  mul temp,menu_loc			//counting adress of string
@@ -69,16 +111,14 @@
  clr temp					//
  adc XH,temp				//
 
- cli
  second_line				//set second line for print
  LCD_print_str_reg			//print second string
 
  ldi YH,high(menu_location)	//
  ldi YL,low(menu_location)	//Save current page status to SRAM
  st Y,menu_loc				//
- sei
 
- Return_On_2_Click:			
+ return_menu_prev:			
  pop YL					//return all of used registers
  pop YH					//to their place
  pop temp
@@ -99,16 +139,14 @@
  push YH
  push YL
 
- cli
  ldi YH,high(menu_location)	//
  ldi YL,low(menu_location)	//read number of current page from SRAM
  ld menu_loc,Y				//
- sei
 
  ldi temp,5					//if this page is last
  cpse menu_loc,temp			//then go to return of procedure
  rjmp PC+2					//else - continue
- rjmp Return_On_8_Click		//
+ rjmp return_menu_next		//
 
  inc menu_loc		//increase page because moving down
  
@@ -121,10 +159,8 @@
  clr temp
  adc XH,temp
 
- cli
  first_line			//
  LCD_print_str_reg	//printing first line
- sei
 
  ldi temp,16		//counting of second string adress
  mul temp,menu_loc	//and move it to X register
@@ -135,16 +171,14 @@
  clr temp
  adc XH,temp
 
- cli
  second_line		//
  LCD_print_str_reg	//printing second line
 
  ldi YH,high(menu_location)	//
  ldi YL,low(menu_location)	//save new current page to SRAM
  st Y,menu_loc				//
- sei
 
- Return_On_8_Click:
+ return_menu_next:
  pop YL				//return all of used registers
  pop YH				//
  pop temp
@@ -168,7 +202,7 @@
  //?????????????????????????????????????????????????????????????????????????????????????????????????????
 
  EE_read_loop:			//loop 96 times
- rcall EEPROM_read_byte //read byte from EEPROM
+ call EEPROM_read_byte //read byte from EEPROM
  st Y+,byte				//Store byte to SRAM and post-Inc adress
  inc ZL					//increment Z register after reading byte
 

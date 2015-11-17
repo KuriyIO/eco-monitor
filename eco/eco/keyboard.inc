@@ -140,6 +140,8 @@
 
  Anti_false_activation '1', return_On_1_Click
 
+ time_set '1'
+
  return_On_1_Click:
  pop r16
  pop YL
@@ -159,6 +161,16 @@
 
  Anti_false_activation '2', return_On_2_Click
 
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrs temp,time_set_S		//if time set mode on then skip menu navigation
+ rjmp menu_On_2_Click_label
+
+ time_set '2'
+ rjmp return_On_2_Click
+
+ menu_On_2_Click_label:
  menu_prev
 
  return_On_2_Click:
@@ -180,6 +192,8 @@
 
  Anti_false_activation '3', return_On_3_Click
  
+ time_set '3'
+
  return_On_3_Click:
  pop r16
  pop YL
@@ -198,6 +212,8 @@
  push r16
 
  Anti_false_activation '4', return_On_4_Click
+
+ time_set '4'
 
  return_On_4_Click:
  pop r16
@@ -218,23 +234,17 @@
 
  Anti_false_activation '5', return_On_5_Click
 
- ldi YH, high(menu_location)
- ldi YL, low(menu_location)
- ld temp, Y			//load current menu page to temp
- cpi temp,5			//if current page is sound
- brne return_On_5_Click	//then continue, else return
- ldi YH,high(sound_status)	//
- ldi YL,low(sound_status)	//read sound status from RAM
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
  ld temp,Y
+ sbrs temp,time_set_S		//if time set mode on then skip menu navigation
+ rjmp sound_On_5_Click_label
 
- sbrc temp,sound_general_status	//if sound is generally off then set sound on
- rjmp sound_off					//else set sound off
-
- rcall sound_alarm_enable
+ time_set '5'
  rjmp return_On_5_Click
 
- sound_off:
- rcall sound_alarm_disable
+ sound_On_5_Click_label:
+ sound_test return_On_5_Click
 
  return_On_5_Click:
  pop r16
@@ -255,6 +265,8 @@
 
  Anti_false_activation '6', return_On_6_Click
 
+ time_set '6'
+
  return_On_6_Click:
  pop r16
  pop YL
@@ -273,6 +285,8 @@
  push r16
 
  Anti_false_activation '7', return_On_7_Click
+
+ time_set '7'
 
  return_On_7_Click:
  pop r16
@@ -293,6 +307,16 @@
 
  Anti_false_activation '8', return_On_8_Click
  
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrs temp,time_set_S		//if time set mode on then skip menu navigation
+ rjmp menu_On_8_Click_label
+
+ time_set '8'
+ rjmp return_On_8_Click
+
+ menu_On_8_Click_label:
  menu_next
 
  return_On_8_Click:
@@ -314,6 +338,8 @@
 
  Anti_false_activation '9', return_On_9_Click
 
+ time_set '9'
+
  return_On_9_Click:
  pop r16
  pop YL
@@ -332,6 +358,8 @@
  push r16
 
  Anti_false_activation '*', return_On_asterisk_Click
+
+ time_set_start
 
  return_On_asterisk_Click:
  pop r16
@@ -352,6 +380,8 @@
 
  Anti_false_activation '0', return_On_0_Click
 
+ time_set '0'
+
  return_On_0_Click:
  pop r16
  pop YL
@@ -370,6 +400,8 @@
  push r16
 
  Anti_false_activation '#', return_On_grid_Click
+
+ time_set_set_next_pair
 
  return_On_grid_Click:
  pop r16

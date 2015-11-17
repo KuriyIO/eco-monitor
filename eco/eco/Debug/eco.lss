@@ -1,15 +1,17 @@
 
-AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Thu Nov 12 21:21:27 2015
+AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Fri Nov 27 20:24:34 2015
 
 [builtin](2): Including file 'D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc'
 D:\diplom\eco\eco\eco.asm(1): Including file 'D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc'
-D:\diplom\eco\eco\eco.asm(27): Including file 'D:\diplom\eco\eco\int_table.inc'
-D:\diplom\eco\eco\eco.asm(28): Including file 'D:\diplom\eco\eco\sound.inc'
-D:\diplom\eco\eco\eco.asm(29): Including file 'D:\diplom\eco\eco\menu.inc'
-D:\diplom\eco\eco\eco.asm(30): Including file 'D:\diplom\eco\eco\LCD.inc'
-D:\diplom\eco\eco\eco.asm(31): Including file 'D:\diplom\eco\eco\keyboard.inc'
-D:\diplom\eco\eco\eco.asm(32): Including file 'D:\diplom\eco\eco\timers.inc'
-D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
+D:\diplom\eco\eco\eco.asm(44): Including file 'D:\diplom\eco\eco\int_table.inc'
+D:\diplom\eco\eco\eco.asm(45): Including file 'D:\diplom\eco\eco\LCD.inc'
+D:\diplom\eco\eco\eco.asm(46): Including file 'D:\diplom\eco\eco\menu.inc'
+D:\diplom\eco\eco\eco.asm(47): Including file 'D:\diplom\eco\eco\I2C_Real_Time_Clock.inc'
+D:\diplom\eco\eco\eco.asm(48): Including file 'D:\diplom\eco\eco\TimeSet.inc'
+D:\diplom\eco\eco\eco.asm(49): Including file 'D:\diplom\eco\eco\sound.inc'
+D:\diplom\eco\eco\eco.asm(50): Including file 'D:\diplom\eco\eco\keyboard.inc'
+D:\diplom\eco\eco\eco.asm(51): Including file 'D:\diplom\eco\eco\timers.inc'
+D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  .include "m32def.inc" //include define for ATmega32 controller
                  
@@ -881,17 +883,34 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                  .dseg
                  .org 0x0060						//starting from 0x0060 because 
                  								//before that adress we have reserved memory for registers
-000060           CO_msg:				.byte 16	//hello world string
+000060           CO_msg:				.byte 16	//level CO string
 000070           CH4_msg:			.byte 16	//CH4 level message string
 000080           temperature_msg:	.byte 16	//Temperature message string
-000090           time_msg:			.byte 16	//Time message string
-0000a0           coords_msg:			.byte 16	//Coordinates message string
+000090           coords_msg:			.byte 16	//Coordinates message string
+0000a0           time_msg:			.byte 16	//Time message string
 0000b0           sound_msg:			.byte 16	//Sound option message string
-0000c0           test:				.byte 96	//reserve bytes for 2nd string messages
+0000c0           CO_value:			.byte 16	//string which contain level CO value
+0000d0           CH4_value:			.byte 16	//string which contain level CH4 value
+0000e0           temperature_value:	.byte 16	//string which contain temperature value
+0000f0           coords_value:		.byte 16	//string which contain coordinates value
+000100           time_value:			.byte 16	//string which contain time value
+000110           sound_value:		.byte 16	//string which contain sound On/Off value
 000120           menu_location:		.byte 1		//current menu location
 000121           tick_count:			.byte 1		//count of button activations
 000122           last_btn:			.byte 1		//number of last pressed button
 000123           sound_status:		.byte 1		//status of sound
+000124           I2C_status:			.byte 1		//I2C status register
+000125           I2C_buffer:			.byte 5		//I2C buffer
+00012a           I2C_device:			.byte 1		//I2C device adress + R/W
+00012b           I2C_data_pointer:	.byte 1		//pointer to clock's register
+00012c           I2C_data_read:		.byte 1		//readed data
+00012d           I2C_data_write:		.byte 1		//data which need to write
+00012e           time_set_status:	.byte 1		//time set status register
+00012f           time_set_value:		.byte 1		//contain a value which need to set
+000130           time_set_ranges:	.byte 10	//contain a table with max values range
+00013a           time_set_max_values:.byte 5		//caontain a max values of hh:mm dd/MM/yy
+00013f           time_set_buffer:	.byte 2		//contain a active pair values
+000141           time_set_blink_count:.byte 1	//count of tick before blink
                  
                  //==========CODE SEGMENT=================================================
                  .cseg
@@ -902,7 +921,7 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                   //=========INTERRUPT VECTORS TABLE=============================================
                   .org $000 //RESET
-000000 c364       rjmp reset 
+000000 940c 0a00  jmp reset 
                   .org $002 //INT0 External Interrupt Request 0
 000002 9518       reti
                   .org $004 //INT1 External Interrupt Request 1
@@ -916,13 +935,13 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   .org $00C //TIMER1 CAPT Timer/Counter1 Capture Event
 00000c 9518       reti
                   .org $00E //TIMER1 COMPA Timer/Counter1 Compare Match A
-00000e c30c       rjmp Keyboard_check_interrupt
+00000e 940c 09b0  jmp Keyboard_check_interrupt
                   .org $010 //TIMER1 COMPB Timer/Counter1 Compare Match B
-000010 c04e       rjmp Sound_play_and_pause
+000010 c36c       rjmp Sound_play_and_pause
                   .org $012 //TIMER1 OVF Timer/Counter1 Overflow
 000012 9518       reti
                   .org $014 //TIMER0 COMP Timer/Counter0 Compare Match
-000014 c044       rjmp Sound_generation
+000014 c362       rjmp Sound_generation
                   .org $016 //TIMER0 OVF Timer/Counter0 Overflow
 000016 9518       reti
                   .org $018 //SPI, STC Serial Transfer Complete
@@ -940,395 +959,11 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   .org $024 //ANA_COMP Analog Comparator
 000024 9518       reti
                   .org $026 //TWI Two-wire Serial Interface
-000026 9518       reti
+000026 c037       rjmp I2C_Interrupt
                   .org $028 //SPM_RDY Store Program Memory Ready
 000028 9518       reti
                  //===============================================================================================
                  
-                 .include "sound.inc"		//macro and procedures for buzzer sound
-                 
-                  * sound.inc
-                  *
-                  *  Created: 10.11.2015 23:44:51
-                  *   Author: Hogs
-                  */ 
-                 
-                  .equ BUZZER = 6				//6 - is number of pin for buzzer
-                  .equ sound_general_status = 0	//number of sound_status bit, 
-                 								//for get general sound status (sound_on/sound_off)
-                  .equ sound_freq = 23			//frequency of sound
-                 
-                  //=======Sound macro=======================================
-                  //-------Sound Init---------------------------
-                  .macro sound_init
-                  in temp, ddrd
-                  ori temp, (0 | (1<<BUZZER))	//set buzzer pin as output
-                  out ddrd,temp
-                  in temp, portd
-                  andi temp, ~(1<<BUZZER)	//set buzzer pin as 0
-                  out portd, temp
-                 
-                 								//setting timer0
-                  clr temp
-                  out TCNT0,temp		//set counter as 0
-                  ldi temp,sound_freq
-                  out OCR0,temp		//set sound frequency
-                  in temp, TIMSK
-                  ori temp, (1<<OCIE0)	//
-                  out TIMSK, temp	//enable On match timer 0 interrupt
-                  .endm
-                  //-------Timer0 enable---------------------------
-                  .macro Timer0_enable
-                  push temp
-                  ldi temp, 0 | (1<<WGM01) | (1<<CS02)
-                  out TCCR0, temp //set timer in CTC mode with 256 prescaler (enable)
-                  pop temp
-                  .endm
-                  //-------Timer0 disable---------------------------
-                  .macro Timer0_disable
-                  push temp
-                  clr temp
-                  out TCCR0, temp //disable timer0
-                  pop temp
-                  .endm
-                   //-------Timer 0 toggle--------------------------
-                  .macro Timer0_toggle
-                  push temp
-                 
-                  in temp, TCCR0			//if TCCR0 is empty
-                  cpi temp,0				//then set timer on
-                  breq set_timer_on		//else set timer off
-                 
-                  Timer0_disable
-                  rjmp end_timer_toggle	//disable timer
-                 
-                  set_timer_on:
-                  Timer0_enable
-                 
-                  end_timer_toggle:
-                  pop temp
-                  .endm
-                  //=======PROCEDURES=======================================================
-                  //-------Sound Alarm enable----------------------
-                  sound_alarm_enable:
-000029 931f       push temp
-00002a 93df       push YH
-00002b 93cf       push YL
-                 
-00002c e0d1       ldi YH,high(sound_status)	//
-00002d e2c3       ldi YL,low(sound_status)	//set sound status in RAM
-                  
-00002e e011       ldi temp, 0 | (1<<sound_general_status)
-00002f 8318       st Y,temp	//set general sound status and pause status
-                 
-000030 b719       in temp, TIMSK
-000031 6018       ori temp, (1<<OCIE1B)	//set OCIE1B as 1
-000032 bf19       out TIMSK, temp	//enable interrupt(every 0.5sec)
-                 
-000033 931f
-000034 e01c
-000035 bf13
-000036 911f       Timer0_enable		//enable timer0
-                 
-000037 91cf       pop YL
-000038 91df       pop YH
-000039 911f       pop temp
-00003a 9508       ret
-                  //-------Sound Alarm disable---------------------
-                  sound_alarm_disable:
-00003b 931f       push temp
-00003c 93df       push YH
-00003d 93cf       push YL
-                  
-00003e e0d1       ldi YH,high(sound_status)	//
-00003f e2c3       ldi YL,low(sound_status)	//set sound status in RAM
-                 
-000040 e010       ldi temp, 0
-000041 8318       st Y,temp			//set general sound status as 0 (alarm disable:)
-                 
-000042 b719       in temp, TIMSK
-000043 7f17       andi temp, ~(1<<OCIE1B)	//set OCIE1B as 0
-000044 bf19       out TIMSK, temp	//disable interrupt
-                 
-000045 931f
-000046 2711
-000047 bf13
-000048 911f       Timer0_disable		//stop sound generation
-                 
-000049 27cc       clr YL
-00004a 27dd       clr YH
-00004b 94f8       cli
-00004c bddd       out TCNT1H,YH	//clear counter of timer1
-00004d bdcc       out TCNT1L,YL
-00004e 9478       sei
-                 
-00004f e00c       ldi r16,0x0C			//set A as standart value	
-000050 e315       ldi r17,0x35
-000051 94f8       cli
-000052 bd0b       out OCR1AH,r16			//set A as 3125
-000053 bd1a       out OCR1AL,r17			//that mean timer tick is every 0.05sec
-000054 9478       sei
-                 
-000055 91cf       pop YL
-000056 91df       pop YH
-000057 911f       pop temp
-000058 9508       ret
-                  //-----------------------------------------------
-                 
-                  //=======Sound interrupts==================================
-                 
-                  //-------Sound generation interrupt-----------
-                  Sound_generation:
-000059 9b86       sbis pind, BUZZER
-00005a c002       rjmp Buzzer_set_1
-00005b 9896       cbi portd, BUZZER	//if buzzer pin is 1, then set it as 0
-00005c 9518       reti
-                  Buzzer_set_1:
-00005d 9a96       sbi portd, BUZZER	//if buzzer pin is 0, then set is as 1
-00005e 9518       reti
-                 
-                  //--------Sound play/pause interrupt----------
-                  Sound_play_and_pause:
-00005f 931f       push temp
-000060 93df       push YH
-000061 93cf       push YL
-                 
-000062 e0dc       ldi YH,0x0C
-000063 e3c5       ldi YL,0x35
-000064 94f8       cli
-000065 bddb       out OCR1AH,YH	//set timer1 A as 3125
-000066 bdca       out OCR1AL,YL	//for correct work with keyboard
-000067 9478       sei
-                 
-000068 931f
-000069 b713
-00006a 3010
-00006b f029
-00006c 931f
-00006d 2711
-00006e bf13
-00006f 911f
-000070 c004
-000071 931f
-000072 e01c
-000073 bf13
-000074 911f
-000075 911f       Timer0_toggle
-                 
-000076 27cc       clr YL
-000077 27dd       clr YH
-000078 94f8       cli
-000079 bddd       out TCNT1H,YH	//clear counter of timer1
-00007a bdcc       out TCNT1L,YL
-00007b 9478       sei
-                 
-00007c 91cf       pop YL
-00007d 91df       pop YH
-00007e 911f       pop temp
-00007f 9518       reti
-                  //--------------------------------------------
-                 .include "menu.inc"			//macro for menu uses
-                 
-                  * menu.inc
-                  *
-                  *  Created: 26.10.2015 0:27:02
-                  *   Author: Hogs
-                  */ 
-                 
-                  //========MACRO==========================================
-                 
-                  //--------Init menu page--------------------
-                  .macro menu_init
-                 
-                  load_strings_to_SRAM		//save strings from eeprom to ram
-                 
-                  ldi YH,high(menu_location) //set current menu page as 0 (first page)
-                  ldi YL,low(menu_location)	//
-                  ldi temp,0
-                  st Y,temp
-                 
-                  LCD_print_str CO_msg		//print first menu page
-                  second_line
-                  LCD_print_str CO_msg+96
-                  .endm
-                  //------------------------------------------
-                 
-                  //--------Menu previous page----------------
-                  .macro menu_prev
-                 
-                  push menu_loc			//Save all register which will be used
-                  push XH				//
-                  push XL				//
-                  push temp
-                  push YH
-                  push YL
-                 
-                  cli
-                  ldi YH,high(menu_location)		//load to Y register adress of
-                  ldi YL,low(menu_location)		//current menu page
-                  ld menu_loc,Y					//read from SRAM current menu page
-                  sei
-                 
-                  ldi temp,0					//if current page is first
-                  cpse menu_loc,temp			//then going out of procedure
-                  rjmp PC+2					//else - continue
-                  rjmp Return_On_2_Click		//
-                 
-                  dec menu_loc				//decrease page because menu moving up
-                  
-                  ldi temp,16				//
-                  mul temp,menu_loc			//counting adress of string
-                  mov XL,r0					//which contain first string
-                  mov XH,r1					//of menu message
-                  ldi temp,0x60				//
-                  add XL,temp				//adress = ((page - 1)*16)+96
-                  clr temp					//
-                  adc XH,temp				//
-                 
-                  cli
-                  first_line					//set first line for print
-                  LCD_print_str_reg			//print message from adress (in X register)
-                  sei
-                 
-                  ldi temp,16				//
-                  mul temp,menu_loc			//counting adress of string
-                  mov XL,r0					//which contain second string
-                  mov XH,r1					//of menu message
-                  ldi temp,0xC0				//
-                  add XL,temp				//adress = ((page - 1) * 16)+192
-                  clr temp					//
-                  adc XH,temp				//
-                 
-                  cli
-                  second_line				//set second line for print
-                  LCD_print_str_reg			//print second string
-                 
-                  ldi YH,high(menu_location)	//
-                  ldi YL,low(menu_location)	//Save current page status to SRAM
-                  st Y,menu_loc				//
-                  sei
-                 
-                  Return_On_2_Click:			
-                  pop YL					//return all of used registers
-                  pop YH					//to their place
-                  pop temp
-                  pop XL
-                  pop XH
-                  pop menu_loc
-                 
-                  .endm
-                  //------------------------------------------
-                 
-                  //--------Menu next page--------------------
-                  .macro menu_next
-                 
-                  push menu_loc		//save to stack
-                  push XH			//all of used registers
-                  push XL
-                  push temp
-                  push YH
-                  push YL
-                 
-                  cli
-                  ldi YH,high(menu_location)	//
-                  ldi YL,low(menu_location)	//read number of current page from SRAM
-                  ld menu_loc,Y				//
-                  sei
-                 
-                  ldi temp,5					//if this page is last
-                  cpse menu_loc,temp			//then go to return of procedure
-                  rjmp PC+2					//else - continue
-                  rjmp Return_On_8_Click		//
-                 
-                  inc menu_loc		//increase page because moving down
-                  
-                  ldi temp,16			//counting of first string adress
-                  mul temp,menu_loc		//and move it to X register
-                  mov XL,r0				//
-                  mov XH,r1				//adress = ((page + 1) * 16)+96
-                  ldi temp,0x60
-                  add XL,temp
-                  clr temp
-                  adc XH,temp
-                 
-                  cli
-                  first_line			//
-                  LCD_print_str_reg	//printing first line
-                  sei
-                 
-                  ldi temp,16		//counting of second string adress
-                  mul temp,menu_loc	//and move it to X register
-                  mov XL,r0			//
-                  mov XH,r1			//adress = ((page + 1) * 16)+192
-                  ldi temp,0xC0
-                  add XL,temp
-                  clr temp
-                  adc XH,temp
-                 
-                  cli
-                  second_line		//
-                  LCD_print_str_reg	//printing second line
-                 
-                  ldi YH,high(menu_location)	//
-                  ldi YL,low(menu_location)	//save new current page to SRAM
-                  st Y,menu_loc				//
-                  sei
-                 
-                  Return_On_8_Click:
-                  pop YL				//return all of used registers
-                  pop YH				//
-                  pop temp
-                  pop XL
-                  pop XH
-                  pop menu_loc
-                 
-                  .endm
-                  //------------------------------------------
-                 
-                  //      Read from EEPROM and write it in SRAM
-                  .macro load_strings_to_SRAM
-                  cli
-                  clr YH		 //load to YH register 0
-                  ldi YL,0x60 //load to YL 0x60 coz 0x0060 - sram start
-                  clr ZL		 //clear Z register
-                  clr ZH
-                  //?????????????????-----DEBUG------????????????????????????????????????????????????????????????????????
-                  ldi r19,193			//r19 is a counter
-                 						//USE <LDI r19,97> AFTER DEBUG
-                  //?????????????????????????????????????????????????????????????????????????????????????????????????????
-                 
-                  EE_read_loop:			//loop 96 times
-                  rcall EEPROM_read_byte //read byte from EEPROM
-                  st Y+,byte				//Store byte to SRAM and post-Inc adress
-                  inc ZL					//increment Z register after reading byte
-                 
-                  dec r19				//loop things...
-                  brne EE_read_loop		//go to EE_read_loop label if r19 is not 0
-                  sei
-                  .endm
-                 
-                 //--------------------------------------------
-                 
-                  //=========PROCEDURES=====================================
-                  //------Read Byte form EEPROM-----------------------
-                 
-                  EEPROM_read_byte:
-                  ; Wait for completion of previous write
-000080 99e1       sbic EECR,EEWE
-000081 cffe       rjmp EEPROM_read_byte
-                 
-000082 94f8       cli //disable all interrupts
-                 
-                  ; Set up address (Z register) in address register
-000083 bbff       out EEARH, ZH
-000084 bbee       out EEARL, ZL
-                  ; Start eeprom read by writing EERE
-000085 9ae0       sbi EECR,EERE
-                  ; Read data from data register
-000086 b30d       in byte,EEDR
-                 
-000087 9478       sei //enable interrupts
-000088 9508       ret
                  .include "LCD.inc"			//macro and procedures for HD44780 like displays
                  
                   * Macro and procedures
@@ -1358,7 +993,7 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   ldi r24,@1
                   ldi r23,@2
                  
-                  rcall delay_proc
+                  call delay_proc
                  
                   pop r23
                   pop r24
@@ -1496,7 +1131,7 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   push byte	
                   ldi temp,cmd
                   ldi byte,@0
-                  rcall LCD_send_byte_proc
+                  call LCD_send_byte_proc
                   pop byte
                   pop temp
                   .endm
@@ -1509,7 +1144,7 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   push byte
                   ldi temp,4
                   ldi byte,@0
-                  rcall LCD_send_byte_proc
+                  call LCD_send_byte_proc
                   pop byte
                   pop temp
                   .endm
@@ -1530,7 +1165,7 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   ldi r19,17			//r19 is a counter
                   sram_read_loop:	//loop 16 times
                   ld byte,Z+			//read from SRAM and post-inc
-                  rcall LCD_send_byte_proc	//print symbol to LCD
+                  call LCD_send_byte_proc	//print symbol to LCD
                   delay 240,1,1 //delay 45us
                   dec r19			//loop things...
                   brne sram_read_loop//go to sram_read_loop label if r19 is not 0
@@ -1558,7 +1193,7 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   ldi r19,17			//r19 is a counter
                   sram_read_loop:	//loop 16 times
                   ld byte,X+			//read from SRAM and post-inc
-                  rcall LCD_send_byte_proc	//print symbol to LCD
+                  call LCD_send_byte_proc	//print symbol to LCD
                   delay 240,1,1 //delay 45us
                   dec r19			//loop things...
                   brne sram_read_loop//go to sram_read_loop label if r19 is not 0
@@ -1579,75 +1214,1791 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   delay_proc:
                  
                  delay_proc_label: 
-000089 959a      	dec  r25
-00008a f7f1          brne delay_proc_label
-00008b 958a          dec  r24
-00008c f7e1          brne delay_proc_label
-00008d 957a      	dec  r23
-00008e f7d1          brne delay_proc_label
+000029 959a      	dec  r25
+00002a f7f1          brne delay_proc_label
+00002b 958a          dec  r24
+00002c f7e1          brne delay_proc_label
+00002d 957a      	dec  r23
+00002e f7d1          brne delay_proc_label
                  
-00008f 9508       ret
+00002f 9508       ret
                  
                  //------Send byte to LCD as 4-but mode------------------------------------
                  
                   LCD_send_byte_proc:
-000090 94f8       cli
-000091 930f       push byte //save symbol to stack
-000092 7014       andi temp,0b0000_0100
-000093 bb15       out portc,temp //setting RS line
+000030 94f8       cli
+000031 930f       push byte //save symbol to stack
+000032 7014       andi temp,0b0000_0100
+000033 bb15       out portc,temp //setting RS line
                  
                   //======High half-byte send=======
-000094 7f00       andi byte,0xF0 //clear low half-byte
+000034 7f00       andi byte,0xF0 //clear low half-byte
                  				//example:
                  				//before ANDI byte was 0b01011111
                  				//after byte is 0b01010000
                  
-000095 2b10       or temp,byte	//add high half-byte to temp register
+000035 2b10       or temp,byte	//add high half-byte to temp register
                  				//example:
                  				//before: temp = 0b00000100, byte = 0b11110000
                  				//after: temp = 0b11110100
                  
-000096 bb15       out portc,temp //out temp to port C
-000097 95c8       lpm			//3 clocks delay
-000098 9aab       sbi portc,E	//enable E signal
-000099 95c8       lpm			//3 clocks delay
-00009a 98ab       cbi portc,E	//disable E signal
-00009b 939f
-00009c 938f
-00009d 937f
-00009e ef90
-00009f e081
-0000a0 e071
-0000a1 dfe7
-0000a2 917f
-0000a3 918f
-0000a4 919f       delay 240,1,1 //delay 45us
+000036 bb15       out portc,temp //out temp to port C
+000037 95c8       lpm			//3 clocks delay
+000038 9aab       sbi portc,E	//enable E signal
+000039 95c8       lpm			//3 clocks delay
+00003a 98ab       cbi portc,E	//disable E signal
+00003b 939f
+00003c 938f
+00003d 937f
+00003e ef90
+00003f e081
+000040 e071
+000041 940e 0029
+000043 917f
+000044 918f
+000045 919f       delay 240,1,1 //delay 45us
                   //======Low half-byte send========
-0000a5 7014       andi temp,0b0000_0100
-0000a6 910f       pop byte		//get symbol from stack
-0000a7 9502       swap byte		//swap byte register
+000046 7014       andi temp,0b0000_0100
+000047 910f       pop byte		//get symbol from stack
+000048 9502       swap byte		//swap byte register
                  				//example:
                  				//before swap byte was: 0b01011010
                  				//after swap byte is:   0b10100101
-0000a8 7f00       andi byte,0xF0 //clear high half-byte
+000049 7f00       andi byte,0xF0 //clear high half-byte
                  				//example:
                  				//before andi: byte = 0b01011010
                  				//after: byte = 0b01010000
                  
-0000a9 2b10       or temp,byte	//add symbol's low half-byte 
-0000aa bb15       out portc,temp //out temp to port C
-0000ab 95c8       lpm			//3 clocks delay
-0000ac 9aab       sbi portc,E	//enable E
-0000ad 95c8       lpm			//3 clocks delay
-0000ae 98ab       cbi portc,E	//disable E
-0000af 95c8       lpm			//3 clocks delay
+00004a 2b10       or temp,byte	//add symbol's low half-byte 
+00004b bb15       out portc,temp //out temp to port C
+00004c 95c8       lpm			//3 clocks delay
+00004d 9aab       sbi portc,E	//enable E
+00004e 95c8       lpm			//3 clocks delay
+00004f 98ab       cbi portc,E	//disable E
+000050 95c8       lpm			//3 clocks delay
                   //=====Set port C as 0xFF=========
-0000b0 ef00       ldi byte,0xF0
-0000b1 bb05       out portc,byte	//out to port C 0b11110000
-0000b2 9478       sei
-0000b3 9508       ret
+000051 ef00       ldi byte,0xF0
+000052 bb05       out portc,byte	//out to port C 0b11110000
+000053 9478       sei
+000054 9508       ret
                  //------------------------------------------------------------------------
                  //                          sorry for bad english
+                 .include "menu.inc"			//macro for menu uses
+                 
+                  * menu.inc
+                  *
+                  *  Created: 26.10.2015 0:27:02
+                  *   Author: Hogs
+                  */ 
+                 
+                  //========MACRO==========================================
+                 
+                  //--------Init menu page--------------------
+                  .macro menu_init
+                 
+                  load_strings_to_SRAM		//save strings from eeprom to ram
+                 
+                  ldi YH,high(menu_location) //set current menu page as 0 (first page)
+                  ldi YL,low(menu_location)	//
+                  ldi temp,0
+                  st Y,temp
+                 
+                  LCD_print_str CO_msg		//print first menu page
+                  second_line
+                  LCD_print_str CO_msg+96
+                  .endm
+                  //------------------------------------------
+                  //--------Menu refresh page----------------
+                  .macro menu_refresh
+                 
+                  push menu_loc			//Save all register which will be used
+                  push XH				//
+                  push XL				//
+                  push temp
+                  push YH
+                  push YL
+                 
+                  ldi YH,high(menu_location)		//load to Y register adress of
+                  ldi YL,low(menu_location)		//current menu page
+                  ld menu_loc,Y					//read from SRAM current menu page
+                  
+                  ldi temp,16				//
+                  mul temp,menu_loc			//counting adress of string
+                  mov XL,r0					//which contain first string
+                  mov XH,r1					//of menu message
+                  ldi temp,0x60				//
+                  add XL,temp				//adress = ((page - 1)*16)+96
+                  clr temp					//
+                  adc XH,temp				//
+                 
+                  first_line					//set first line for print
+                  LCD_print_str_reg			//print message from adress (in X register)
+                 
+                  ldi temp,16				//
+                  mul temp,menu_loc			//counting adress of string
+                  mov XL,r0					//which contain second string
+                  mov XH,r1					//of menu message
+                  ldi temp,0xC0				//
+                  add XL,temp				//adress = ((page - 1) * 16)+192
+                  clr temp					//
+                  adc XH,temp				//
+                 
+                  second_line				//set second line for print
+                  LCD_print_str_reg			//print second string
+                 		
+                  pop YL					//return all of used registers
+                  pop YH					//to their place
+                  pop temp
+                  pop XL
+                  pop XH
+                  pop menu_loc
+                 
+                  .endm
+                 
+                  //--------Menu previous page----------------
+                  .macro menu_prev
+                 
+                  push menu_loc			//Save all register which will be used
+                  push XH				//
+                  push XL				//
+                  push temp
+                  push YH
+                  push YL
+                 
+                  ldi YH,high(menu_location)		//load to Y register adress of
+                  ldi YL,low(menu_location)		//current menu page
+                  ld menu_loc,Y					//read from SRAM current menu page
+                 
+                  ldi temp,0					//if current page is first
+                  cpse menu_loc,temp			//then going out of procedure
+                  rjmp PC+2					//else - continue
+                  rjmp return_menu_prev		//
+                 
+                  dec menu_loc				//decrease page because menu moving up
+                  
+                  ldi temp,16				//
+                  mul temp,menu_loc			//counting adress of string
+                  mov XL,r0					//which contain first string
+                  mov XH,r1					//of menu message
+                  ldi temp,0x60				//
+                  add XL,temp				//adress = ((page - 1)*16)+96
+                  clr temp					//
+                  adc XH,temp				//
+                 
+                  first_line					//set first line for print
+                  LCD_print_str_reg			//print message from adress (in X register)
+                 
+                  ldi temp,16				//
+                  mul temp,menu_loc			//counting adress of string
+                  mov XL,r0					//which contain second string
+                  mov XH,r1					//of menu message
+                  ldi temp,0xC0				//
+                  add XL,temp				//adress = ((page - 1) * 16)+192
+                  clr temp					//
+                  adc XH,temp				//
+                 
+                  second_line				//set second line for print
+                  LCD_print_str_reg			//print second string
+                 
+                  ldi YH,high(menu_location)	//
+                  ldi YL,low(menu_location)	//Save current page status to SRAM
+                  st Y,menu_loc				//
+                 
+                  return_menu_prev:			
+                  pop YL					//return all of used registers
+                  pop YH					//to their place
+                  pop temp
+                  pop XL
+                  pop XH
+                  pop menu_loc
+                 
+                  .endm
+                  //------------------------------------------
+                 
+                  //--------Menu next page--------------------
+                  .macro menu_next
+                 
+                  push menu_loc		//save to stack
+                  push XH			//all of used registers
+                  push XL
+                  push temp
+                  push YH
+                  push YL
+                 
+                  ldi YH,high(menu_location)	//
+                  ldi YL,low(menu_location)	//read number of current page from SRAM
+                  ld menu_loc,Y				//
+                 
+                  ldi temp,5					//if this page is last
+                  cpse menu_loc,temp			//then go to return of procedure
+                  rjmp PC+2					//else - continue
+                  rjmp return_menu_next		//
+                 
+                  inc menu_loc		//increase page because moving down
+                  
+                  ldi temp,16			//counting of first string adress
+                  mul temp,menu_loc		//and move it to X register
+                  mov XL,r0				//
+                  mov XH,r1				//adress = ((page + 1) * 16)+96
+                  ldi temp,0x60
+                  add XL,temp
+                  clr temp
+                  adc XH,temp
+                 
+                  first_line			//
+                  LCD_print_str_reg	//printing first line
+                 
+                  ldi temp,16		//counting of second string adress
+                  mul temp,menu_loc	//and move it to X register
+                  mov XL,r0			//
+                  mov XH,r1			//adress = ((page + 1) * 16)+192
+                  ldi temp,0xC0
+                  add XL,temp
+                  clr temp
+                  adc XH,temp
+                 
+                  second_line		//
+                  LCD_print_str_reg	//printing second line
+                 
+                  ldi YH,high(menu_location)	//
+                  ldi YL,low(menu_location)	//save new current page to SRAM
+                  st Y,menu_loc				//
+                 
+                  return_menu_next:
+                  pop YL				//return all of used registers
+                  pop YH				//
+                  pop temp
+                  pop XL
+                  pop XH
+                  pop menu_loc
+                 
+                  .endm
+                  //------------------------------------------
+                 
+                  //      Read from EEPROM and write it in SRAM
+                  .macro load_strings_to_SRAM
+                  cli
+                  clr YH		 //load to YH register 0
+                  ldi YL,0x60 //load to YL 0x60 coz 0x0060 - sram start
+                  clr ZL		 //clear Z register
+                  clr ZH
+                  //?????????????????-----DEBUG------????????????????????????????????????????????????????????????????????
+                  ldi r19,193			//r19 is a counter
+                 						//USE <LDI r19,97> AFTER DEBUG
+                  //?????????????????????????????????????????????????????????????????????????????????????????????????????
+                 
+                  EE_read_loop:			//loop 96 times
+                  call EEPROM_read_byte //read byte from EEPROM
+                  st Y+,byte				//Store byte to SRAM and post-Inc adress
+                  inc ZL					//increment Z register after reading byte
+                 
+                  dec r19				//loop things...
+                  brne EE_read_loop		//go to EE_read_loop label if r19 is not 0
+                  sei
+                  .endm
+                 
+                 //--------------------------------------------
+                 
+                  //=========PROCEDURES=====================================
+                  //------Read Byte form EEPROM-----------------------
+                 
+                  EEPROM_read_byte:
+                  ; Wait for completion of previous write
+000055 99e1       sbic EECR,EEWE
+000056 cffe       rjmp EEPROM_read_byte
+                 
+000057 94f8       cli //disable all interrupts
+                 
+                  ; Set up address (Z register) in address register
+000058 bbff       out EEARH, ZH
+000059 bbee       out EEARL, ZL
+                  ; Start eeprom read by writing EERE
+00005a 9ae0       sbi EECR,EERE
+                  ; Read data from data register
+00005b b30d       in byte,EEDR
+                 
+00005c 9478       sei //enable interrupts
+00005d 9508       ret
+                 .include "I2C_Real_Time_Clock.inc"	//working with LCD
+                 
+                  * I2C_Real_Time_Clock.inc
+                  *
+                  *  Created: 14.11.2015 0:41:13
+                  *   Author: Hogs
+                  */ 
+                  .equ I2C_BS = 7		//bit 7 in I2C status is busy flag (1-busy, 0-free)
+                  .equ I2C_OP = 6		//bit 6 in I2C status is operation mode(1-read, 0-write)
+                  .equ I2C_E = 5			//bit 5 in I2C status is error(1 - error occurred, 0 - all is ok)
+                  .equ I2C_dev_id = 0b11010000	//adress of Real Time Clock
+                 
+                  //========INTERRUPTS=========================================
+                 
+                  //------On I2C interrupt------------------------------
+                  I2C_Interrupt:
+00005e 931f       push temp
+00005f 93df       push YH
+000060 93cf       push YL
+                 
+000061 e0d1       ldi YH, high(I2C_status)
+000062 e2c4       ldi YL, low(I2C_status)
+000063 8118       ld temp, Y
+                 
+000064 ff16       sbrs temp, 6			//skip if operation bit is 1 (read data)
+000065 c0b4       rjmp I2C_write_data	//if operation bit is 0 (write data) go to I2C_write_data
+                  
+                  //- - - - - I2C read - - - - - -
+                 
+000066 711f       andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
+                 									//set BS flag, OP flag, E flag as 0, for comfortable 
+                 									//compare of current stage operation process
+                 
+000067 3011       cpi temp, 1
+000068 f0c9       breq stage_1		//go to stage 1(start)
+000069 3012       cpi temp, 2
+00006a f111       breq stage_2		//go to stage 2(device id + W)
+00006b 3013       cpi temp, 3
+00006c f1b1       breq stage_3		//go to stage 3(pointer to clock register)
+                 
+00006d 3014       cpi temp, 4			//some hack
+00006e b71f       in temp,SREG			//the same as:
+00006f fd11       sbrc temp, 1			// cpi temp,4
+                 						// breq stage_4_read
+                 						//but have longer branch range
+000070 c047       rjmp stage_4_read	//go to stage 4 for reading data(restart)
+                 
+                 
+000071 e0d1       ldi YH, high(I2C_status)
+000072 e2c4       ldi YL, low(I2C_status)
+000073 8118       ld temp, Y
+000074 711f       andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
+                 
+000075 3015       cpi temp, 5			//some hack
+000076 b71f       in temp,SREG			//the same as:
+000077 fd11       sbrc temp, 1			// cpi temp,6
+                 						// breq stage_5_read
+                 						//but have longer branch range
+000078 c04e       rjmp stage_5_read	//go to stage 5 (device id + R)
+                 
+                 
+000079 e0d1       ldi YH, high(I2C_status)
+00007a e2c4       ldi YL, low(I2C_status)
+00007b 8118       ld temp, Y
+00007c 711f       andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
+00007d 3016       cpi temp, 6			//some hack
+00007e b71f       in temp,SREG			//the same as:
+00007f fd11       sbrc temp, 1			// cpi temp,6
+                 						// breq stage_6_read
+                 						//but have longer branch range
+000080 c05a       rjmp stage_6_read	//go to stage 6 for reading data(read data)
+                 
+                 
+000081 c074       rjmp stop_stage	//else - go to stop stage(generate stop)
+                  // - - - - - - - - - - - - - - -
+                 
+                  //-------stage 1-----------
+                  stage_1:
+000082 e0d1       ldi YH,high(I2C_status)
+000083 e2c4       ldi YL,low(I2C_status)
+000084 8118       ld temp,Y
+000085 9513       inc temp				//set next stage
+000086 8318       st Y,temp		
+                 
+000087 ea15       ldi temp, ((1<<TWSTA)|(1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//generating start
+000088 bf16       out TWCR,temp
+                 
+000089 91cf       pop YL
+00008a 91df       pop YH
+00008b 911f       pop temp
+00008c 9518       reti
+                 
+                  //-------stage 2-----------
+                  stage_2:
+00008d b111       in temp, TWSR
+00008e 7f1c       andi temp, ~((1<<TWPS1) | (1<<TWPS0))	//clear prescaller bits
+                 										//for comfortable compare
+                 
+00008f 3018       cpi temp,0x08			//some hack, coz brne cannot reach label
+000090 b71f       in temp,SREG			//the same as:
+000091 ff11       sbrs temp, 1			// cpi temp,0x08
+                 						// brne I2C_error
+                 						//but have longer branch range
+                 
+000092 c057       rjmp I2C_error			//if got error than set error code and restart
+                 
+000093 e0d1       ldi YH,high(I2C_status)
+000094 e2c4       ldi YL,low(I2C_status)
+000095 8118       ld temp,Y
+000096 9513       inc temp				//set next stage
+000097 8318       st Y,temp
+                 
+000098 e0d1       ldi YH,high(I2C_device)
+000099 e2ca       ldi YL,low(I2C_device)
+00009a 8118       ld temp,Y
+00009b 7f1e       andi temp, ~(1<<0)		//set R/W bit as 0 for write
+00009c b913       out TWDR,temp			//load to TWDR SLA+W(device id + write)
+                 
+00009d e815       ldi temp, ((1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//send SLA+W(device id + write)
+00009e bf16       out TWCR,temp
+                 
+00009f 91cf       pop YL
+0000a0 91df       pop YH
+0000a1 911f       pop temp
+0000a2 9518       reti
+                 
+                  //-------stage 3-----------
+                  stage_3:
+0000a3 b111       in temp, TWSR
+0000a4 7f1c       andi temp, ~((1<<TWPS1) | (1<<TWPS0))	//clear prescaller bits
+                 										//for comfortable compare
+0000a5 3118       cpi temp,0x18
+0000a6 b71f       in temp,SREG			//the same as:
+0000a7 ff11       sbrs temp, 1			// cpi temp,0x18
+                 						// brne I2C_error
+                 						//but have longer branch range
+                 
+0000a8 c041       rjmp I2C_error			//if got error than set error code and restart
+                 
+0000a9 e0d1       ldi YH,high(I2C_status)
+0000aa e2c4       ldi YL,low(I2C_status)
+0000ab 8118       ld temp,Y
+0000ac 9513       inc temp				//set next stage
+0000ad 8318       st Y,temp
+                 
+0000ae e0d1       ldi YH,high(I2C_data_pointer)
+0000af e2cb       ldi YL,low(I2C_data_pointer)
+0000b0 8118       ld temp,Y
+0000b1 b913       out TWDR,temp			//load to data pointer
+                 
+0000b2 e815       ldi temp, ((1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//send data pointer
+0000b3 bf16       out TWCR,temp
+                 
+0000b4 91cf       pop YL
+0000b5 91df       pop YH
+0000b6 911f       pop temp
+0000b7 9518       reti
+                 
+                  //-------stage 4 read------
+                  stage_4_read:
+0000b8 b111       in temp, TWSR
+0000b9 7f1c       andi temp, ~((1<<TWPS1) | (1<<TWPS0))	//clear prescaller bits
+                 										//for comfortable compare
+0000ba 3218       cpi temp,0x28
+0000bb f571       brne I2C_error			//if got error than set error code and restart
+                 
+0000bc e0d1       ldi YH,high(I2C_status)
+0000bd e2c4       ldi YL,low(I2C_status)
+0000be 8118       ld temp,Y
+0000bf 9513       inc temp				//set next stage
+0000c0 8318       st Y,temp
+                 
+0000c1 ea15       ldi temp, ((1<<TWSTA)|(1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//generating start
+0000c2 bf16       out TWCR,temp
+                 
+0000c3 91cf       pop YL
+0000c4 91df       pop YH
+0000c5 911f       pop temp
+0000c6 9518       reti
+                 
+                  //-------stage 5 read------
+                  stage_5_read:
+0000c7 b111       in temp, TWSR
+0000c8 7f1c       andi temp, ~((1<<TWPS1) | (1<<TWPS0))	//clear prescaller bits
+                 										//for comfortable compare
+0000c9 3110       cpi temp,0x10
+0000ca f4f9       brne I2C_error			//if got error than set error code and restart
+                 
+0000cb e0d1       ldi YH,high(I2C_status)
+0000cc e2c4       ldi YL,low(I2C_status)
+0000cd 8118       ld temp,Y
+0000ce 9513       inc temp				//set next stage
+0000cf 8318       st Y,temp
+                 
+0000d0 e0d1       ldi YH,high(I2C_device)
+0000d1 e2ca       ldi YL,low(I2C_device)
+0000d2 8118       ld temp,Y
+0000d3 6011       ori temp, (1<<0)		//set R/W bit as 1 for read
+0000d4 b913       out TWDR,temp			//load to TWDR SLA+R(device id + read)
+                 
+0000d5 e815       ldi temp, ((1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//send SLA+R(device id + read)
+0000d6 bf16       out TWCR,temp
+                 
+0000d7 91cf       pop YL
+0000d8 91df       pop YH
+0000d9 911f       pop temp
+0000da 9518       reti
+                 
+                  //-------stage 6 read------
+                  stage_6_read:
+0000db b111       in temp, TWSR
+0000dc 7f1c       andi temp, ~((1<<TWPS1) | (1<<TWPS0))	//clear prescaller bits
+                 										//for comfortable compare
+0000dd 3410       cpi temp,0x40
+0000de f459       brne I2C_error			//if got error than set error code and restart
+                 
+0000df e0d1       ldi YH,high(I2C_status)
+0000e0 e2c4       ldi YL,low(I2C_status)
+0000e1 8118       ld temp,Y
+0000e2 9513       inc temp				//set next stage
+0000e3 8318       st Y,temp
+                 
+0000e4 e815       ldi temp, ((1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//send data pointer
+0000e5 bf16       out TWCR,temp
+                 
+0000e6 91cf       pop YL
+0000e7 91df       pop YH
+0000e8 911f       pop temp
+0000e9 9518       reti
+                 
+                  //-------I2C error---------
+                  I2C_error:
+0000ea e0d1       ldi YH,high(I2C_status)
+0000eb e2c4       ldi YL,low(I2C_status)
+0000ec 8118       ld temp,Y
+0000ed 771f       andi temp, ~(1<<I2C_BS)//clear busy flag
+0000ee 6210       ori temp,(1<<I2C_E)	//set error flag
+0000ef 8318       st Y,temp				//save error to I2C status
+                 						//for restart operation
+                 						//and after that send STOP
+                 
+0000f0 e915       ldi temp, ((1<<TWSTO)|(1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//generating stop
+0000f1 bf16       out TWCR,temp
+                 
+0000f2 91cf       pop YL
+0000f3 91df       pop YH
+0000f4 911f       pop temp
+0000f5 9518       reti
+                  //-------stop stage--------
+                  stop_stage:
+0000f6 e0d1       ldi YH,high(I2C_status)
+0000f7 e2c4       ldi YL,low(I2C_status)
+0000f8 8118       ld temp,Y
+0000f9 2711       clr temp		//set current stage 0(operation end) also clear all flags
+0000fa 8318       st Y,temp
+                 
+                  /////////////////////////////////////////////////////////////////////////////////////////////////
+0000fb e0d1       ldi YH,high(I2C_data_read)
+0000fc e2cc       ldi YL,low(I2C_data_read)
+                 
+0000fd b113       in temp,TWDR			//load to temp just readed data
+0000fe 8318       st Y,temp				//save it to I2C_data_read
+0000ff 2711       clr temp
+000100 b913       out TWDR,temp			//clear TWDR
+                  /////////////////////////////////////////////////////////////////////////////////////////////////
+000101 e915       ldi temp, ((1<<TWSTO)|(1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//generating stop
+000102 bf16       out TWCR,temp
+                 
+000103 91cf       pop YL
+000104 91df       pop YH
+000105 911f       pop temp
+000106 9518       reti
+                 
+                  //-------stage 4 write------
+                  stage_4_write:
+000107 b111       in temp, TWSR
+000108 7f1c       andi temp, ~((1<<TWPS1) | (1<<TWPS0))	//clear prescaller bits
+                 										//for comfortable compare
+000109 3218       cpi temp,0x28
+00010a f6f9       brne I2C_error			//if got error than set error code and restart
+                 
+00010b e0d1       ldi YH,high(I2C_status)
+00010c e2c4       ldi YL,low(I2C_status)
+00010d 8118       ld temp,Y
+00010e 9513       inc temp				//set next stage
+00010f 8318       st Y,temp
+                 
+000110 e0d1       ldi YH,high(I2C_data_write)
+000111 e2cd       ldi YL,low(I2C_data_write)
+000112 8118       ld temp,Y
+000113 b913       out TWDR,temp			//load data
+                 
+000114 e815       ldi temp, ((1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//send data
+000115 bf16       out TWCR,temp
+                 
+000116 91cf       pop YL
+000117 91df       pop YH
+000118 911f       pop temp
+000119 9518       reti
+                 
+                  //-------------------------
+                 
+                  //- - - - - I2C write - - - - - -
+                  I2C_write_data:
+                 
+00011a 711f       andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
+                 									//set BS flag, OP flag, E flag as 0, for comfortable 
+                 									//compare of current stage operation process
+                 
+00011b 3011       cpi temp, 1
+00011c b71f       in temp,SREG			//the same as:
+00011d fd11       sbrc temp, 1			// cpi temp,1
+                 						// breq stage_1
+                 						//but have longer branch range
+                 
+00011e cf63       rjmp stage_1		//go to stage 1(start)
+                 
+                 
+00011f e0d1       ldi YH, high(I2C_status)
+000120 e2c4       ldi YL, low(I2C_status)
+000121 8118       ld temp, Y
+000122 711f       andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
+000123 3012       cpi temp, 2
+000124 b71f       in temp,SREG			//the same as:
+000125 fd11       sbrc temp, 1			// cpi temp,2
+                 						// breq stage_2
+                 						//but have longer branch range
+000126 cf66       rjmp stage_2		//go to stage 2(device id + W)
+                 
+                 
+000127 e0d1       ldi YH, high(I2C_status)
+000128 e2c4       ldi YL, low(I2C_status)
+000129 8118       ld temp, Y
+00012a 711f       andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
+00012b 3013       cpi temp, 3
+00012c b71f       in temp,SREG			//the same as:
+00012d fd11       sbrc temp, 1			// cpi temp,3
+                 						// breq stage_3
+                 						//but have longer branch range
+00012e cf74       rjmp stage_3		//go to stage 3(pointer to clock's register)
+                 
+                 
+00012f e0d1       ldi YH, high(I2C_status)
+000130 e2c4       ldi YL, low(I2C_status)
+000131 8118       ld temp, Y
+000132 711f       andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
+000133 3014       cpi temp, 4
+000134 b71f       in temp,SREG			//the same as:
+000135 fd11       sbrc temp, 1			// cpi temp,4
+                 						// breq stage_4_write
+                 						//but have longer branch range
+000136 cfd0       rjmp stage_4_write	//go to stage 4 for write data(write data)
+                 
+000137 cfbe       rjmp stop_stage	//else - go to stop stage(generate stop)
+                  // - - - - - - - - - - - - - - -
+                  
+                  //----------------------------------------------------
+                 
+                  //=========MACRO============================================
+                  
+                  //------I2C Init-----------------------
+                  .macro I2C_Init
+                  ldi temp,60
+                  out TWBR,temp		//set SCL frequency as 100KHz
+                 
+                  ldi YH,high(I2C_device)
+                  ldi YL,low(I2C_device)
+                  ldi temp,I2C_dev_id	//save to RAM Clock id
+                  st Y,temp
+                 
+                  .endm
+                  //-------------------------------------
+                 
+                  //------Correct settings---------------
+                  //   That macro check clock's setting
+                  //   and if some settings was wrong
+                  //   then set it correct
+                 
+                  .macro I2C_Check_Clock_Settings
+                  push temp
+                  push YH
+                  push YL
+                 
+                  ldi YH,high(I2C_data_pointer)
+                  ldi YL,low(I2C_data_pointer)
+                  ldi temp,0x00
+                  st Y,temp
+                  call I2C_read_byte
+                 
+                  ldi YH,high(I2C_data_read)
+                  ldi YL,low(I2C_data_read)
+                  ld temp,Y
+                  
+                  sbrc temp,7	//skip next command if clock is On
+                  call I2C_Clock_Enable
+                 
+                  ldi YH,high(I2C_data_pointer)
+                  ldi YL,low(I2C_data_pointer)
+                  ldi temp,0x02
+                  st Y,temp
+                  call I2C_read_byte
+                 
+                  ldi YH,high(I2C_data_read)
+                  ldi YL,low(I2C_data_read)
+                  ld temp,Y
+                  
+                  sbrc temp,6	//skip next command if 24-hour mode is set
+                  call I2C_Clock_Set_24Hour
+                 
+                  pop YL
+                  pop YH
+                  pop temp
+                  .endm
+                 
+                  //-------------------------------------
+                 
+                  //-------Set new time----------------------
+                  I2C_Clock_Set_New_Time:
+000138 931f       push temp
+000139 930f       push r16
+00013a 93df       push YH
+00013b 93cf       push YL
+                 
+                  //- - - - - - - - - - - - WRITE HOURS- - - - - - - - - - - - - - - - - - - - - - - - - - 
+00013c 2700       clr r16
+00013d e0d1       ldi YH,high(I2C_buffer)
+00013e e2c5       ldi YL,low(I2C_buffer)
+00013f 8118       ld temp,Y
+                 
+000140 e0d1       ldi YH,high(I2C_data_write)
+000141 e2cd       ldi YL,low(I2C_data_write)
+000142 8318       st Y,temp							//save to I2C_data_write value from I2C_buffer+1
+                 
+000143 e0d1       ldi YH,high(I2C_data_pointer)
+000144 e2cb       ldi YL,low(I2C_data_pointer)
+000145 e012       ldi temp,0x02
+000146 8318       st Y,temp							//write to 0x02 adress
+                 
+000147 d0c5       rcall I2C_write_byte				//write hours
+                 
+                  //- - - - - - - - - - - - -WRITE MINUTES - - - - - - - - - - - - - - - - - - - - - - - - 
+000148 9503       inc r16
+000149 e0d1       ldi YH,high(I2C_buffer)
+00014a e2c5       ldi YL,low(I2C_buffer)
+00014b 0fc0       add YL,r16
+00014c 930f       push r16
+00014d 2700       clr r16
+00014e 1fd0       adc YH,r16
+00014f 910f       pop r16
+000150 8118       ld temp,Y
+                 
+000151 e0d1       ldi YH,high(I2C_data_write)
+000152 e2cd       ldi YL,low(I2C_data_write)
+000153 8318       st Y,temp						//save to I2C_data_write value from I2C_buffer+0
+                 
+000154 e0d1       ldi YH,high(I2C_data_pointer)
+000155 e2cb       ldi YL,low(I2C_data_pointer)
+000156 e011       ldi temp,0x01
+000157 8318       st Y,temp						//write to 0x01 adress
+                 
+000158 d0b4       rcall I2C_write_byte			//write minutes
+                 
+                  //- - - - - - - - - - - - WRITE DATE - - - - - - - - - - - - - - - - - - - - - - - 
+000159 9503       inc r16
+00015a e0d1       ldi YH,high(I2C_buffer)
+00015b e2c5       ldi YL,low(I2C_buffer)
+00015c 0fc0       add YL,r16
+00015d 930f       push r16
+00015e 2700       clr r16
+00015f 1fd0       adc YH,r16
+000160 910f       pop r16
+000161 8118       ld temp,Y
+                 
+000162 e0d1       ldi YH,high(I2C_data_write)
+000163 e2cd       ldi YL,low(I2C_data_write)
+000164 8318       st Y,temp							//save to I2C_data_write value from I2C_buffer+2
+                 
+000165 e0d1       ldi YH,high(I2C_data_pointer)
+000166 e2cb       ldi YL,low(I2C_data_pointer)
+000167 e014       ldi temp,0x04
+000168 8318       st Y,temp							//write to 0x04 adress
+                 
+000169 d0a3       rcall I2C_write_byte				//write date
+                 
+                  //- - - - - - - - - - - WRITE MONTH- - - - - - - - - - - - - - - - - - - - - - - - - - 
+00016a 9503       inc r16
+00016b e0d1       ldi YH,high(I2C_buffer)
+00016c e2c5       ldi YL,low(I2C_buffer)
+00016d 0fc0       add YL,r16
+00016e 930f       push r16
+00016f 2700       clr r16
+000170 1fd0       adc YH,r16
+000171 910f       pop r16
+000172 8118       ld temp,Y
+                 
+000173 e0d1       ldi YH,high(I2C_data_write)
+000174 e2cd       ldi YL,low(I2C_data_write)
+000175 8318       st Y,temp							//save to I2C_data_write value from I2C_buffer+3
+                 
+000176 e0d1       ldi YH,high(I2C_data_pointer)
+000177 e2cb       ldi YL,low(I2C_data_pointer)
+000178 e015       ldi temp,0x05
+000179 8318       st Y,temp							//write to 0x05 adress
+                 
+00017a d092       rcall I2C_write_byte				//write month
+                 
+                  //- - - - - - - - - - - -WRITE YEARS - - - - - - - - - - - - - - - - - - - - - - - - - 
+00017b 9503       inc r16
+00017c e0d1       ldi YH,high(I2C_buffer)
+00017d e2c5       ldi YL,low(I2C_buffer)
+00017e 0fc0       add YL,r16
+00017f 930f       push r16
+000180 2700       clr r16
+000181 1fd0       adc YH,r16
+000182 910f       pop r16
+000183 8118       ld temp,Y
+                 
+000184 e0d1       ldi YH,high(I2C_data_write)
+000185 e2cd       ldi YL,low(I2C_data_write)
+000186 8318       st Y,temp							//save to I2C_data_write value from I2C_buffer+4
+                 
+000187 e0d1       ldi YH,high(I2C_data_pointer)
+000188 e2cb       ldi YL,low(I2C_data_pointer)
+000189 e015       ldi temp,0x05
+00018a 8318       st Y,temp							//write to 0x06 adress
+                 
+00018b d081       rcall I2C_write_byte				//write years
+                  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+00018c 91cf       pop YL
+00018d 91df       pop YH
+00018e 910f       pop r16
+00018f 911f       pop temp
+000190 9508       ret
+                  //-----------------------------------------
+                 
+                  //-------Get new time----------------------
+                  I2C_Clock_Get_Time:
+000191 931f       push temp
+000192 930f       push r16
+000193 93df       push YH
+000194 93cf       push YL
+                 
+000195 2700       clr r16
+                  //- - - - - - - - - - - - READ HOURS- - - - - - - - - - - - - - - - - - - - - - - - - - 
+000196 e0d1       ldi YH,high(I2C_data_pointer)
+000197 e2cb       ldi YL,low(I2C_data_pointer)
+000198 e012       ldi temp,0x02
+000199 8318       st Y,temp							//read from 0x02 adress
+                 
+00019a d08a       rcall I2C_read_byte				//read hours to I2C_data_read
+                 
+00019b e0d1       ldi YH,high(I2C_data_read)
+00019c e2cc       ldi YL,low(I2C_data_read)
+00019d 8118       ld temp,Y							//load to temp just readed data
+                 
+00019e e0d1       ldi YH,high(I2C_buffer)
+00019f e2c5       ldi YL,low(I2C_buffer)
+0001a0 8318       st Y,temp						//store temp to I2C_buffer[0]
+                  
+                  //- - - - - - - - - - - - -READ MINUTES - - - - - - - - - - - - - - - - - - - - - - - - 
+0001a1 e0d1       ldi YH,high(I2C_data_pointer)
+0001a2 e2cb       ldi YL,low(I2C_data_pointer)
+0001a3 e011       ldi temp,0x01
+0001a4 8318       st Y,temp						//read from 0x01 adress
+                 
+0001a5 d07f       rcall I2C_read_byte			//read minutes to I2C_data_read
+                 
+0001a6 e0d1       ldi YH,high(I2C_data_read)
+0001a7 e2cc       ldi YL,low(I2C_data_read)
+0001a8 8118       ld temp,Y						//load I2C_data_read to temp
+                 
+0001a9 9503       inc r16
+0001aa e0d1       ldi YH,high(I2C_buffer)
+0001ab e2c5       ldi YL,low(I2C_buffer)
+0001ac 0fc0       add YL,r16
+0001ad 930f       push r16
+0001ae 2700       clr r16
+0001af 1fd0       adc YH,r16
+0001b0 910f       pop r16
+0001b1 8318       st Y,temp							//store temp to buffer[1]
+                 
+                  //- - - - - - - - - - - - READ DATE - - - - - - - - - - - - - - - - - - - - - - - 
+0001b2 e0d1       ldi YH,high(I2C_data_pointer)
+0001b3 e2cb       ldi YL,low(I2C_data_pointer)
+0001b4 e014       ldi temp,0x04
+0001b5 8318       st Y,temp							//read from 0x04 adress
+                 
+0001b6 d06e       rcall I2C_read_byte				//read date to I2C_data_read
+                 
+0001b7 e0d1       ldi YH,high(I2C_data_read)
+0001b8 e2cc       ldi YL,low(I2C_data_read)
+0001b9 8118       ld temp,Y							//load to temp just readed data
+                 
+0001ba 9503       inc r16
+0001bb e0d1       ldi YH,high(I2C_buffer)
+0001bc e2c5       ldi YL,low(I2C_buffer)
+0001bd 0fc0       add YL,r16
+0001be 930f       push r16
+0001bf 2700       clr r16
+0001c0 1fd0       adc YH,r16
+0001c1 910f       pop r16
+0001c2 8318       st Y,temp							//store temp to buffer[2]
+                 
+                  //- - - - - - - - - - - READ MONTH- - - - - - - - - - - - - - - - - - - - - - - - - - 
+0001c3 e0d1       ldi YH,high(I2C_data_pointer)
+0001c4 e2cb       ldi YL,low(I2C_data_pointer)
+0001c5 e015       ldi temp,0x05
+0001c6 8318       st Y,temp							//read from 0x05 adress
+                 
+0001c7 d05d       rcall I2C_read_byte				//read month to I2C_data_read
+                 
+0001c8 e0d1       ldi YH,high(I2C_data_read)
+0001c9 e2cc       ldi YL,low(I2C_data_read)
+0001ca 8118       ld temp,Y							//load to temp just readed data
+                 
+0001cb 9503       inc r16
+0001cc e0d1       ldi YH,high(I2C_buffer)
+0001cd e2c5       ldi YL,low(I2C_buffer)
+0001ce 0fc0       add YL,r16
+0001cf 930f       push r16
+0001d0 2700       clr r16
+0001d1 1fd0       adc YH,r16
+0001d2 910f       pop r16
+0001d3 8318       st Y,temp							//store temp to buffer[3]
+                 
+                  //- - - - - - - - - - - -READ YEARS - - - - - - - - - - - - - - - - - - - - - - - - - 
+0001d4 e0d1       ldi YH,high(I2C_data_pointer)
+0001d5 e2cb       ldi YL,low(I2C_data_pointer)
+0001d6 e016       ldi temp,0x06
+0001d7 8318       st Y,temp							//read from 0x06 adress
+                 
+0001d8 d04c       rcall I2C_read_byte				//read years to I2C_data_read
+                 
+0001d9 e0d1       ldi YH,high(I2C_data_read)
+0001da e2cc       ldi YL,low(I2C_data_read)
+0001db 8118       ld temp,Y							//load to temp just readed data
+                 
+0001dc 9503       inc r16
+0001dd e0d1       ldi YH,high(I2C_buffer)
+0001de e2c5       ldi YL,low(I2C_buffer)
+0001df 0fc0       add YL,r16
+0001e0 930f       push r16
+0001e1 2700       clr r16
+0001e2 1fd0       adc YH,r16
+0001e3 910f       pop r16
+0001e4 8318       st Y,temp							//store temp to buffer[4]
+                  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+0001e5 91cf       pop YL
+0001e6 91df       pop YH
+0001e7 910f       pop r16
+0001e8 911f       pop temp
+0001e9 9508       ret
+                  //-----------------------------------------
+                  //------Refresh time-------------------------------------------
+                  .macro Refresh_time
+                  call I2C_Clock_Get_Time
+                  call Time_to_string
+                  .endm
+                  //-------------------------------------------------------------
+                  //======PROCEDURES=========================================
+                 
+                  //-------load time value from I2C_buffer-----------------------
+                  Time_to_string:
+0001ea 932f       push r18
+0001eb 933f       push r19
+0001ec 931f       push temp
+0001ed 93df       push YH
+0001ee 93cf       push YL
+0001ef 93bf       push XH
+0001f0 93af       push XL
+                 
+0001f1 e330       ldi r19,48
+0001f2 2722       clr r18
+                 
+0001f3 e0d1       ldi YH,high(time_value)
+0001f4 e0c0       ldi YL,low(time_value)
+                 
+0001f5 e0b1       ldi XH,high(I2C_buffer)
+0001f6 e2a5       ldi XL,low(I2C_buffer)
+                 
+                  Time_to_string_loop:
+                 
+0001f7 911d       ld temp,X+
+                 
+0001f8 931f       push temp
+0001f9 9512       swap temp
+0001fa 701f       andi temp,0x0F	//clear high half-byte
+0001fb 0f13       add temp,r19	//temp += 48
+0001fc 9319       st Y+,temp
+                 
+0001fd 911f       pop temp
+0001fe 701f       andi temp,0x0F	//clear high half-byte
+0001ff 0f13       add temp,r19	//temp += 48
+000200 9319       st Y+,temp
+                 
+000201 9621       adiw YH:YL,1
+                 
+000202 9523       inc r18
+000203 3025       cpi r18,5
+000204 f791       brne Time_to_string_loop
+                 
+000205 91af       pop XL
+000206 91bf       pop XH
+000207 91cf       pop YL
+000208 91df       pop YH
+000209 911f       pop temp
+00020a 913f       pop r19
+00020b 912f       pop r18
+00020c 9508       ret
+                  //-------------------------------------------------------------
+                  //-----Write byte------------------
+                  I2C_write_byte:
+00020d 931f       push temp
+00020e 93df       push YH
+00020f 93cf       push YL
+                 
+                  I2C_error_restart_write:
+                 
+000210 e0d1       ldi YH,high(I2C_status)
+000211 e2c4       ldi YL,low(I2C_status)
+000212 8118       ld temp,Y
+000213 fd17       sbrc temp,I2C_BS					//wait for last I2C operation end
+000214 cffb       rjmp I2C_error_restart_write
+                 
+000215 e810       ldi temp, (1<<I2C_BS)				//set I2C busy and write
+000216 9513       inc temp							//set current stage as 1
+000217 8318       st Y,temp		//save to I2C_data_pointer a pointer to register
+                 				//which need to read
+                 				
+000218 de45       rcall I2C_Interrupt
+                 
+                  I2C_wait_write_end:
+                 
+000219 e0d1       ldi YH,high(I2C_status)
+00021a e2c4       ldi YL,low(I2C_status)
+00021b 8118       ld temp,Y
+                 
+00021c fd15       sbrc temp, I2C_E				//if error occurred
+00021d cff2       rjmp I2C_error_restart_write	//restart read
+                 
+00021e 711f       andi temp, 0b0001_1111		//clear flags, for comfortable compare
+00021f 3010       cpi temp,0
+000220 f7c1       brne I2C_wait_write_end
+                 
+000221 91cf       pop YL
+000222 91df       pop YH
+000223 911f       pop temp
+000224 9508       ret
+                   //-----Read byte-------------------
+                  I2C_read_byte:
+000225 931f       push temp
+000226 93df       push YH
+000227 93cf       push YL
+                 
+                  I2C_error_restart_read:
+                 
+000228 e0d1       ldi YH,high(I2C_status)
+000229 e2c4       ldi YL,low(I2C_status)
+00022a 8118       ld temp,Y
+00022b fd17       sbrc temp,I2C_BS					//wait for last I2C operation end
+00022c cffb       rjmp I2C_error_restart_read
+                 
+00022d ec10       ldi temp, (1<<I2C_BS)|(1<<I2C_OP)	//set I2C busy and read
+00022e 9513       inc temp							//set current stage as 1
+00022f 8318       st Y,temp		//save to I2C_data_pointer a pointer to register
+                 				//which need to read
+                 				
+000230 de2d       rcall I2C_Interrupt
+                 
+                  I2C_wait_read_end:
+                 
+000231 e0d1       ldi YH,high(I2C_status)
+000232 e2c4       ldi YL,low(I2C_status)
+000233 8118       ld temp,Y
+                 
+000234 fd15       sbrc temp, I2C_E			//if error occurred
+000235 cff2       rjmp I2C_error_restart_read	//restart read
+                 
+000236 711f       andi temp, 0b0001_1111		//clear flags, for comfortable compare
+000237 3010       cpi temp,0
+000238 f7c1       brne I2C_wait_read_end
+                 
+000239 91cf       pop YL
+00023a 91df       pop YH
+00023b 911f       pop temp
+00023c 9508       ret
+                 
+                  //----Set Clock Halt(enable clock)------------------
+                  I2C_Clock_Enable:
+00023d 931f       push temp
+00023e 93df       push YH
+00023f 93cf       push YL
+                 
+000240 771f       andi temp, ~(1<<7)	//set clock halt as 0(enable clock)
+000241 e0d1       ldi YH,high(I2C_data_write)
+000242 e2cd       ldi YL,low(I2C_data_write)
+000243 8318       st Y,temp
+                 
+000244 e0d1       ldi YH,high(I2C_data_pointer)
+000245 e2cb       ldi YL,low(I2C_data_pointer)
+000246 e010       ldi temp,0x00
+000247 8318       st Y,temp
+                 
+000248 dfc4       rcall I2C_write_byte
+                 
+000249 91cf       pop YL
+00024a 91df       pop YH
+00024b 911f       pop temp
+00024c 9508       ret
+                  //--------------------------------------------------
+                 
+                  //----Set 24-hour mode------------------------------
+                  I2C_Clock_Set_24Hour:
+00024d 931f       push temp
+00024e 93df       push YH
+00024f 93cf       push YL
+                 
+000250 7b1f       andi temp, ~(1<<6)	//set hour mode as 0(24-hour mode)
+000251 e0d1       ldi YH,high(I2C_data_write)
+000252 e2cd       ldi YL,low(I2C_data_write)
+000253 8318       st Y,temp
+                 
+000254 e0d1       ldi YH,high(I2C_data_pointer)
+000255 e2cb       ldi YL,low(I2C_data_pointer)
+000256 e012       ldi temp,0x02
+000257 8318       st Y,temp
+                 
+000258 dfb4       rcall I2C_write_byte
+                 
+000259 91cf       pop YL
+00025a 91df       pop YH
+00025b 911f       pop temp
+00025c 9508       ret
+                  //--------------------------------------------------
+                 .include "TimeSet.inc"		//time set procedures and macro
+                 
+                  * TimeSet.inc
+                  *
+                  *  Created: 17.11.2015 1:07:04
+                  *   Author: Hogs
+                  */ 
+                  .equ time_set_S = 7		//time set status flag
+                  .equ time_set_F = 6		//time set first number flag
+                  .equ time_set_B = 5		//time set blink flag
+                 
+                  //======PROCEDURES==========================================
+                  //-----------------------------------------------------
+                  time_set_blink:
+00025d 931f       push temp
+00025e 93df       push YH
+00025f 93cf       push YL
+000260 930f       push r16
+                 
+000261 e0d1       ldi YH,high(time_set_status)
+000262 e2ce       ldi YL,low(time_set_status)
+000263 8108       ld r16,Y
+                 
+000264 ff07       sbrs r16,time_set_S
+000265 c027       rjmp return_time_set_blink
+                 
+000266 e0d1       ldi YH,high(time_set_blink_count)
+000267 e4c1       ldi YL,low(time_set_blink_count)
+000268 8118       ld temp,Y
+                 
+000269 301a       cpi temp,10
+00026a f110       brlo return_time_set_blink
+                 
+00026b ff05       sbrs r16,time_set_B
+00026c c00d       rjmp blink_pair
+                 
+00026d e0d1       ldi YH,high(time_set_blink_count)
+00026e e4c1       ldi YL,low(time_set_blink_count)
+00026f 2711       clr temp
+000270 8318       st Y,temp
+                 
+000271 e0d1       ldi YH,high(time_set_status)
+000272 e2ce       ldi YL,low(time_set_status)
+000273 7d0f       andi r16, ~(1<<time_set_B)
+000274 8308       st Y,r16
+                 
+000275 d0b3       rcall time_set_get_pair_adress
+000276 e210       ldi temp, ' '
+000277 9319       st Y+,temp
+000278 8318       st Y,temp
+                 
+000279 c013       rjmp return_time_set_blink
+                 
+                  blink_pair:
+                 
+00027a e0d1       ldi YH,high(time_set_blink_count)
+00027b e4c1       ldi YL,low(time_set_blink_count)
+00027c 2711       clr temp
+00027d 8318       st Y,temp
+                 
+00027e e0d1       ldi YH,high(time_set_status)
+00027f e2ce       ldi YL,low(time_set_status)
+000280 6200       ori r16, (1<<time_set_B)
+000281 8308       st Y,r16
+                 
+000282 93ff       push ZH
+000283 93ef       push ZL
+000284 d0a4       rcall time_set_get_pair_adress
+000285 e0f1       ldi ZH,high(time_set_buffer)
+000286 e3ef       ldi ZL,low(time_set_buffer)
+000287 9111       ld temp,Z+
+000288 9319       st Y+,temp
+000289 8110       ld temp,Z
+00028a 8318       st Y,temp
+00028b 91ef       pop ZL
+00028c 91ff       pop ZH
+                 
+                 
+                  return_time_set_blink:
+00028d 932f
+00028e 93bf
+00028f 93af
+000290 931f
+000291 93df
+000292 93cf
+000293 e0d1
+000294 e2c0
+000295 8128
+000296 e110
+000297 9f12
+000298 2da0
+000299 2db1
+00029a e610
+00029b 0fa1
+00029c 2711
+00029d 1fb1
+00029e 931f
+00029f 930f
+0002a0 931f
+0002a1 930f
+0002a2 e010
+0002a3 e800
+0002a4 940e 0030
+0002a6 910f
+0002a7 911f
+0002a8 939f
+0002a9 938f
+0002aa 937f
+0002ab ef90
+0002ac e081
+0002ad e071
+0002ae 940e 0029
+0002b0 917f
+0002b1 918f
+0002b2 919f
+0002b3 910f
+0002b4 911f
+0002b5 931f
+0002b6 930f
+0002b7 93af
+0002b8 93bf
+0002b9 933f
+0002ba e014
+0002bb e131
+0002bc 910d
+0002bd 940e 0030
+0002bf 939f
+0002c0 938f
+0002c1 937f
+0002c2 ef90
+0002c3 e081
+0002c4 e071
+0002c5 940e 0029
+0002c7 917f
+0002c8 918f
+0002c9 919f
+0002ca 953a
+0002cb f781
+0002cc 913f
+0002cd 91bf
+0002ce 91af
+0002cf 910f
+0002d0 911f
+0002d1 e110
+0002d2 9f12
+0002d3 2da0
+0002d4 2db1
+0002d5 ec10
+0002d6 0fa1
+0002d7 2711
+0002d8 1fb1
+0002d9 931f
+0002da 930f
+0002db 931f
+0002dc 930f
+0002dd e010
+0002de ec00
+0002df 940e 0030
+0002e1 910f
+0002e2 911f
+0002e3 939f
+0002e4 938f
+0002e5 937f
+0002e6 ef90
+0002e7 e081
+0002e8 e071
+0002e9 940e 0029
+0002eb 917f
+0002ec 918f
+0002ed 919f
+0002ee 910f
+0002ef 911f
+0002f0 931f
+0002f1 930f
+0002f2 93af
+0002f3 93bf
+0002f4 933f
+0002f5 e014
+0002f6 e131
+0002f7 910d
+0002f8 940e 0030
+0002fa 939f
+0002fb 938f
+0002fc 937f
+0002fd ef90
+0002fe e081
+0002ff e071
+000300 940e 0029
+000302 917f
+000303 918f
+000304 919f
+000305 953a
+000306 f781
+000307 913f
+000308 91bf
+000309 91af
+00030a 910f
+00030b 911f
+00030c 91cf
+00030d 91df
+00030e 911f
+00030f 91af
+000310 91bf
+000311 912f       menu_refresh
+                 
+000312 910f       pop r16
+000313 91cf       pop YL
+000314 91df       pop YH
+000315 911f       pop temp
+000316 9508       ret
+                  //-----------------------------------------------------
+                  time_set_set_buffer:
+000317 93df       push YH
+000318 93cf       push YL
+000319 93ff       push ZH
+00031a 93ef       push ZL
+00031b 931f       push temp
+                 
+00031c e0f1       ldi ZH,high(time_set_buffer)
+00031d e3ef       ldi ZL,low(time_set_buffer)
+                 
+00031e d00a       rcall time_set_get_pair_adress
+00031f 9119       ld temp,Y+
+000320 9311       st Z+,temp
+000321 8118       ld temp,Y
+000322 8310       st Z,temp
+                 
+000323 911f       pop temp
+000324 91ef       pop ZL
+000325 91ff       pop ZH
+000326 91cf       pop YL
+000327 91df       pop YH
+000328 9508       ret
+                 
+                  //-----------------------------------------------------
+                  time_set_get_pair_adress:
+000329 931f       push temp
+00032a 930f       push r16
+                 
+00032b e0d1       ldi YH,high(time_set_status)
+00032c e2ce       ldi YL,low(time_set_status)
+00032d 8118       ld temp,Y
+                 
+00032e 711f       andi temp,0b0001_1111		//clear flags
+00032f 2f01       mov r16,temp	
+000330 0f10       add temp,r16				//temp = pair*2
+000331 0f10       add temp,r16				//temp = pair*2 + pair
+                 
+000332 e0d1       ldi YH,high(time_value)
+000333 e0c0       ldi YL,low(time_value)
+                 
+000334 0fc1       add YL,temp
+000335 2700       clr r16
+000336 1fd0       adc YH,r16
+                 
+000337 910f       pop r16
+000338 911f       pop temp
+000339 9508       ret
+                  //---------------------------------------------
+                  time_set_next_pair:
+00033a 93df       push YH
+00033b 93cf       push YL
+00033c 931f       push temp
+                 
+00033d e0d1       ldi YH,high(time_set_status)
+00033e e2ce       ldi YL,low(time_set_status)
+00033f 8118       ld temp,Y
+                 
+000340 7b1f       andi temp,~(1<<time_set_F)
+000341 9513       inc temp
+                 
+000342 8318       st Y,temp
+                 
+000343 911f       pop temp
+000344 91cf       pop YL
+000345 91df       pop YH
+000346 9508       ret
+                  //----------------------------------------------
+                 
+                  //========MACRO============================================
+                  //-----------------------------------------
+                  .macro time_set_start
+                  
+                  ldi YH,high(time_set_status)
+                  ldi YL,low(time_set_status)
+                  ld temp,Y
+                 
+                  sbrs temp,time_set_S
+                  rjmp enable_time_set
+                 
+                  ldi temp, 0x00
+                  st Y,temp
+                  rcall I2C_Clock_Set_New_Time
+                  Refresh_time
+                  rjmp return_time_set_start
+                 
+                  enable_time_set:
+                 
+                  ldi temp,(1<<time_set_S)
+                  st Y,temp
+                 
+                  return_time_set_start:
+                  menu_refresh
+                 
+                  .endm
+                  //-----------------------------------------
+                  .macro time_set_set_next_pair
+                  
+                  ldi YH,high(time_set_status)
+                  ldi YL,low(time_set_status)
+                  ld temp,Y
+                 
+                  sbrc temp,time_set_S
+                  rjmp return_time_set_set_next_pair
+                 
+                  rcall time_set_next_pair
+                 
+                  return_time_set_set_next_pair:
+                  menu_refresh
+                 
+                  .endm
+                  //------INIT-------------------------------
+                  .macro time_set_init
+                  ldi YH,high(time_set_ranges)
+                  ldi YL,low(time_set_ranges)
+                 
+                  st Y+,2		//max hours high 2
+                  st Y+,9		
+                 
+                  st Y+,6		//max minutes high 6
+                  st Y+,9
+                 
+                  st Y+,3		//max date high 3
+                  st Y+,9		
+                 
+                  st Y+,1		//max month high 1
+                  st Y+,9
+                 
+                  st Y+,9		//
+                  st Y+,9
+                 
+                  ldi YH,high(time_set_max_values)
+                  ldi YL,low(time_set_max_values)
+                 
+                  st Y+,24
+                  st Y+,60
+                  st Y+,31
+                  st Y+,12
+                  st Y+,99
+                 
+                  .endm
+                  //-----------------------------------------
+                 
+                 
+                  .macro time_set
+                  push temp
+                  push YH
+                  push YL
+                  push r16
+                 
+                  ldi YH,high(time_set_status)
+                  ldi YL,low(time_set_status)
+                  ld temp,Y
+                 
+                  sbrs temp,time_set_S	//return if time set status is off(0)
+                  rjmp return_time_set
+                 
+                  //time set mode is on
+                  sbrs temp,time_set_F	//skip if number is second
+                  rjmp time_set_second_number
+                 
+                  //number is first
+                  ldi temp,@0		//temp = ASCII code of number
+                  subi temp,48		//now temp = number
+                 
+                  ld r16,Y
+                  andi r16, ~((1<<time_set_S)|(1<<time_set_F)|(1<<time_set_B))	//now temp = pair
+                  ldi YH,high(time_set_ranges)
+                  ldi YL,low(time_set_ranges)
+                  add YL,r16
+                  clr temp
+                  adc YH,r16
+                  ld r16,Y		//now r16 = max range for first number of this pair
+                 
+                  cp r16,temp
+                  brlo time_set_first_lower_first
+                 
+                  //if number is higher than max range
+                  rcall time_set_get_pair_adress
+                  ldi r16,'0'
+                  st Y+,r16
+                  ldi temp,@0
+                  st Y,temp
+                  rcall time_set_next_pair
+                  rjmp return_time_set
+                 
+                  //if number is ok(lower than max range)
+                  time_set_first_lower_first:
+                 
+                  rcall time_set_get_pair_adress
+                  ldi temp,@0
+                  st Y,temp
+                  ldi YH,high(time_set_status)
+                  ldi YL,low(time_set_status)
+                  ld temp,Y
+                  ori temp,(1<<time_set_F)
+                  st Y,temp
+                  rjmp return_time_set
+                 
+                 
+                  time_set_second_number:
+                  ldi temp,@0		//temp = ASCII code of number
+                  subi temp,48		//now temp = number
+                 
+                  ld r16,Y
+                  andi r16, ~((1<<time_set_S)|(1<<time_set_F)|(1<<time_set_B))	//now temp = pair
+                  ldi YH,high(time_set_ranges)
+                  ldi YL,low(time_set_ranges)
+                  add YL,r16
+                  clr temp
+                  adc YH,r16
+                  ld r16,Y		//now r16 = max range for first number of this pair
+                 
+                  cp r16,temp
+                  ldi temp,@0
+                  brlo time_set_first_lower_second
+                 
+                  mov temp,r16
+                  ldi r16,48
+                  add temp,r16
+                 
+                  time_set_first_lower_second:
+                  rcall time_set_get_pair_adress
+                  st Y,temp
+                  rcall time_set_next_pair
+                 
+                  return_time_set:
+                  rcall time_set_set_buffer
+                 
+                  pop r16
+                  pop YL
+                  pop YH
+                  pop temp
+                  .endm
+                 .include "sound.inc"		//macro and procedures for buzzer sound
+                 
+                  * sound.inc
+                  *
+                  *  Created: 10.11.2015 23:44:51
+                  *   Author: Hogs
+                  */ 
+                 
+                  .equ BUZZER = 6				//6 - is number of pin for buzzer
+                  .equ sound_general_status = 0	//number of sound_status bit, 
+                 								//for get general sound status (sound_on/sound_off)
+                  .equ sound_freq = 23			//frequency of sound
+                 
+                  //=======Sound macro=======================================
+                  //-------Sound test---------------------------
+                  .macro sound_test
+                  ldi YH, high(menu_location)
+                  ldi YL, low(menu_location)
+                  ld temp, Y			//load current menu page to temp
+                  cpi temp,5			//if current page is sound
+                  brne @0			//then continue, else return
+                  ldi YH,high(sound_status)	//
+                  ldi YL,low(sound_status)	//read sound status from RAM
+                  ld temp,Y
+                 
+                  sbrc temp,sound_general_status	//if sound is generally off then set sound on
+                  rjmp sound_off					//else set sound off
+                 
+                  rcall sound_alarm_enable
+                  rjmp @0
+                 
+                  sound_off:
+                  rcall sound_alarm_disable
+                  .endm
+                  //-------Sound Init---------------------------
+                  .macro sound_init
+                  in temp, ddrd
+                  ori temp, (0 | (1<<BUZZER))	//set buzzer pin as output
+                  out ddrd,temp
+                  in temp, portd
+                  andi temp, ~(1<<BUZZER)	//set buzzer pin as 0
+                  out portd, temp
+                 
+                 								//setting timer0
+                  clr temp
+                  out TCNT0,temp		//set counter as 0
+                  ldi temp,sound_freq
+                  out OCR0,temp		//set sound frequency
+                  in temp, TIMSK
+                  ori temp, (1<<OCIE0)	//
+                  out TIMSK, temp	//enable On match timer 0 interrupt
+                  .endm
+                  //-------Timer0 enable---------------------------
+                  .macro Timer0_enable
+                  push temp
+                  ldi temp, 0 | (1<<WGM01) | (1<<CS02)
+                  out TCCR0, temp //set timer in CTC mode with 256 prescaler (enable)
+                  pop temp
+                  .endm
+                  //-------Timer0 disable---------------------------
+                  .macro Timer0_disable
+                  push temp
+                  clr temp
+                  out TCCR0, temp //disable timer0
+                  pop temp
+                  .endm
+                   //-------Timer 0 toggle--------------------------
+                  .macro Timer0_toggle
+                  push temp
+                 
+                  in temp, TCCR0			//if TCCR0 is empty
+                  cpi temp,0				//then set timer on
+                  breq set_timer_on		//else set timer off
+                 
+                  Timer0_disable
+                  rjmp end_timer_toggle	//disable timer
+                 
+                  set_timer_on:
+                  Timer0_enable
+                 
+                  end_timer_toggle:
+                  pop temp
+                  .endm
+                  //=======PROCEDURES=======================================================
+                  //-------Sound Alarm enable----------------------
+                  sound_alarm_enable:
+000347 931f       push temp
+000348 93df       push YH
+000349 93cf       push YL
+                 
+00034a e0d1       ldi YH,high(sound_status)	//
+00034b e2c3       ldi YL,low(sound_status)	//set sound status in RAM
+                  
+00034c e011       ldi temp, 0 | (1<<sound_general_status)
+00034d 8318       st Y,temp	//set general sound status and pause status
+                 
+00034e b719       in temp, TIMSK
+00034f 6018       ori temp, (1<<OCIE1B)	//set OCIE1B as 1
+000350 bf19       out TIMSK, temp	//enable interrupt(every 0.5sec)
+                 
+000351 931f
+000352 e01c
+000353 bf13
+000354 911f       Timer0_enable		//enable timer0
+                 
+000355 91cf       pop YL
+000356 91df       pop YH
+000357 911f       pop temp
+000358 9508       ret
+                  //-------Sound Alarm disable---------------------
+                  sound_alarm_disable:
+000359 931f       push temp
+00035a 93df       push YH
+00035b 93cf       push YL
+                  
+00035c e0d1       ldi YH,high(sound_status)	//
+00035d e2c3       ldi YL,low(sound_status)	//set sound status in RAM
+                 
+00035e e010       ldi temp, 0
+00035f 8318       st Y,temp			//set general sound status as 0 (alarm disable:)
+                 
+000360 b719       in temp, TIMSK
+000361 7f17       andi temp, ~(1<<OCIE1B)	//set OCIE1B as 0
+000362 bf19       out TIMSK, temp	//disable interrupt
+                 
+000363 931f
+000364 2711
+000365 bf13
+000366 911f       Timer0_disable		//stop sound generation
+                 
+000367 27cc       clr YL
+000368 27dd       clr YH
+000369 94f8       cli
+00036a bddd       out TCNT1H,YH	//clear counter of timer1
+00036b bdcc       out TCNT1L,YL
+00036c 9478       sei
+                 
+00036d e00c       ldi r16,0x0C			//set A as standart value	
+00036e e315       ldi r17,0x35
+00036f 94f8       cli
+000370 bd0b       out OCR1AH,r16			//set A as 3125
+000371 bd1a       out OCR1AL,r17			//that mean timer tick is every 0.05sec
+000372 9478       sei
+                 
+000373 91cf       pop YL
+000374 91df       pop YH
+000375 911f       pop temp
+000376 9508       ret
+                  //-----------------------------------------------
+                 
+                  //=======Sound interrupts==================================
+                 
+                  //-------Sound generation interrupt-----------
+                  Sound_generation:
+000377 9b86       sbis pind, BUZZER
+000378 c002       rjmp Buzzer_set_1
+000379 9896       cbi portd, BUZZER	//if buzzer pin is 1, then set it as 0
+00037a 9518       reti
+                  Buzzer_set_1:
+00037b 9a96       sbi portd, BUZZER	//if buzzer pin is 0, then set is as 1
+00037c 9518       reti
+                 
+                  //--------Sound play/pause interrupt----------
+                  Sound_play_and_pause:
+00037d 931f       push temp
+00037e 93df       push YH
+00037f 93cf       push YL
+                 
+000380 e0dc       ldi YH,0x0C
+000381 e3c5       ldi YL,0x35
+000382 94f8       cli
+000383 bddb       out OCR1AH,YH	//set timer1 A as 3125
+000384 bdca       out OCR1AL,YL	//for correct work with keyboard
+000385 9478       sei
+                 
+000386 931f
+000387 b713
+000388 3010
+000389 f029
+00038a 931f
+00038b 2711
+00038c bf13
+00038d 911f
+00038e c004
+00038f 931f
+000390 e01c
+000391 bf13
+000392 911f
+000393 911f       Timer0_toggle
+                 
+000394 27cc       clr YL
+000395 27dd       clr YH
+000396 94f8       cli
+000397 bddd       out TCNT1H,YH	//clear counter of timer1
+000398 bdcc       out TCNT1L,YL
+000399 9478       sei
+                 
+00039a 91cf       pop YL
+00039b 91df       pop YH
+00039c 911f       pop temp
+00039d 9518       reti
+                  //--------------------------------------------
                  .include "keyboard.inc"		//macro and procedures for 3x4 keyboard
                  
                   * keyboard.inc
@@ -1784,698 +3135,1617 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   //=======PROCEDURES=====================================
                   //-------On 1 click-----------------------------
                   On_1_click:
-0000b4 931f       push temp
-0000b5 93df       push YH
-0000b6 93cf       push YL
-0000b7 930f       push r16
+00039e 931f       push temp
+00039f 93df       push YH
+0003a0 93cf       push YL
+0003a1 930f       push r16
                  
-0000b8 e0d1
-0000b9 e2c1
-0000ba 9119
-0000bb 8108
-0000bc 3301
-0000bd f419
-0000be 3011
-0000bf f408
-0000c0 c006
-0000c1 e010
-0000c2 e301
-0000c3 e0d1
-0000c4 e2c1
-0000c5 9319
-0000c6 8308       Anti_false_activation '1', return_On_1_Click
+0003a2 e0d1
+0003a3 e2c1
+0003a4 9119
+0003a5 8108
+0003a6 3301
+0003a7 f419
+0003a8 3011
+0003a9 f408
+0003aa c045
+0003ab e010
+0003ac e301
+0003ad e0d1
+0003ae e2c1
+0003af 9319
+0003b0 8308       Anti_false_activation '1', return_On_1_Click
+                 
+0003b1 931f
+0003b2 93df
+0003b3 93cf
+0003b4 930f
+0003b5 e0d1
+0003b6 e2ce
+0003b7 8118
+0003b8 ff17
+0003b9 c031
+0003ba ff16
+0003bb c01c
+0003bc e311
+0003bd 5310
+0003be 8108
+0003bf 710f
+0003c0 e0d1
+0003c1 e3c0
+0003c2 0fc0
+0003c3 2711
+0003c4 1fd0
+0003c5 8108
+0003c6 1701
+0003c7 f038
+0003c8 df60
+0003c9 e300
+0003ca 9309
+0003cb e311
+0003cc 8318
+0003cd df6c
+0003ce c01c
+0003cf df59
+0003d0 e311
+0003d1 8318
+0003d2 e0d1
+0003d3 e2ce
+0003d4 8118
+0003d5 6410
+0003d6 8318
+0003d7 c013
+0003d8 e311
+0003d9 5310
+0003da 8108
+0003db 710f
+0003dc e0d1
+0003dd e3c0
+0003de 0fc0
+0003df 2711
+0003e0 1fd0
+0003e1 8108
+0003e2 1701
+0003e3 e311
+0003e4 f018
+0003e5 2f10
+0003e6 e300
+0003e7 0f10
+0003e8 df40
+0003e9 8318
+0003ea df4f
+0003eb df2b
+0003ec 910f
+0003ed 91cf
+0003ee 91df
+0003ef 911f       time_set '1'
                  
                   return_On_1_Click:
-0000c7 910f       pop r16
-0000c8 91cf       pop YL
-0000c9 91df       pop YH
-0000ca 911f       pop temp
+0003f0 910f       pop r16
+0003f1 91cf       pop YL
+0003f2 91df       pop YH
+0003f3 911f       pop temp
                  
-0000cb 9478       sei
-0000cc 9bb2       sbis pinb,KBD_3		//wait until button is turned off
-0000cd cffe       rjmp PC-1
-0000ce 9508       ret
+0003f4 9478       sei
+0003f5 9bb2       sbis pinb,KBD_3		//wait until button is turned off
+0003f6 cffe       rjmp PC-1
+0003f7 9508       ret
                   //-------On 2 click-----------------------------
                   On_2_click:
-0000cf 931f       push temp
-0000d0 93df       push YH
-0000d1 93cf       push YL
-0000d2 930f       push r16
+0003f8 931f       push temp
+0003f9 93df       push YH
+0003fa 93cf       push YL
+0003fb 930f       push r16
                  
-0000d3 e0d1
-0000d4 e2c1
-0000d5 9119
-0000d6 8108
-0000d7 3302
-0000d8 f419
-0000d9 3011
-0000da f408
-0000db c091
-0000dc e010
-0000dd e302
-0000de e0d1
-0000df e2c1
-0000e0 9319
-0000e1 8308       Anti_false_activation '2', return_On_2_Click
+0003fc e0d1
+0003fd e2c1
+0003fe 9119
+0003ff 8108
+000400 3302
+000401 f419
+000402 3011
+000403 f408
+000404 c0d8
+000405 e010
+000406 e302
+000407 e0d1
+000408 e2c1
+000409 9319
+00040a 8308       Anti_false_activation '2', return_On_2_Click
                  
-0000e2 932f
-0000e3 93bf
-0000e4 93af
-0000e5 931f
-0000e6 93df
-0000e7 93cf
-0000e8 94f8
-0000e9 e0d1
-0000ea e2c0
-0000eb 8128
-0000ec 9478
-0000ed e010
-0000ee 1321
-0000ef c001
-0000f0 c076
-0000f1 952a
-0000f2 e110
-0000f3 9f12
-0000f4 2da0
-0000f5 2db1
-0000f6 e610
-0000f7 0fa1
-0000f8 2711
-0000f9 1fb1
-0000fa 94f8
-0000fb 931f
-0000fc 930f
-0000fd 931f
-0000fe 930f
-0000ff e010
-000100 e800
-000101 df8e
-000102 910f
-000103 911f
-000104 939f
-000105 938f
-000106 937f
-000107 ef90
-000108 e081
-000109 e071
-00010a df7e
-00010b 917f
-00010c 918f
-00010d 919f
-00010e 910f
-00010f 911f
-000110 931f
-000111 930f
-000112 93af
-000113 93bf
-000114 933f
-000115 e014
-000116 e131
-000117 910d
-000118 df77
-000119 939f
-00011a 938f
-00011b 937f
-00011c ef90
-00011d e081
-00011e e071
-00011f df69
-000120 917f
-000121 918f
-000122 919f
-000123 953a
-000124 f791
-000125 913f
-000126 91bf
-000127 91af
-000128 910f
-000129 911f
-00012a 9478
-00012b e110
-00012c 9f12
-00012d 2da0
-00012e 2db1
-00012f ec10
-000130 0fa1
-000131 2711
-000132 1fb1
-000133 94f8
-000134 931f
-000135 930f
-000136 931f
-000137 930f
-000138 e010
-000139 ec00
-00013a df55
-00013b 910f
-00013c 911f
-00013d 939f
-00013e 938f
-00013f 937f
-000140 ef90
-000141 e081
-000142 e071
-000143 df45
-000144 917f
-000145 918f
-000146 919f
-000147 910f
-000148 911f
-000149 931f
-00014a 930f
-00014b 93af
-00014c 93bf
-00014d 933f
-00014e e014
-00014f e131
-000150 910d
-000151 df3e
-000152 939f
-000153 938f
-000154 937f
-000155 ef90
-000156 e081
-000157 e071
-000158 df30
-000159 917f
-00015a 918f
-00015b 919f
-00015c 953a
-00015d f791
-00015e 913f
-00015f 91bf
-000160 91af
-000161 910f
-000162 911f
-000163 e0d1
-000164 e2c0
-000165 8328
-000166 9478
-000167 91cf
-000168 91df
-000169 911f
-00016a 91af
-00016b 91bf
-00016c 912f       menu_prev
+00040b e0d1       ldi YH,high(time_set_status)
+00040c e2ce       ldi YL,low(time_set_status)
+00040d 8118       ld temp,Y
+00040e ff17       sbrs temp,time_set_S		//if time set mode on then skip menu navigation
+00040f c040       rjmp menu_On_2_Click_label
+                 
+000410 931f
+000411 93df
+000412 93cf
+000413 930f
+000414 e0d1
+000415 e2ce
+000416 8118
+000417 ff17
+000418 c031
+000419 ff16
+00041a c01c
+00041b e312
+00041c 5310
+00041d 8108
+00041e 710f
+00041f e0d1
+000420 e3c0
+000421 0fc0
+000422 2711
+000423 1fd0
+000424 8108
+000425 1701
+000426 f038
+000427 df01
+000428 e300
+000429 9309
+00042a e312
+00042b 8318
+00042c df0d
+00042d c01c
+00042e defa
+00042f e312
+000430 8318
+000431 e0d1
+000432 e2ce
+000433 8118
+000434 6410
+000435 8318
+000436 c013
+000437 e312
+000438 5310
+000439 8108
+00043a 710f
+00043b e0d1
+00043c e3c0
+00043d 0fc0
+00043e 2711
+00043f 1fd0
+000440 8108
+000441 1701
+000442 e312
+000443 f018
+000444 2f10
+000445 e300
+000446 0f10
+000447 dee1
+000448 8318
+000449 def0
+00044a decc
+00044b 910f
+00044c 91cf
+00044d 91df
+00044e 911f       time_set '2'
+00044f c08d       rjmp return_On_2_Click
+                 
+                  menu_On_2_Click_label:
+000450 932f
+000451 93bf
+000452 93af
+000453 931f
+000454 93df
+000455 93cf
+000456 e0d1
+000457 e2c0
+000458 8128
+000459 e010
+00045a 1321
+00045b c001
+00045c c07a
+00045d 952a
+00045e e110
+00045f 9f12
+000460 2da0
+000461 2db1
+000462 e610
+000463 0fa1
+000464 2711
+000465 1fb1
+000466 931f
+000467 930f
+000468 931f
+000469 930f
+00046a e010
+00046b e800
+00046c 940e 0030
+00046e 910f
+00046f 911f
+000470 939f
+000471 938f
+000472 937f
+000473 ef90
+000474 e081
+000475 e071
+000476 940e 0029
+000478 917f
+000479 918f
+00047a 919f
+00047b 910f
+00047c 911f
+00047d 931f
+00047e 930f
+00047f 93af
+000480 93bf
+000481 933f
+000482 e014
+000483 e131
+000484 910d
+000485 940e 0030
+000487 939f
+000488 938f
+000489 937f
+00048a ef90
+00048b e081
+00048c e071
+00048d 940e 0029
+00048f 917f
+000490 918f
+000491 919f
+000492 953a
+000493 f781
+000494 913f
+000495 91bf
+000496 91af
+000497 910f
+000498 911f
+000499 e110
+00049a 9f12
+00049b 2da0
+00049c 2db1
+00049d ec10
+00049e 0fa1
+00049f 2711
+0004a0 1fb1
+0004a1 931f
+0004a2 930f
+0004a3 931f
+0004a4 930f
+0004a5 e010
+0004a6 ec00
+0004a7 940e 0030
+0004a9 910f
+0004aa 911f
+0004ab 939f
+0004ac 938f
+0004ad 937f
+0004ae ef90
+0004af e081
+0004b0 e071
+0004b1 940e 0029
+0004b3 917f
+0004b4 918f
+0004b5 919f
+0004b6 910f
+0004b7 911f
+0004b8 931f
+0004b9 930f
+0004ba 93af
+0004bb 93bf
+0004bc 933f
+0004bd e014
+0004be e131
+0004bf 910d
+0004c0 940e 0030
+0004c2 939f
+0004c3 938f
+0004c4 937f
+0004c5 ef90
+0004c6 e081
+0004c7 e071
+0004c8 940e 0029
+0004ca 917f
+0004cb 918f
+0004cc 919f
+0004cd 953a
+0004ce f781
+0004cf 913f
+0004d0 91bf
+0004d1 91af
+0004d2 910f
+0004d3 911f
+0004d4 e0d1
+0004d5 e2c0
+0004d6 8328
+0004d7 91cf
+0004d8 91df
+0004d9 911f
+0004da 91af
+0004db 91bf
+0004dc 912f       menu_prev
                  
                   return_On_2_Click:
-00016d 910f       pop r16
-00016e 91cf       pop YL
-00016f 91df       pop YH
-000170 911f       pop temp
+0004dd 910f       pop r16
+0004de 91cf       pop YL
+0004df 91df       pop YH
+0004e0 911f       pop temp
                  
-000171 9478       sei
-000172 9bb1       sbis pinb,KBD_2		//wait until button is turned off
-000173 cffe       rjmp PC-1
-000174 9508       ret
+0004e1 9478       sei
+0004e2 9bb1       sbis pinb,KBD_2		//wait until button is turned off
+0004e3 cffe       rjmp PC-1
+0004e4 9508       ret
                   //-------On 3 click-----------------------------
                   On_3_click:
-000175 931f       push temp
-000176 93df       push YH
-000177 93cf       push YL
-000178 930f       push r16
+0004e5 931f       push temp
+0004e6 93df       push YH
+0004e7 93cf       push YL
+0004e8 930f       push r16
                  
-000179 e0d1
-00017a e2c1
-00017b 9119
-00017c 8108
-00017d 3303
-00017e f419
-00017f 3011
-000180 f408
-000181 c006
-000182 e010
-000183 e303
-000184 e0d1
-000185 e2c1
-000186 9319
-000187 8308       Anti_false_activation '3', return_On_3_Click
+0004e9 e0d1
+0004ea e2c1
+0004eb 9119
+0004ec 8108
+0004ed 3303
+0004ee f419
+0004ef 3011
+0004f0 f408
+0004f1 c045
+0004f2 e010
+0004f3 e303
+0004f4 e0d1
+0004f5 e2c1
+0004f6 9319
+0004f7 8308       Anti_false_activation '3', return_On_3_Click
                   
-                  return_On_3_Click:
-000188 910f       pop r16
-000189 91cf       pop YL
-00018a 91df       pop YH
-00018b 911f       pop temp
+0004f8 931f
+0004f9 93df
+0004fa 93cf
+0004fb 930f
+0004fc e0d1
+0004fd e2ce
+0004fe 8118
+0004ff ff17
+000500 c031
+000501 ff16
+000502 c01c
+000503 e313
+000504 5310
+000505 8108
+000506 710f
+000507 e0d1
+000508 e3c0
+000509 0fc0
+00050a 2711
+00050b 1fd0
+00050c 8108
+00050d 1701
+00050e f038
+00050f de19
+000510 e300
+000511 9309
+000512 e313
+000513 8318
+000514 de25
+000515 c01c
+000516 de12
+000517 e313
+000518 8318
+000519 e0d1
+00051a e2ce
+00051b 8118
+00051c 6410
+00051d 8318
+00051e c013
+00051f e313
+000520 5310
+000521 8108
+000522 710f
+000523 e0d1
+000524 e3c0
+000525 0fc0
+000526 2711
+000527 1fd0
+000528 8108
+000529 1701
+00052a e313
+00052b f018
+00052c 2f10
+00052d e300
+00052e 0f10
+00052f ddf9
+000530 8318
+000531 de08
+000532 dde4
+000533 910f
+000534 91cf
+000535 91df
+000536 911f       time_set '3'
                  
-00018c 9478       sei
-00018d 9bb0       sbis pinb,KBD_1		//wait until button is turned off
-00018e cffe       rjmp PC-1
-00018f 9508       ret
+                  return_On_3_Click:
+000537 910f       pop r16
+000538 91cf       pop YL
+000539 91df       pop YH
+00053a 911f       pop temp
+                 
+00053b 9478       sei
+00053c 9bb0       sbis pinb,KBD_1		//wait until button is turned off
+00053d cffe       rjmp PC-1
+00053e 9508       ret
                   //-------On 4 click-----------------------------
                   On_4_click:
-000190 931f       push temp
-000191 93df       push YH
-000192 93cf       push YL
-000193 930f       push r16
+00053f 931f       push temp
+000540 93df       push YH
+000541 93cf       push YL
+000542 930f       push r16
                  
-000194 e0d1
-000195 e2c1
-000196 9119
-000197 8108
-000198 3304
-000199 f419
-00019a 3011
-00019b f408
-00019c c006
-00019d e010
-00019e e304
-00019f e0d1
-0001a0 e2c1
-0001a1 9319
-0001a2 8308       Anti_false_activation '4', return_On_4_Click
+000543 e0d1
+000544 e2c1
+000545 9119
+000546 8108
+000547 3304
+000548 f419
+000549 3011
+00054a f408
+00054b c045
+00054c e010
+00054d e304
+00054e e0d1
+00054f e2c1
+000550 9319
+000551 8308       Anti_false_activation '4', return_On_4_Click
+                 
+000552 931f
+000553 93df
+000554 93cf
+000555 930f
+000556 e0d1
+000557 e2ce
+000558 8118
+000559 ff17
+00055a c031
+00055b ff16
+00055c c01c
+00055d e314
+00055e 5310
+00055f 8108
+000560 710f
+000561 e0d1
+000562 e3c0
+000563 0fc0
+000564 2711
+000565 1fd0
+000566 8108
+000567 1701
+000568 f038
+000569 ddbf
+00056a e300
+00056b 9309
+00056c e314
+00056d 8318
+00056e ddcb
+00056f c01c
+000570 ddb8
+000571 e314
+000572 8318
+000573 e0d1
+000574 e2ce
+000575 8118
+000576 6410
+000577 8318
+000578 c013
+000579 e314
+00057a 5310
+00057b 8108
+00057c 710f
+00057d e0d1
+00057e e3c0
+00057f 0fc0
+000580 2711
+000581 1fd0
+000582 8108
+000583 1701
+000584 e314
+000585 f018
+000586 2f10
+000587 e300
+000588 0f10
+000589 dd9f
+00058a 8318
+00058b ddae
+00058c dd8a
+00058d 910f
+00058e 91cf
+00058f 91df
+000590 911f       time_set '4'
                  
                   return_On_4_Click:
-0001a3 910f       pop r16
-0001a4 91cf       pop YL
-0001a5 91df       pop YH
-0001a6 911f       pop temp
+000591 910f       pop r16
+000592 91cf       pop YL
+000593 91df       pop YH
+000594 911f       pop temp
                  
-0001a7 9478       sei
-0001a8 9bb0       sbis pinb,KBD_1		//wait until button is turned off
-0001a9 cffe       rjmp PC-1
-0001aa 9508       ret
+000595 9478       sei
+000596 9bb0       sbis pinb,KBD_1		//wait until button is turned off
+000597 cffe       rjmp PC-1
+000598 9508       ret
                   //-------On 5 click-----------------------------
                   On_5_click:
-0001ab 931f       push temp
-0001ac 93df       push YH
-0001ad 93cf       push YL
-0001ae 930f       push r16
+000599 931f       push temp
+00059a 93df       push YH
+00059b 93cf       push YL
+00059c 930f       push r16
                  
-0001af e0d1
-0001b0 e2c1
-0001b1 9119
-0001b2 8108
-0001b3 3305
-0001b4 f419
-0001b5 3011
-0001b6 f408
-0001b7 c013
-0001b8 e010
-0001b9 e305
-0001ba e0d1
-0001bb e2c1
-0001bc 9319
-0001bd 8308       Anti_false_activation '5', return_On_5_Click
+00059d e0d1
+00059e e2c1
+00059f 9119
+0005a0 8108
+0005a1 3305
+0005a2 f419
+0005a3 3011
+0005a4 f408
+0005a5 c058
+0005a6 e010
+0005a7 e305
+0005a8 e0d1
+0005a9 e2c1
+0005aa 9319
+0005ab 8308       Anti_false_activation '5', return_On_5_Click
                  
-0001be e0d1       ldi YH, high(menu_location)
-0001bf e2c0       ldi YL, low(menu_location)
-0001c0 8118       ld temp, Y			//load current menu page to temp
-0001c1 3015       cpi temp,5			//if current page is sound
-0001c2 f441       brne return_On_5_Click	//then continue, else return
-0001c3 e0d1       ldi YH,high(sound_status)	//
-0001c4 e2c3       ldi YL,low(sound_status)	//read sound status from RAM
-0001c5 8118       ld temp,Y
+0005ac e0d1       ldi YH,high(time_set_status)
+0005ad e2ce       ldi YL,low(time_set_status)
+0005ae 8118       ld temp,Y
+0005af ff17       sbrs temp,time_set_S		//if time set mode on then skip menu navigation
+0005b0 c040       rjmp sound_On_5_Click_label
                  
-0001c6 fd10       sbrc temp,sound_general_status	//if sound is generally off then set sound on
-0001c7 c002       rjmp sound_off					//else set sound off
+0005b1 931f
+0005b2 93df
+0005b3 93cf
+0005b4 930f
+0005b5 e0d1
+0005b6 e2ce
+0005b7 8118
+0005b8 ff17
+0005b9 c031
+0005ba ff16
+0005bb c01c
+0005bc e315
+0005bd 5310
+0005be 8108
+0005bf 710f
+0005c0 e0d1
+0005c1 e3c0
+0005c2 0fc0
+0005c3 2711
+0005c4 1fd0
+0005c5 8108
+0005c6 1701
+0005c7 f038
+0005c8 dd60
+0005c9 e300
+0005ca 9309
+0005cb e315
+0005cc 8318
+0005cd dd6c
+0005ce c01c
+0005cf dd59
+0005d0 e315
+0005d1 8318
+0005d2 e0d1
+0005d3 e2ce
+0005d4 8118
+0005d5 6410
+0005d6 8318
+0005d7 c013
+0005d8 e315
+0005d9 5310
+0005da 8108
+0005db 710f
+0005dc e0d1
+0005dd e3c0
+0005de 0fc0
+0005df 2711
+0005e0 1fd0
+0005e1 8108
+0005e2 1701
+0005e3 e315
+0005e4 f018
+0005e5 2f10
+0005e6 e300
+0005e7 0f10
+0005e8 dd40
+0005e9 8318
+0005ea dd4f
+0005eb dd2b
+0005ec 910f
+0005ed 91cf
+0005ee 91df
+0005ef 911f       time_set '5'
+0005f0 c00d       rjmp return_On_5_Click
                  
-0001c8 de60       rcall sound_alarm_enable
-0001c9 c001       rjmp return_On_5_Click
-                 
-                  sound_off:
-0001ca de70       rcall sound_alarm_disable
+                  sound_On_5_Click_label:
+0005f1 e0d1
+0005f2 e2c0
+0005f3 8118
+0005f4 3015
+0005f5 f441
+0005f6 e0d1
+0005f7 e2c3
+0005f8 8118
+0005f9 fd10
+0005fa c002
+0005fb dd4b
+0005fc c001
+0005fd dd5b       sound_test return_On_5_Click
                  
                   return_On_5_Click:
-0001cb 910f       pop r16
-0001cc 91cf       pop YL
-0001cd 91df       pop YH
-0001ce 911f       pop temp
+0005fe 910f       pop r16
+0005ff 91cf       pop YL
+000600 91df       pop YH
+000601 911f       pop temp
                  
-0001cf 9478       sei
-0001d0 9bb1       sbis pinb,KBD_2		//wait until button is turned off
-0001d1 cffe       rjmp PC-1
-0001d2 9508       ret
+000602 9478       sei
+000603 9bb1       sbis pinb,KBD_2		//wait until button is turned off
+000604 cffe       rjmp PC-1
+000605 9508       ret
                   //-------On 6 click-----------------------------
                   On_6_click:
-0001d3 931f       push temp
-0001d4 93df       push YH
-0001d5 93cf       push YL
-0001d6 930f       push r16
+000606 931f       push temp
+000607 93df       push YH
+000608 93cf       push YL
+000609 930f       push r16
                  
-0001d7 e0d1
-0001d8 e2c1
-0001d9 9119
-0001da 8108
-0001db 3306
-0001dc f419
-0001dd 3011
-0001de f408
-0001df c006
-0001e0 e010
-0001e1 e306
-0001e2 e0d1
-0001e3 e2c1
-0001e4 9319
-0001e5 8308       Anti_false_activation '6', return_On_6_Click
+00060a e0d1
+00060b e2c1
+00060c 9119
+00060d 8108
+00060e 3306
+00060f f419
+000610 3011
+000611 f408
+000612 c045
+000613 e010
+000614 e306
+000615 e0d1
+000616 e2c1
+000617 9319
+000618 8308       Anti_false_activation '6', return_On_6_Click
+                 
+000619 931f
+00061a 93df
+00061b 93cf
+00061c 930f
+00061d e0d1
+00061e e2ce
+00061f 8118
+000620 ff17
+000621 c031
+000622 ff16
+000623 c01c
+000624 e316
+000625 5310
+000626 8108
+000627 710f
+000628 e0d1
+000629 e3c0
+00062a 0fc0
+00062b 2711
+00062c 1fd0
+00062d 8108
+00062e 1701
+00062f f038
+000630 dcf8
+000631 e300
+000632 9309
+000633 e316
+000634 8318
+000635 dd04
+000636 c01c
+000637 dcf1
+000638 e316
+000639 8318
+00063a e0d1
+00063b e2ce
+00063c 8118
+00063d 6410
+00063e 8318
+00063f c013
+000640 e316
+000641 5310
+000642 8108
+000643 710f
+000644 e0d1
+000645 e3c0
+000646 0fc0
+000647 2711
+000648 1fd0
+000649 8108
+00064a 1701
+00064b e316
+00064c f018
+00064d 2f10
+00064e e300
+00064f 0f10
+000650 dcd8
+000651 8318
+000652 dce7
+000653 dcc3
+000654 910f
+000655 91cf
+000656 91df
+000657 911f       time_set '6'
                  
                   return_On_6_Click:
-0001e6 910f       pop r16
-0001e7 91cf       pop YL
-0001e8 91df       pop YH
-0001e9 911f       pop temp
+000658 910f       pop r16
+000659 91cf       pop YL
+00065a 91df       pop YH
+00065b 911f       pop temp
                  
-0001ea 9478       sei
-0001eb 9bb0       sbis pinb,KBD_1		//wait until button is turned off
-0001ec cffe       rjmp PC-1
-0001ed 9508       ret
+00065c 9478       sei
+00065d 9bb0       sbis pinb,KBD_1		//wait until button is turned off
+00065e cffe       rjmp PC-1
+00065f 9508       ret
                   //-------On 7 click-----------------------------
                   On_7_click:
-0001ee 931f       push temp
-0001ef 93df       push YH
-0001f0 93cf       push YL
-0001f1 930f       push r16
+000660 931f       push temp
+000661 93df       push YH
+000662 93cf       push YL
+000663 930f       push r16
                  
-0001f2 e0d1
-0001f3 e2c1
-0001f4 9119
-0001f5 8108
-0001f6 3307
-0001f7 f419
-0001f8 3011
-0001f9 f408
-0001fa c006
-0001fb e010
-0001fc e307
-0001fd e0d1
-0001fe e2c1
-0001ff 9319
-000200 8308       Anti_false_activation '7', return_On_7_Click
+000664 e0d1
+000665 e2c1
+000666 9119
+000667 8108
+000668 3307
+000669 f419
+00066a 3011
+00066b f408
+00066c c045
+00066d e010
+00066e e307
+00066f e0d1
+000670 e2c1
+000671 9319
+000672 8308       Anti_false_activation '7', return_On_7_Click
+                 
+000673 931f
+000674 93df
+000675 93cf
+000676 930f
+000677 e0d1
+000678 e2ce
+000679 8118
+00067a ff17
+00067b c031
+00067c ff16
+00067d c01c
+00067e e317
+00067f 5310
+000680 8108
+000681 710f
+000682 e0d1
+000683 e3c0
+000684 0fc0
+000685 2711
+000686 1fd0
+000687 8108
+000688 1701
+000689 f038
+00068a dc9e
+00068b e300
+00068c 9309
+00068d e317
+00068e 8318
+00068f dcaa
+000690 c01c
+000691 dc97
+000692 e317
+000693 8318
+000694 e0d1
+000695 e2ce
+000696 8118
+000697 6410
+000698 8318
+000699 c013
+00069a e317
+00069b 5310
+00069c 8108
+00069d 710f
+00069e e0d1
+00069f e3c0
+0006a0 0fc0
+0006a1 2711
+0006a2 1fd0
+0006a3 8108
+0006a4 1701
+0006a5 e317
+0006a6 f018
+0006a7 2f10
+0006a8 e300
+0006a9 0f10
+0006aa dc7e
+0006ab 8318
+0006ac dc8d
+0006ad dc69
+0006ae 910f
+0006af 91cf
+0006b0 91df
+0006b1 911f       time_set '7'
                  
                   return_On_7_Click:
-000201 910f       pop r16
-000202 91cf       pop YL
-000203 91df       pop YH
-000204 911f       pop temp
+0006b2 910f       pop r16
+0006b3 91cf       pop YL
+0006b4 91df       pop YH
+0006b5 911f       pop temp
                  
-000205 9478       sei
-000206 9bb2       sbis pinb,KBD_3		//wait until button is turned off
-000207 cffe       rjmp PC-1
-000208 9508       ret
+0006b6 9478       sei
+0006b7 9bb2       sbis pinb,KBD_3		//wait until button is turned off
+0006b8 cffe       rjmp PC-1
+0006b9 9508       ret
                   //-------On 8 click-----------------------------
                   On_8_click:
-000209 931f       push temp
-00020a 93df       push YH
-00020b 93cf       push YL
-00020c 930f       push r16
+0006ba 931f       push temp
+0006bb 93df       push YH
+0006bc 93cf       push YL
+0006bd 930f       push r16
                  
-00020d e0d1
-00020e e2c1
-00020f 9119
-000210 8108
-000211 3308
-000212 f419
-000213 3011
-000214 f408
-000215 c091
-000216 e010
-000217 e308
-000218 e0d1
-000219 e2c1
-00021a 9319
-00021b 8308       Anti_false_activation '8', return_On_8_Click
+0006be e0d1
+0006bf e2c1
+0006c0 9119
+0006c1 8108
+0006c2 3308
+0006c3 f419
+0006c4 3011
+0006c5 f408
+0006c6 c0d8
+0006c7 e010
+0006c8 e308
+0006c9 e0d1
+0006ca e2c1
+0006cb 9319
+0006cc 8308       Anti_false_activation '8', return_On_8_Click
                   
-00021c 932f
-00021d 93bf
-00021e 93af
-00021f 931f
-000220 93df
-000221 93cf
-000222 94f8
-000223 e0d1
-000224 e2c0
-000225 8128
-000226 9478
-000227 e015
-000228 1321
-000229 c001
-00022a c076
-00022b 9523
-00022c e110
-00022d 9f12
-00022e 2da0
-00022f 2db1
-000230 e610
-000231 0fa1
-000232 2711
-000233 1fb1
-000234 94f8
-000235 931f
-000236 930f
-000237 931f
-000238 930f
-000239 e010
-00023a e800
-00023b de54
-00023c 910f
-00023d 911f
-00023e 939f
-00023f 938f
-000240 937f
-000241 ef90
-000242 e081
-000243 e071
-000244 de44
-000245 917f
-000246 918f
-000247 919f
-000248 910f
-000249 911f
-00024a 931f
-00024b 930f
-00024c 93af
-00024d 93bf
-00024e 933f
-00024f e014
-000250 e131
-000251 910d
-000252 de3d
-000253 939f
-000254 938f
-000255 937f
-000256 ef90
-000257 e081
-000258 e071
-000259 de2f
-00025a 917f
-00025b 918f
-00025c 919f
-00025d 953a
-00025e f791
-00025f 913f
-000260 91bf
-000261 91af
-000262 910f
-000263 911f
-000264 9478
-000265 e110
-000266 9f12
-000267 2da0
-000268 2db1
-000269 ec10
-00026a 0fa1
-00026b 2711
-00026c 1fb1
-00026d 94f8
-00026e 931f
-00026f 930f
-000270 931f
-000271 930f
-000272 e010
-000273 ec00
-000274 de1b
-000275 910f
-000276 911f
-000277 939f
-000278 938f
-000279 937f
-00027a ef90
-00027b e081
-00027c e071
-00027d de0b
-00027e 917f
-00027f 918f
-000280 919f
-000281 910f
-000282 911f
-000283 931f
-000284 930f
-000285 93af
-000286 93bf
-000287 933f
-000288 e014
-000289 e131
-00028a 910d
-00028b de04
-00028c 939f
-00028d 938f
-00028e 937f
-00028f ef90
-000290 e081
-000291 e071
-000292 ddf6
-000293 917f
-000294 918f
-000295 919f
-000296 953a
-000297 f791
-000298 913f
-000299 91bf
-00029a 91af
-00029b 910f
-00029c 911f
-00029d e0d1
-00029e e2c0
-00029f 8328
-0002a0 9478
-0002a1 91cf
-0002a2 91df
-0002a3 911f
-0002a4 91af
-0002a5 91bf
-0002a6 912f       menu_next
+0006cd e0d1       ldi YH,high(time_set_status)
+0006ce e2ce       ldi YL,low(time_set_status)
+0006cf 8118       ld temp,Y
+0006d0 ff17       sbrs temp,time_set_S		//if time set mode on then skip menu navigation
+0006d1 c040       rjmp menu_On_8_Click_label
+                 
+0006d2 931f
+0006d3 93df
+0006d4 93cf
+0006d5 930f
+0006d6 e0d1
+0006d7 e2ce
+0006d8 8118
+0006d9 ff17
+0006da c031
+0006db ff16
+0006dc c01c
+0006dd e318
+0006de 5310
+0006df 8108
+0006e0 710f
+0006e1 e0d1
+0006e2 e3c0
+0006e3 0fc0
+0006e4 2711
+0006e5 1fd0
+0006e6 8108
+0006e7 1701
+0006e8 f038
+0006e9 dc3f
+0006ea e300
+0006eb 9309
+0006ec e318
+0006ed 8318
+0006ee dc4b
+0006ef c01c
+0006f0 dc38
+0006f1 e318
+0006f2 8318
+0006f3 e0d1
+0006f4 e2ce
+0006f5 8118
+0006f6 6410
+0006f7 8318
+0006f8 c013
+0006f9 e318
+0006fa 5310
+0006fb 8108
+0006fc 710f
+0006fd e0d1
+0006fe e3c0
+0006ff 0fc0
+000700 2711
+000701 1fd0
+000702 8108
+000703 1701
+000704 e318
+000705 f018
+000706 2f10
+000707 e300
+000708 0f10
+000709 dc1f
+00070a 8318
+00070b dc2e
+00070c dc0a
+00070d 910f
+00070e 91cf
+00070f 91df
+000710 911f       time_set '8'
+000711 c08d       rjmp return_On_8_Click
+                 
+                  menu_On_8_Click_label:
+000712 932f
+000713 93bf
+000714 93af
+000715 931f
+000716 93df
+000717 93cf
+000718 e0d1
+000719 e2c0
+00071a 8128
+00071b e015
+00071c 1321
+00071d c001
+00071e c07a
+00071f 9523
+000720 e110
+000721 9f12
+000722 2da0
+000723 2db1
+000724 e610
+000725 0fa1
+000726 2711
+000727 1fb1
+000728 931f
+000729 930f
+00072a 931f
+00072b 930f
+00072c e010
+00072d e800
+00072e 940e 0030
+000730 910f
+000731 911f
+000732 939f
+000733 938f
+000734 937f
+000735 ef90
+000736 e081
+000737 e071
+000738 940e 0029
+00073a 917f
+00073b 918f
+00073c 919f
+00073d 910f
+00073e 911f
+00073f 931f
+000740 930f
+000741 93af
+000742 93bf
+000743 933f
+000744 e014
+000745 e131
+000746 910d
+000747 940e 0030
+000749 939f
+00074a 938f
+00074b 937f
+00074c ef90
+00074d e081
+00074e e071
+00074f 940e 0029
+000751 917f
+000752 918f
+000753 919f
+000754 953a
+000755 f781
+000756 913f
+000757 91bf
+000758 91af
+000759 910f
+00075a 911f
+00075b e110
+00075c 9f12
+00075d 2da0
+00075e 2db1
+00075f ec10
+000760 0fa1
+000761 2711
+000762 1fb1
+000763 931f
+000764 930f
+000765 931f
+000766 930f
+000767 e010
+000768 ec00
+000769 940e 0030
+00076b 910f
+00076c 911f
+00076d 939f
+00076e 938f
+00076f 937f
+000770 ef90
+000771 e081
+000772 e071
+000773 940e 0029
+000775 917f
+000776 918f
+000777 919f
+000778 910f
+000779 911f
+00077a 931f
+00077b 930f
+00077c 93af
+00077d 93bf
+00077e 933f
+00077f e014
+000780 e131
+000781 910d
+000782 940e 0030
+000784 939f
+000785 938f
+000786 937f
+000787 ef90
+000788 e081
+000789 e071
+00078a 940e 0029
+00078c 917f
+00078d 918f
+00078e 919f
+00078f 953a
+000790 f781
+000791 913f
+000792 91bf
+000793 91af
+000794 910f
+000795 911f
+000796 e0d1
+000797 e2c0
+000798 8328
+000799 91cf
+00079a 91df
+00079b 911f
+00079c 91af
+00079d 91bf
+00079e 912f       menu_next
                  
                   return_On_8_Click:
-0002a7 910f       pop r16
-0002a8 91cf       pop YL
-0002a9 91df       pop YH
-0002aa 911f       pop temp
+00079f 910f       pop r16
+0007a0 91cf       pop YL
+0007a1 91df       pop YH
+0007a2 911f       pop temp
                  
-0002ab 9478       sei
-0002ac 9bb1       sbis pinb,KBD_2		//wait until button is turned off
-0002ad cffe       rjmp PC-1
-0002ae 9508       ret
+0007a3 9478       sei
+0007a4 9bb1       sbis pinb,KBD_2		//wait until button is turned off
+0007a5 cffe       rjmp PC-1
+0007a6 9508       ret
                   //-------On 9 click-----------------------------
                   On_9_click:
-0002af 931f       push temp
-0002b0 93df       push YH
-0002b1 93cf       push YL
-0002b2 930f       push r16
+0007a7 931f       push temp
+0007a8 93df       push YH
+0007a9 93cf       push YL
+0007aa 930f       push r16
                  
-0002b3 e0d1
-0002b4 e2c1
-0002b5 9119
-0002b6 8108
-0002b7 3309
-0002b8 f419
-0002b9 3011
-0002ba f408
-0002bb c006
-0002bc e010
-0002bd e309
-0002be e0d1
-0002bf e2c1
-0002c0 9319
-0002c1 8308       Anti_false_activation '9', return_On_9_Click
+0007ab e0d1
+0007ac e2c1
+0007ad 9119
+0007ae 8108
+0007af 3309
+0007b0 f419
+0007b1 3011
+0007b2 f408
+0007b3 c045
+0007b4 e010
+0007b5 e309
+0007b6 e0d1
+0007b7 e2c1
+0007b8 9319
+0007b9 8308       Anti_false_activation '9', return_On_9_Click
+                 
+0007ba 931f
+0007bb 93df
+0007bc 93cf
+0007bd 930f
+0007be e0d1
+0007bf e2ce
+0007c0 8118
+0007c1 ff17
+0007c2 c031
+0007c3 ff16
+0007c4 c01c
+0007c5 e319
+0007c6 5310
+0007c7 8108
+0007c8 710f
+0007c9 e0d1
+0007ca e3c0
+0007cb 0fc0
+0007cc 2711
+0007cd 1fd0
+0007ce 8108
+0007cf 1701
+0007d0 f038
+0007d1 db57
+0007d2 e300
+0007d3 9309
+0007d4 e319
+0007d5 8318
+0007d6 db63
+0007d7 c01c
+0007d8 db50
+0007d9 e319
+0007da 8318
+0007db e0d1
+0007dc e2ce
+0007dd 8118
+0007de 6410
+0007df 8318
+0007e0 c013
+0007e1 e319
+0007e2 5310
+0007e3 8108
+0007e4 710f
+0007e5 e0d1
+0007e6 e3c0
+0007e7 0fc0
+0007e8 2711
+0007e9 1fd0
+0007ea 8108
+0007eb 1701
+0007ec e319
+0007ed f018
+0007ee 2f10
+0007ef e300
+0007f0 0f10
+0007f1 db37
+0007f2 8318
+0007f3 db46
+0007f4 db22
+0007f5 910f
+0007f6 91cf
+0007f7 91df
+0007f8 911f       time_set '9'
                  
                   return_On_9_Click:
-0002c2 910f       pop r16
-0002c3 91cf       pop YL
-0002c4 91df       pop YH
-0002c5 911f       pop temp
+0007f9 910f       pop r16
+0007fa 91cf       pop YL
+0007fb 91df       pop YH
+0007fc 911f       pop temp
                  
-0002c6 9478       sei
-0002c7 9bb0       sbis pinb,KBD_1		//wait until button is turned off
-0002c8 cffe       rjmp PC-1
-0002c9 9508       ret
+0007fd 9478       sei
+0007fe 9bb0       sbis pinb,KBD_1		//wait until button is turned off
+0007ff cffe       rjmp PC-1
+000800 9508       ret
                   //-------On * click-----------------------------
                   On_asterisk_click:
-0002ca 931f       push temp
-0002cb 93df       push YH
-0002cc 93cf       push YL
-0002cd 930f       push r16
+000801 931f       push temp
+000802 93df       push YH
+000803 93cf       push YL
+000804 930f       push r16
                  
-0002ce e0d1
-0002cf e2c1
-0002d0 9119
-0002d1 8108
-0002d2 320a
-0002d3 f419
-0002d4 3011
-0002d5 f408
-0002d6 c006
-0002d7 e010
-0002d8 e20a
-0002d9 e0d1
-0002da e2c1
-0002db 9319
-0002dc 8308       Anti_false_activation '*', return_On_asterisk_Click
+000805 e0d1
+000806 e2c1
+000807 9119
+000808 8108
+000809 320a
+00080a f419
+00080b 3011
+00080c f408
+00080d c09a
+00080e e010
+00080f e20a
+000810 e0d1
+000811 e2c1
+000812 9319
+000813 8308       Anti_false_activation '*', return_On_asterisk_Click
+                 
+000814 e0d1
+000815 e2ce
+000816 8118
+000817 ff17
+000818 c008
+000819 e010
+00081a 8318
+00081b d91c
+00081c 940e 0191
+00081e 940e 01ea
+000820 c002
+000821 e810
+000822 8318
+000823 932f
+000824 93bf
+000825 93af
+000826 931f
+000827 93df
+000828 93cf
+000829 e0d1
+00082a e2c0
+00082b 8128
+00082c e110
+00082d 9f12
+00082e 2da0
+00082f 2db1
+000830 e610
+000831 0fa1
+000832 2711
+000833 1fb1
+000834 931f
+000835 930f
+000836 931f
+000837 930f
+000838 e010
+000839 e800
+00083a 940e 0030
+00083c 910f
+00083d 911f
+00083e 939f
+00083f 938f
+000840 937f
+000841 ef90
+000842 e081
+000843 e071
+000844 940e 0029
+000846 917f
+000847 918f
+000848 919f
+000849 910f
+00084a 911f
+00084b 931f
+00084c 930f
+00084d 93af
+00084e 93bf
+00084f 933f
+000850 e014
+000851 e131
+000852 910d
+000853 940e 0030
+000855 939f
+000856 938f
+000857 937f
+000858 ef90
+000859 e081
+00085a e071
+00085b 940e 0029
+00085d 917f
+00085e 918f
+00085f 919f
+000860 953a
+000861 f781
+000862 913f
+000863 91bf
+000864 91af
+000865 910f
+000866 911f
+000867 e110
+000868 9f12
+000869 2da0
+00086a 2db1
+00086b ec10
+00086c 0fa1
+00086d 2711
+00086e 1fb1
+00086f 931f
+000870 930f
+000871 931f
+000872 930f
+000873 e010
+000874 ec00
+000875 940e 0030
+000877 910f
+000878 911f
+000879 939f
+00087a 938f
+00087b 937f
+00087c ef90
+00087d e081
+00087e e071
+00087f 940e 0029
+000881 917f
+000882 918f
+000883 919f
+000884 910f
+000885 911f
+000886 931f
+000887 930f
+000888 93af
+000889 93bf
+00088a 933f
+00088b e014
+00088c e131
+00088d 910d
+00088e 940e 0030
+000890 939f
+000891 938f
+000892 937f
+000893 ef90
+000894 e081
+000895 e071
+000896 940e 0029
+000898 917f
+000899 918f
+00089a 919f
+00089b 953a
+00089c f781
+00089d 913f
+00089e 91bf
+00089f 91af
+0008a0 910f
+0008a1 911f
+0008a2 91cf
+0008a3 91df
+0008a4 911f
+0008a5 91af
+0008a6 91bf
+0008a7 912f       time_set_start
                  
                   return_On_asterisk_Click:
-0002dd 910f       pop r16
-0002de 91cf       pop YL
-0002df 91df       pop YH
-0002e0 911f       pop temp
+0008a8 910f       pop r16
+0008a9 91cf       pop YL
+0008aa 91df       pop YH
+0008ab 911f       pop temp
                  
-0002e1 9478       sei
-0002e2 9bb2       sbis pinb,KBD_3		//wait until button is turned off
-0002e3 cffe       rjmp PC-1
-0002e4 9508       ret
+0008ac 9478       sei
+0008ad 9bb2       sbis pinb,KBD_3		//wait until button is turned off
+0008ae cffe       rjmp PC-1
+0008af 9508       ret
                   //-------On 0 click-----------------------------
                   On_0_click:
-0002e5 931f       push temp
-0002e6 93df       push YH
-0002e7 93cf       push YL
-0002e8 930f       push r16
+0008b0 931f       push temp
+0008b1 93df       push YH
+0008b2 93cf       push YL
+0008b3 930f       push r16
                  
-0002e9 e0d1
-0002ea e2c1
-0002eb 9119
-0002ec 8108
-0002ed 3300
-0002ee f419
-0002ef 3011
-0002f0 f408
-0002f1 c006
-0002f2 e010
-0002f3 e300
-0002f4 e0d1
-0002f5 e2c1
-0002f6 9319
-0002f7 8308       Anti_false_activation '0', return_On_0_Click
+0008b4 e0d1
+0008b5 e2c1
+0008b6 9119
+0008b7 8108
+0008b8 3300
+0008b9 f419
+0008ba 3011
+0008bb f408
+0008bc c045
+0008bd e010
+0008be e300
+0008bf e0d1
+0008c0 e2c1
+0008c1 9319
+0008c2 8308       Anti_false_activation '0', return_On_0_Click
+                 
+0008c3 931f
+0008c4 93df
+0008c5 93cf
+0008c6 930f
+0008c7 e0d1
+0008c8 e2ce
+0008c9 8118
+0008ca ff17
+0008cb c031
+0008cc ff16
+0008cd c01c
+0008ce e310
+0008cf 5310
+0008d0 8108
+0008d1 710f
+0008d2 e0d1
+0008d3 e3c0
+0008d4 0fc0
+0008d5 2711
+0008d6 1fd0
+0008d7 8108
+0008d8 1701
+0008d9 f038
+0008da da4e
+0008db e300
+0008dc 9309
+0008dd e310
+0008de 8318
+0008df da5a
+0008e0 c01c
+0008e1 da47
+0008e2 e310
+0008e3 8318
+0008e4 e0d1
+0008e5 e2ce
+0008e6 8118
+0008e7 6410
+0008e8 8318
+0008e9 c013
+0008ea e310
+0008eb 5310
+0008ec 8108
+0008ed 710f
+0008ee e0d1
+0008ef e3c0
+0008f0 0fc0
+0008f1 2711
+0008f2 1fd0
+0008f3 8108
+0008f4 1701
+0008f5 e310
+0008f6 f018
+0008f7 2f10
+0008f8 e300
+0008f9 0f10
+0008fa da2e
+0008fb 8318
+0008fc da3d
+0008fd da19
+0008fe 910f
+0008ff 91cf
+000900 91df
+000901 911f       time_set '0'
                  
                   return_On_0_Click:
-0002f8 910f       pop r16
-0002f9 91cf       pop YL
-0002fa 91df       pop YH
-0002fb 911f       pop temp
+000902 910f       pop r16
+000903 91cf       pop YL
+000904 91df       pop YH
+000905 911f       pop temp
                  
-0002fc 9478       sei
-0002fd 9bb1       sbis pinb,KBD_2		//wait until button is turned off
-0002fe cffe       rjmp PC-1
-0002ff 9508       ret
+000906 9478       sei
+000907 9bb1       sbis pinb,KBD_2		//wait until button is turned off
+000908 cffe       rjmp PC-1
+000909 9508       ret
                   //-------On # click-----------------------------
                   On_grid_click:
-000300 931f       push temp
-000301 93df       push YH
-000302 93cf       push YL
-000303 930f       push r16
+00090a 931f       push temp
+00090b 93df       push YH
+00090c 93cf       push YL
+00090d 930f       push r16
                  
-000304 e0d1
-000305 e2c1
-000306 9119
-000307 8108
-000308 3203
-000309 f419
-00030a 3011
-00030b f408
-00030c c006
-00030d e010
-00030e e203
-00030f e0d1
-000310 e2c1
-000311 9319
-000312 8308       Anti_false_activation '#', return_On_grid_Click
+00090e e0d1
+00090f e2c1
+000910 9119
+000911 8108
+000912 3203
+000913 f419
+000914 3011
+000915 f408
+000916 c091
+000917 e010
+000918 e203
+000919 e0d1
+00091a e2c1
+00091b 9319
+00091c 8308       Anti_false_activation '#', return_On_grid_Click
+                 
+00091d e0d1
+00091e e2ce
+00091f 8118
+000920 fd17
+000921 c001
+000922 da17
+000923 932f
+000924 93bf
+000925 93af
+000926 931f
+000927 93df
+000928 93cf
+000929 e0d1
+00092a e2c0
+00092b 8128
+00092c e110
+00092d 9f12
+00092e 2da0
+00092f 2db1
+000930 e610
+000931 0fa1
+000932 2711
+000933 1fb1
+000934 931f
+000935 930f
+000936 931f
+000937 930f
+000938 e010
+000939 e800
+00093a 940e 0030
+00093c 910f
+00093d 911f
+00093e 939f
+00093f 938f
+000940 937f
+000941 ef90
+000942 e081
+000943 e071
+000944 940e 0029
+000946 917f
+000947 918f
+000948 919f
+000949 910f
+00094a 911f
+00094b 931f
+00094c 930f
+00094d 93af
+00094e 93bf
+00094f 933f
+000950 e014
+000951 e131
+000952 910d
+000953 940e 0030
+000955 939f
+000956 938f
+000957 937f
+000958 ef90
+000959 e081
+00095a e071
+00095b 940e 0029
+00095d 917f
+00095e 918f
+00095f 919f
+000960 953a
+000961 f781
+000962 913f
+000963 91bf
+000964 91af
+000965 910f
+000966 911f
+000967 e110
+000968 9f12
+000969 2da0
+00096a 2db1
+00096b ec10
+00096c 0fa1
+00096d 2711
+00096e 1fb1
+00096f 931f
+000970 930f
+000971 931f
+000972 930f
+000973 e010
+000974 ec00
+000975 940e 0030
+000977 910f
+000978 911f
+000979 939f
+00097a 938f
+00097b 937f
+00097c ef90
+00097d e081
+00097e e071
+00097f 940e 0029
+000981 917f
+000982 918f
+000983 919f
+000984 910f
+000985 911f
+000986 931f
+000987 930f
+000988 93af
+000989 93bf
+00098a 933f
+00098b e014
+00098c e131
+00098d 910d
+00098e 940e 0030
+000990 939f
+000991 938f
+000992 937f
+000993 ef90
+000994 e081
+000995 e071
+000996 940e 0029
+000998 917f
+000999 918f
+00099a 919f
+00099b 953a
+00099c f781
+00099d 913f
+00099e 91bf
+00099f 91af
+0009a0 910f
+0009a1 911f
+0009a2 91cf
+0009a3 91df
+0009a4 911f
+0009a5 91af
+0009a6 91bf
+0009a7 912f       time_set_set_next_pair
                  
                   return_On_grid_Click:
-000313 910f       pop r16
-000314 91cf       pop YL
-000315 91df       pop YH
-000316 911f       pop temp
+0009a8 910f       pop r16
+0009a9 91cf       pop YL
+0009aa 91df       pop YH
+0009ab 911f       pop temp
                  
-000317 9478       sei
-000318 9bb2       sbis pinb,KBD_3		//wait until button is turned off
-000319 cffe       rjmp PC-1
-00031a 9508       ret
+0009ac 9478       sei
+0009ad 9bb2       sbis pinb,KBD_3		//wait until button is turned off
+0009ae cffe       rjmp PC-1
+0009af 9508       ret
                   //----------------------------------------------
                  //================================================================
                  .include "timers.inc"		//macro and procedures for timer(s)
@@ -2522,94 +4792,101 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                   //======INTERRUPTS AND PROC==========
                   //------On Match A Interrupt------
                   Keyboard_check_interrupt:
-00031b 931f       push temp
-00031c 93df       push YH
-00031d 93cf       push YL
+0009b0 931f       push temp
+0009b1 93df       push YH
+0009b2 93cf       push YL
                  
-00031e b310
-00031f 631c
-000320 7f1b
-000321 bb12
-000322 9bb2
-000323 dfa6
-000324 9bb1
-000325 dda9
-000326 9bb0
-000327 de4d
-000328 b310
-000329 631c
-00032a 7f17
-00032b bb12
-00032c 9bb2
-00032d dd86
-00032e 9bb1
-00032f de7b
-000330 9bb0
-000331 dea1
-000332 b310
-000333 631c
-000334 7e1f
-000335 bb12
-000336 9bb2
-000337 de58
-000338 9bb1
-000339 decf
-00033a 9bb0
-00033b df73
-00033c b310
-00033d 631c
-00033e 7d1f
-00033f bb12
-000340 9bb2
-000341 deac
-000342 9bb1
-000343 dfa1
-000344 9bb0
-000345 dfba       keyboard_check
+0009b3 e0d1       ldi YH,high(time_set_blink_count)
+0009b4 e4c1       ldi YL,low(time_set_blink_count)
+0009b5 8118       ld temp,Y
+0009b6 9513       inc temp
+0009b7 8318       st Y,temp
                  
-000346 e0d1       ldi YH,high(sound_status)	//
-000347 e2c3       ldi YL,low(sound_status)	//get sound status in RAM
-000348 8118       ld temp,Y					
-000349 ff10       sbrs temp, sound_general_status	//if sound is off then 
-00034a c00b       rjmp skip_A_addition				//OCIE1B interrupt will never happen
+0009b8 d8a4       rcall time_set_blink
+                 
+0009b9 b310
+0009ba 631c
+0009bb 7f1b
+0009bc bb12
+0009bd 9bb2
+0009be de42
+0009bf 9bb1
+0009c0 da37
+0009c1 9bb0
+0009c2 db22
+0009c3 b310
+0009c4 631c
+0009c5 7f17
+0009c6 bb12
+0009c7 9bb2
+0009c8 d9d5
+0009c9 9bb1
+0009ca dbce
+0009cb 9bb0
+0009cc dc39
+0009cd b310
+0009ce 631c
+0009cf 7e1f
+0009d0 bb12
+0009d1 9bb2
+0009d2 db6c
+0009d3 9bb1
+0009d4 dce5
+0009d5 9bb0
+0009d6 ddd0
+0009d7 b310
+0009d8 631c
+0009d9 7d1f
+0009da bb12
+0009db 9bb2
+0009dc dc83
+0009dd 9bb1
+0009de ded1
+0009df 9bb0
+0009e0 df29       keyboard_check
+                 
+0009e1 e0d1       ldi YH,high(sound_status)	//
+0009e2 e2c3       ldi YL,low(sound_status)	//get sound status in RAM
+0009e3 8118       ld temp,Y					
+0009e4 ff10       sbrs temp, sound_general_status	//if sound is off then 
+0009e5 c00b       rjmp skip_A_addition				//OCIE1B interrupt will never happen
                  									//for prevent uncorrect timer work
                  									//I skip (OCR1A += 3125) if sound is off
                  
-00034b b5ca       in YL, OCR1AL
-00034c b5db       in YH, OCR1AH
-00034d e315       ldi temp,0x35
-00034e 0fc1       add YL,temp		//OCR1A += 3125
-00034f e01c       ldi temp, 0x0C		//this need for correct work with keyboard
-000350 1fd1       adc YH,temp		//if sound enable
-000351 94f8       cli
-000352 bddb       out OCR1AH,YH
-000353 bdca       out OCR1AL,YL
-000354 9478       sei
-000355 c006       rjmp continue_A_add	//jump over TCNT1 clear, because if sound is on
+0009e6 b5ca       in YL, OCR1AL
+0009e7 b5db       in YH, OCR1AH
+0009e8 e315       ldi temp,0x35
+0009e9 0fc1       add YL,temp		//OCR1A += 3125
+0009ea e01c       ldi temp, 0x0C		//this need for correct work with keyboard
+0009eb 1fd1       adc YH,temp		//if sound enable
+0009ec 94f8       cli
+0009ed bddb       out OCR1AH,YH
+0009ee bdca       out OCR1AL,YL
+0009ef 9478       sei
+0009f0 c006       rjmp continue_A_add	//jump over TCNT1 clear, because if sound is on
                  						//TCNT1 must be cleared in OCIE1B interrupt
                  
                   skip_A_addition:
                  
-000356 27cc       clr YL
-000357 27dd       clr YH
-000358 94f8       cli
-000359 bddd       out TCNT1H,YH	//clear counter of timer1
-00035a bdcc       out TCNT1L,YL
-00035b 9478       sei
+0009f1 27cc       clr YL
+0009f2 27dd       clr YH
+0009f3 94f8       cli
+0009f4 bddd       out TCNT1H,YH	//clear counter of timer1
+0009f5 bdcc       out TCNT1L,YL
+0009f6 9478       sei
                  
                   continue_A_add:
-00035c e0d1       ldi YH,high(tick_count)
-00035d e2c1       ldi YL,low(tick_count)
-00035e 8118       ld temp,Y				//tick_count++
-00035f 9513       inc temp
-000360 8318       st Y,temp	
+0009f7 e0d1       ldi YH,high(tick_count)
+0009f8 e2c1       ldi YL,low(tick_count)
+0009f9 8118       ld temp,Y				//tick_count++
+0009fa 9513       inc temp
+0009fb 8318       st Y,temp	
                  
-000361 91cf       pop YL
-000362 91df       pop YH
-000363 911f       pop temp
-000364 9518       reti
+0009fc 91cf       pop YL
+0009fd 91df       pop YH
+0009fe 911f       pop temp
+0009ff 9518       reti
                   //--------------------------------
-                 
                  
                  reset:
                  .include "core_init.inc"	//clear sram, registers and stack init
@@ -2620,602 +4897,775 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  //================SRAM CLEAR=================================
                  RAM_Flush:	
-000365 e6e0      LDI	ZL,Low(SRAM_START)
-000366 e0f0      LDI	ZH,High(SRAM_START)
-000367 2700      CLR	R16
+000a00 e6e0      LDI	ZL,Low(SRAM_START)
+000a01 e0f0      LDI	ZH,High(SRAM_START)
+000a02 2700      CLR	R16
                  Flush:
-000368 9301      ST Z+,R16
-000369 30f8      CPI	ZH,High(RAMEND+1)
-00036a f7e9      BRNE Flush
-00036b 36e0      CPI	ZL,Low(RAMEND+1)	
-00036c f7d9      BRNE Flush 
-00036d 27ee      CLR	ZL
-00036e 27ff      CLR	ZH
+000a03 9301      ST Z+,R16
+000a04 30f8      CPI	ZH,High(RAMEND+1)
+000a05 f7e9      BRNE Flush
+000a06 36e0      CPI	ZL,Low(RAMEND+1)	
+000a07 f7d9      BRNE Flush 
+000a08 27ee      CLR	ZL
+000a09 27ff      CLR	ZH
                  //===============REGISTERS CLEAR=============================
-00036f e1ee      LDI	ZL, 30			
-000370 27ff      CLR	ZH		
-000371 95ea      DEC	ZL		
-000372 83f0      ST Z,ZH		
-000373 f7e9      BRNE PC-2		
+000a0a e1ee      LDI	ZL, 30			
+000a0b 27ff      CLR	ZH		
+000a0c 95ea      DEC	ZL		
+000a0d 83f0      ST Z,ZH		
+000a0e f7e9      BRNE PC-2		
                  //===============STACK INIT==================================
-000374 e50f      LDI R16,Low(RAMEND)		
-000375 bf0d      OUT SPL,R16			
-000376 e008      LDI R16,High(RAMEND)
-000377 bf0e      OUT SPH,R16
+000a0f e50f      LDI R16,Low(RAMEND)		
+000a10 bf0d      OUT SPL,R16			
+000a11 e008      LDI R16,High(RAMEND)
+000a12 bf0e      OUT SPH,R16
                  //-----------Program start-------------------------
                  
-000378 94f8
-000379 e110
-00037a bf19
-00037b 2711
-00037c bd1f
-00037d e014
-00037e bd1e
-00037f e00c
-000380 e315
-000381 bd0b
-000382 bd1a
-000383 e70a
-000384 e112
-000385 bd09
-000386 bd18
-000387 2711
-000388 bd1d
-000389 bd1c
-00038a 9478      Timer1_Init
-00038b b317
-00038c 7f18
-00038d bb17
-00038e b318
-00038f 6017
-000390 bb18
-000391 b311
-000392 631c
-000393 bb11      keyboard_init				//initialization of ports for keyboard
-000394 b314
-000395 6f1c
-000396 bb14
-000397 b315
-000398 7013
-000399 bb15
-00039a 939f
-00039b 938f
-00039c 937f
-00039d ef92
-00039e e08f
-00039f e075
-0003a0 dce8
-0003a1 917f
-0003a2 918f
-0003a3 919f
-0003a4 e310
-0003a5 bb15
-0003a6 9aab
-0003a7 95c8
-0003a8 98ab
-0003a9 939f
-0003aa 938f
-0003ab 937f
-0003ac ee95
-0003ad e18e
-0003ae e079
-0003af dcd9
-0003b0 917f
-0003b1 918f
-0003b2 919f
-0003b3 9aab
-0003b4 95c8
-0003b5 98ab
-0003b6 939f
-0003b7 938f
-0003b8 937f
-0003b9 ef92
-0003ba e08f
-0003bb e075
-0003bc dccc
-0003bd 917f
-0003be 918f
-0003bf 919f
-0003c0 9aab
-0003c1 95c8
-0003c2 98ab
-0003c3 939f
-0003c4 938f
-0003c5 937f
-0003c6 ef92
-0003c7 e08f
-0003c8 e075
-0003c9 dcbf
-0003ca 917f
-0003cb 918f
-0003cc 919f
-0003cd e210
-0003ce bb15
-0003cf 9aab
-0003d0 95c8
-0003d1 98ab
-0003d2 939f
-0003d3 938f
-0003d4 937f
-0003d5 ef90
-0003d6 e081
-0003d7 e071
-0003d8 dcb0
-0003d9 917f
-0003da 918f
-0003db 919f
-0003dc 931f
-0003dd 930f
-0003de e010
-0003df e208
-0003e0 dcaf
-0003e1 910f
-0003e2 911f
-0003e3 939f
-0003e4 938f
-0003e5 937f
-0003e6 ef90
-0003e7 e081
-0003e8 e071
-0003e9 dc9f
-0003ea 917f
-0003eb 918f
-0003ec 919f
-0003ed 931f
-0003ee 930f
-0003ef e010
-0003f0 e001
-0003f1 dc9e
-0003f2 910f
-0003f3 911f
-0003f4 939f
-0003f5 938f
-0003f6 937f
-0003f7 e89e
-0003f8 e28a
-0003f9 e071
-0003fa dc8e
-0003fb 917f
-0003fc 918f
-0003fd 919f
-0003fe 931f
-0003ff 930f
-000400 e010
-000401 e00f
-000402 dc8d
-000403 910f
-000404 911f
-000405 939f
-000406 938f
-000407 937f
-000408 e89e
-000409 e28a
-00040a e071
-00040b dc7d
-00040c 917f
-00040d 918f
-00040e 919f
-00040f 931f
-000410 930f
-000411 e010
-000412 e400
-000413 dc7c
-000414 910f
-000415 911f
-000416 939f
-000417 938f
-000418 937f
-000419 ef90
-00041a e081
-00041b e071
-00041c dc6c
-00041d 917f
-00041e 918f
-00041f 919f
-000420 931f
-000421 930f
-000422 e014
-000423 e000
-000424 dc6b
-000425 910f
-000426 911f
-000427 939f
-000428 938f
-000429 937f
-00042a ef90
-00042b e081
-00042c e071
-00042d dc5b
-00042e 917f
-00042f 918f
-000430 919f
-000431 931f
-000432 930f
-000433 e014
-000434 e000
-000435 dc5a
-000436 910f
-000437 911f
-000438 939f
-000439 938f
-00043a 937f
-00043b ef90
-00043c e081
-00043d e071
-00043e dc4a
-00043f 917f
-000440 918f
-000441 919f
-000442 931f
-000443 930f
-000444 e014
-000445 e000
-000446 dc49
-000447 910f
-000448 911f
-000449 939f
-00044a 938f
-00044b 937f
-00044c ef90
-00044d e081
-00044e e071
-00044f dc39
-000450 917f
-000451 918f
-000452 919f
-000453 931f
-000454 930f
-000455 e014
-000456 e000
-000457 dc38
-000458 910f
-000459 911f
-00045a 939f
-00045b 938f
-00045c 937f
-00045d ef90
-00045e e081
-00045f e071
-000460 dc28
-000461 917f
-000462 918f
-000463 919f
-000464 931f
-000465 930f
-000466 e014
-000467 e004
-000468 dc27
-000469 910f
-00046a 911f
-00046b 939f
-00046c 938f
-00046d 937f
-00046e ef90
-00046f e081
-000470 e071
-000471 dc17
-000472 917f
-000473 918f
-000474 919f
-000475 931f
-000476 930f
-000477 e014
-000478 e00e
-000479 dc16
-00047a 910f
-00047b 911f
-00047c 939f
-00047d 938f
-00047e 937f
-00047f ef90
-000480 e081
-000481 e071
-000482 dc06
-000483 917f
-000484 918f
-000485 919f
-000486 931f
-000487 930f
-000488 e014
-000489 e10f
-00048a dc05
-00048b 910f
-00048c 911f
-00048d 939f
-00048e 938f
-00048f 937f
-000490 ef90
-000491 e081
-000492 e071
-000493 dbf5
-000494 917f
-000495 918f
-000496 919f
-000497 931f
-000498 930f
-000499 e014
-00049a e000
-00049b dbf4
-00049c 910f
-00049d 911f
-00049e 939f
-00049f 938f
-0004a0 937f
-0004a1 ef90
-0004a2 e081
-0004a3 e071
-0004a4 dbe4
-0004a5 917f
-0004a6 918f
-0004a7 919f
-0004a8 931f
-0004a9 930f
-0004aa e014
-0004ab e000
-0004ac dbe3
-0004ad 910f
-0004ae 911f
-0004af 939f
-0004b0 938f
-0004b1 937f
-0004b2 ef90
-0004b3 e081
-0004b4 e071
-0004b5 dbd3
-0004b6 917f
-0004b7 918f
-0004b8 919f
-0004b9 931f
-0004ba 930f
-0004bb e014
-0004bc e10f
-0004bd dbd2
-0004be 910f
-0004bf 911f
-0004c0 939f
-0004c1 938f
-0004c2 937f
-0004c3 ef90
-0004c4 e081
-0004c5 e071
-0004c6 dbc2
-0004c7 917f
-0004c8 918f
-0004c9 919f
-0004ca 931f
-0004cb 930f
-0004cc e014
-0004cd e00e
-0004ce dbc1
-0004cf 910f
-0004d0 911f
-0004d1 939f
-0004d2 938f
-0004d3 937f
-0004d4 ef90
-0004d5 e081
-0004d6 e071
-0004d7 dbb1
-0004d8 917f
-0004d9 918f
-0004da 919f
-0004db 931f
-0004dc 930f
-0004dd e014
-0004de e004
-0004df dbb0
-0004e0 910f
-0004e1 911f
-0004e2 939f
-0004e3 938f
-0004e4 937f
-0004e5 ef90
-0004e6 e081
-0004e7 e071
-0004e8 dba0
-0004e9 917f
-0004ea 918f
-0004eb 919f
-0004ec 931f
-0004ed 930f
-0004ee e014
-0004ef e000
-0004f0 db9f
-0004f1 910f
-0004f2 911f
-0004f3 939f
-0004f4 938f
-0004f5 937f
-0004f6 ef90
-0004f7 e081
-0004f8 e071
-0004f9 db8f
-0004fa 917f
-0004fb 918f
-0004fc 919f
-0004fd 931f
-0004fe 930f
-0004ff e014
-000500 e000
-000501 db8e
-000502 910f
-000503 911f
-000504 939f
-000505 938f
-000506 937f
-000507 ef90
-000508 e081
-000509 e071
-00050a db7e
-00050b 917f
-00050c 918f
-00050d 919f
-00050e 931f
-00050f 930f
-000510 e014
-000511 e000
-000512 db7d
-000513 910f
-000514 911f
-000515 939f
-000516 938f
-000517 937f
-000518 ef90
-000519 e081
-00051a e071
-00051b db6d
-00051c 917f
-00051d 918f
-00051e 919f
-00051f 931f
-000520 930f
-000521 e014
-000522 e000
-000523 db6c
-000524 910f
-000525 911f
-000526 939f
-000527 938f
-000528 937f
-000529 ef90
-00052a e081
-00052b e071
-00052c db5c
-00052d 917f
-00052e 918f
-00052f 919f
-000530 931f
-000531 930f
-000532 931f
-000533 930f
-000534 e010
-000535 e800
-000536 db59
-000537 910f
-000538 911f
-000539 939f
-00053a 938f
-00053b 937f
-00053c ef90
-00053d e081
-00053e e071
-00053f db49
-000540 917f
-000541 918f
-000542 919f
-000543 910f
-000544 911f      LCD_init					//LCD initialization
-000545 94f8
-000546 27dd
-000547 e6c0
-000548 27ee
-000549 27ff
-00054a ec31
-00054b db34
-00054c 9309
-00054d 95e3
-00054e 953a
-00054f f7d9
-000550 9478
-000551 e0d1
-000552 e2c0
-000553 e010
-000554 8318
-000555 93ff
-000556 93ef
-000557 931f
-000558 930f
-000559 933f
-00055a e0f0
-00055b e6e0
-00055c e014
-00055d e131
-00055e 9101
-00055f db30
-000560 939f
-000561 938f
-000562 937f
-000563 ef90
-000564 e081
-000565 e071
-000566 db22
-000567 917f
-000568 918f
-000569 919f
-00056a 953a
-00056b f791
-00056c 913f
-00056d 910f
-00056e 911f
-00056f 91ef
-000570 91ff
-000571 931f
-000572 930f
-000573 931f
-000574 930f
-000575 e010
-000576 ec00
-000577 db18
-000578 910f
-000579 911f
-00057a 939f
-00057b 938f
-00057c 937f
-00057d ef90
-00057e e081
-00057f e071
-000580 db08
-000581 917f
-000582 918f
-000583 919f
-000584 910f
-000585 911f
-000586 93ff
-000587 93ef
-000588 931f
-000589 930f
-00058a 933f
-00058b e0f0
-00058c ece0
-00058d e014
-00058e e131
-00058f 9101
-000590 daff
-000591 939f
-000592 938f
-000593 937f
-000594 ef90
-000595 e081
-000596 e071
-000597 daf1
-000598 917f
-000599 918f
-00059a 919f
-00059b 953a
-00059c f791
-00059d 913f
-00059e 910f
-00059f 911f
-0005a0 91ef
-0005a1 91ff      menu_init
-0005a2 b311
-0005a3 6410
-0005a4 bb11
-0005a5 b312
-0005a6 7b1f
-0005a7 bb12
-0005a8 2711
-0005a9 bf12
-0005aa e117
-0005ab bf1c
-0005ac b719
-0005ad 6012
-0005ae bf19      sound_init
+000a13 94f8
+000a14 e110
+000a15 bf19
+000a16 2711
+000a17 bd1f
+000a18 e014
+000a19 bd1e
+000a1a e00c
+000a1b e315
+000a1c bd0b
+000a1d bd1a
+000a1e e70a
+000a1f e112
+000a20 bd09
+000a21 bd18
+000a22 2711
+000a23 bd1d
+000a24 bd1c
+000a25 9478      Timer1_Init
+000a26 b317
+000a27 7f18
+000a28 bb17
+000a29 b318
+000a2a 6017
+000a2b bb18
+000a2c b311
+000a2d 631c
+000a2e bb11      keyboard_init				//initialization of ports for keyboard
+000a2f b314
+000a30 6f1c
+000a31 bb14
+000a32 b315
+000a33 7013
+000a34 bb15
+000a35 939f
+000a36 938f
+000a37 937f
+000a38 ef92
+000a39 e08f
+000a3a e075
+000a3b 940e 0029
+000a3d 917f
+000a3e 918f
+000a3f 919f
+000a40 e310
+000a41 bb15
+000a42 9aab
+000a43 95c8
+000a44 98ab
+000a45 939f
+000a46 938f
+000a47 937f
+000a48 ee95
+000a49 e18e
+000a4a e079
+000a4b 940e 0029
+000a4d 917f
+000a4e 918f
+000a4f 919f
+000a50 9aab
+000a51 95c8
+000a52 98ab
+000a53 939f
+000a54 938f
+000a55 937f
+000a56 ef92
+000a57 e08f
+000a58 e075
+000a59 940e 0029
+000a5b 917f
+000a5c 918f
+000a5d 919f
+000a5e 9aab
+000a5f 95c8
+000a60 98ab
+000a61 939f
+000a62 938f
+000a63 937f
+000a64 ef92
+000a65 e08f
+000a66 e075
+000a67 940e 0029
+000a69 917f
+000a6a 918f
+000a6b 919f
+000a6c e210
+000a6d bb15
+000a6e 9aab
+000a6f 95c8
+000a70 98ab
+000a71 939f
+000a72 938f
+000a73 937f
+000a74 ef90
+000a75 e081
+000a76 e071
+000a77 940e 0029
+000a79 917f
+000a7a 918f
+000a7b 919f
+000a7c 931f
+000a7d 930f
+000a7e e010
+000a7f e208
+000a80 940e 0030
+000a82 910f
+000a83 911f
+000a84 939f
+000a85 938f
+000a86 937f
+000a87 ef90
+000a88 e081
+000a89 e071
+000a8a 940e 0029
+000a8c 917f
+000a8d 918f
+000a8e 919f
+000a8f 931f
+000a90 930f
+000a91 e010
+000a92 e001
+000a93 940e 0030
+000a95 910f
+000a96 911f
+000a97 939f
+000a98 938f
+000a99 937f
+000a9a e89e
+000a9b e28a
+000a9c e071
+000a9d 940e 0029
+000a9f 917f
+000aa0 918f
+000aa1 919f
+000aa2 931f
+000aa3 930f
+000aa4 e010
+000aa5 e00f
+000aa6 940e 0030
+000aa8 910f
+000aa9 911f
+000aaa 939f
+000aab 938f
+000aac 937f
+000aad e89e
+000aae e28a
+000aaf e071
+000ab0 940e 0029
+000ab2 917f
+000ab3 918f
+000ab4 919f
+000ab5 931f
+000ab6 930f
+000ab7 e010
+000ab8 e400
+000ab9 940e 0030
+000abb 910f
+000abc 911f
+000abd 939f
+000abe 938f
+000abf 937f
+000ac0 ef90
+000ac1 e081
+000ac2 e071
+000ac3 940e 0029
+000ac5 917f
+000ac6 918f
+000ac7 919f
+000ac8 931f
+000ac9 930f
+000aca e014
+000acb e000
+000acc 940e 0030
+000ace 910f
+000acf 911f
+000ad0 939f
+000ad1 938f
+000ad2 937f
+000ad3 ef90
+000ad4 e081
+000ad5 e071
+000ad6 940e 0029
+000ad8 917f
+000ad9 918f
+000ada 919f
+000adb 931f
+000adc 930f
+000add e014
+000ade e000
+000adf 940e 0030
+000ae1 910f
+000ae2 911f
+000ae3 939f
+000ae4 938f
+000ae5 937f
+000ae6 ef90
+000ae7 e081
+000ae8 e071
+000ae9 940e 0029
+000aeb 917f
+000aec 918f
+000aed 919f
+000aee 931f
+000aef 930f
+000af0 e014
+000af1 e000
+000af2 940e 0030
+000af4 910f
+000af5 911f
+000af6 939f
+000af7 938f
+000af8 937f
+000af9 ef90
+000afa e081
+000afb e071
+000afc 940e 0029
+000afe 917f
+000aff 918f
+000b00 919f
+000b01 931f
+000b02 930f
+000b03 e014
+000b04 e000
+000b05 940e 0030
+000b07 910f
+000b08 911f
+000b09 939f
+000b0a 938f
+000b0b 937f
+000b0c ef90
+000b0d e081
+000b0e e071
+000b0f 940e 0029
+000b11 917f
+000b12 918f
+000b13 919f
+000b14 931f
+000b15 930f
+000b16 e014
+000b17 e004
+000b18 940e 0030
+000b1a 910f
+000b1b 911f
+000b1c 939f
+000b1d 938f
+000b1e 937f
+000b1f ef90
+000b20 e081
+000b21 e071
+000b22 940e 0029
+000b24 917f
+000b25 918f
+000b26 919f
+000b27 931f
+000b28 930f
+000b29 e014
+000b2a e00e
+000b2b 940e 0030
+000b2d 910f
+000b2e 911f
+000b2f 939f
+000b30 938f
+000b31 937f
+000b32 ef90
+000b33 e081
+000b34 e071
+000b35 940e 0029
+000b37 917f
+000b38 918f
+000b39 919f
+000b3a 931f
+000b3b 930f
+000b3c e014
+000b3d e10f
+000b3e 940e 0030
+000b40 910f
+000b41 911f
+000b42 939f
+000b43 938f
+000b44 937f
+000b45 ef90
+000b46 e081
+000b47 e071
+000b48 940e 0029
+000b4a 917f
+000b4b 918f
+000b4c 919f
+000b4d 931f
+000b4e 930f
+000b4f e014
+000b50 e000
+000b51 940e 0030
+000b53 910f
+000b54 911f
+000b55 939f
+000b56 938f
+000b57 937f
+000b58 ef90
+000b59 e081
+000b5a e071
+000b5b 940e 0029
+000b5d 917f
+000b5e 918f
+000b5f 919f
+000b60 931f
+000b61 930f
+000b62 e014
+000b63 e000
+000b64 940e 0030
+000b66 910f
+000b67 911f
+000b68 939f
+000b69 938f
+000b6a 937f
+000b6b ef90
+000b6c e081
+000b6d e071
+000b6e 940e 0029
+000b70 917f
+000b71 918f
+000b72 919f
+000b73 931f
+000b74 930f
+000b75 e014
+000b76 e10f
+000b77 940e 0030
+000b79 910f
+000b7a 911f
+000b7b 939f
+000b7c 938f
+000b7d 937f
+000b7e ef90
+000b7f e081
+000b80 e071
+000b81 940e 0029
+000b83 917f
+000b84 918f
+000b85 919f
+000b86 931f
+000b87 930f
+000b88 e014
+000b89 e00e
+000b8a 940e 0030
+000b8c 910f
+000b8d 911f
+000b8e 939f
+000b8f 938f
+000b90 937f
+000b91 ef90
+000b92 e081
+000b93 e071
+000b94 940e 0029
+000b96 917f
+000b97 918f
+000b98 919f
+000b99 931f
+000b9a 930f
+000b9b e014
+000b9c e004
+000b9d 940e 0030
+000b9f 910f
+000ba0 911f
+000ba1 939f
+000ba2 938f
+000ba3 937f
+000ba4 ef90
+000ba5 e081
+000ba6 e071
+000ba7 940e 0029
+000ba9 917f
+000baa 918f
+000bab 919f
+000bac 931f
+000bad 930f
+000bae e014
+000baf e000
+000bb0 940e 0030
+000bb2 910f
+000bb3 911f
+000bb4 939f
+000bb5 938f
+000bb6 937f
+000bb7 ef90
+000bb8 e081
+000bb9 e071
+000bba 940e 0029
+000bbc 917f
+000bbd 918f
+000bbe 919f
+000bbf 931f
+000bc0 930f
+000bc1 e014
+000bc2 e000
+000bc3 940e 0030
+000bc5 910f
+000bc6 911f
+000bc7 939f
+000bc8 938f
+000bc9 937f
+000bca ef90
+000bcb e081
+000bcc e071
+000bcd 940e 0029
+000bcf 917f
+000bd0 918f
+000bd1 919f
+000bd2 931f
+000bd3 930f
+000bd4 e014
+000bd5 e000
+000bd6 940e 0030
+000bd8 910f
+000bd9 911f
+000bda 939f
+000bdb 938f
+000bdc 937f
+000bdd ef90
+000bde e081
+000bdf e071
+000be0 940e 0029
+000be2 917f
+000be3 918f
+000be4 919f
+000be5 931f
+000be6 930f
+000be7 e014
+000be8 e000
+000be9 940e 0030
+000beb 910f
+000bec 911f
+000bed 939f
+000bee 938f
+000bef 937f
+000bf0 ef90
+000bf1 e081
+000bf2 e071
+000bf3 940e 0029
+000bf5 917f
+000bf6 918f
+000bf7 919f
+000bf8 931f
+000bf9 930f
+000bfa 931f
+000bfb 930f
+000bfc e010
+000bfd e800
+000bfe 940e 0030
+000c00 910f
+000c01 911f
+000c02 939f
+000c03 938f
+000c04 937f
+000c05 ef90
+000c06 e081
+000c07 e071
+000c08 940e 0029
+000c0a 917f
+000c0b 918f
+000c0c 919f
+000c0d 910f
+000c0e 911f      LCD_init					//LCD initialization
+000c0f 94f8
+000c10 27dd
+000c11 e6c0
+000c12 27ee
+000c13 27ff
+000c14 ec31
+000c15 940e 0055
+000c17 9309
+000c18 95e3
+000c19 953a
+000c1a f7d1
+000c1b 9478
+000c1c e0d1
+000c1d e2c0
+000c1e e010
+000c1f 8318
+000c20 93ff
+000c21 93ef
+000c22 931f
+000c23 930f
+000c24 933f
+000c25 e0f0
+000c26 e6e0
+000c27 e014
+000c28 e131
+000c29 9101
+000c2a 940e 0030
+000c2c 939f
+000c2d 938f
+000c2e 937f
+000c2f ef90
+000c30 e081
+000c31 e071
+000c32 940e 0029
+000c34 917f
+000c35 918f
+000c36 919f
+000c37 953a
+000c38 f781
+000c39 913f
+000c3a 910f
+000c3b 911f
+000c3c 91ef
+000c3d 91ff
+000c3e 931f
+000c3f 930f
+000c40 931f
+000c41 930f
+000c42 e010
+000c43 ec00
+000c44 940e 0030
+000c46 910f
+000c47 911f
+000c48 939f
+000c49 938f
+000c4a 937f
+000c4b ef90
+000c4c e081
+000c4d e071
+000c4e 940e 0029
+000c50 917f
+000c51 918f
+000c52 919f
+000c53 910f
+000c54 911f
+000c55 93ff
+000c56 93ef
+000c57 931f
+000c58 930f
+000c59 933f
+000c5a e0f0
+000c5b ece0
+000c5c e014
+000c5d e131
+000c5e 9101
+000c5f 940e 0030
+000c61 939f
+000c62 938f
+000c63 937f
+000c64 ef90
+000c65 e081
+000c66 e071
+000c67 940e 0029
+000c69 917f
+000c6a 918f
+000c6b 919f
+000c6c 953a
+000c6d f781
+000c6e 913f
+000c6f 910f
+000c70 911f
+000c71 91ef
+000c72 91ff      menu_init
+000c73 b311
+000c74 6410
+000c75 bb11
+000c76 b312
+000c77 7b1f
+000c78 bb12
+000c79 2711
+000c7a bf12
+000c7b e117
+000c7c bf1c
+000c7d b719
+000c7e 6012
+000c7f bf19      sound_init
+000c80 e31c
+000c81 b910
+000c82 e0d1
+000c83 e2ca
+000c84 ed10
+000c85 8318      I2C_Init
+000c86 931f
+000c87 93df
+000c88 93cf
+000c89 e0d1
+000c8a e2cb
+000c8b e010
+000c8c 8318
+000c8d 940e 0225
+000c8f e0d1
+000c90 e2cc
+000c91 8118
+000c92 fd17
+000c93 940e 023d
+000c95 e0d1
+000c96 e2cb
+000c97 e012
+000c98 8318
+000c99 940e 0225
+000c9b e0d1
+000c9c e2cc
+000c9d 8118
+000c9e fd16
+000c9f 940e 024d
+000ca1 91cf
+000ca2 91df
+000ca3 911f      I2C_Check_Clock_Settings
                  
                  //-----------MAIN----------------------------------
                  main:			
-0005af 0000      	nop
-0005b0 cffe      rjmp main		
+000ca4 940e 0191
+000ca6 940e 01ea 	Refresh_time
+000ca8 932f
+000ca9 93bf
+000caa 93af
+000cab 931f
+000cac 93df
+000cad 93cf
+000cae e0d1
+000caf e2c0
+000cb0 8128
+000cb1 e110
+000cb2 9f12
+000cb3 2da0
+000cb4 2db1
+000cb5 e610
+000cb6 0fa1
+000cb7 2711
+000cb8 1fb1
+000cb9 931f
+000cba 930f
+000cbb 931f
+000cbc 930f
+000cbd e010
+000cbe e800
+000cbf 940e 0030
+000cc1 910f
+000cc2 911f
+000cc3 939f
+000cc4 938f
+000cc5 937f
+000cc6 ef90
+000cc7 e081
+000cc8 e071
+000cc9 940e 0029
+000ccb 917f
+000ccc 918f
+000ccd 919f
+000cce 910f
+000ccf 911f
+000cd0 931f
+000cd1 930f
+000cd2 93af
+000cd3 93bf
+000cd4 933f
+000cd5 e014
+000cd6 e131
+000cd7 910d
+000cd8 940e 0030
+000cda 939f
+000cdb 938f
+000cdc 937f
+000cdd ef90
+000cde e081
+000cdf e071
+000ce0 940e 0029
+000ce2 917f
+000ce3 918f
+000ce4 919f
+000ce5 953a
+000ce6 f781
+000ce7 913f
+000ce8 91bf
+000ce9 91af
+000cea 910f
+000ceb 911f
+000cec e110
+000ced 9f12
+000cee 2da0
+000cef 2db1
+000cf0 ec10
+000cf1 0fa1
+000cf2 2711
+000cf3 1fb1
+000cf4 931f
+000cf5 930f
+000cf6 931f
+000cf7 930f
+000cf8 e010
+000cf9 ec00
+000cfa 940e 0030
+000cfc 910f
+000cfd 911f
+000cfe 939f
+000cff 938f
+000d00 937f
+000d01 ef90
+000d02 e081
+000d03 e071
+000d04 940e 0029
+000d06 917f
+000d07 918f
+000d08 919f
+000d09 910f
+000d0a 911f
+000d0b 931f
+000d0c 930f
+000d0d 93af
+000d0e 93bf
+000d0f 933f
+000d10 e014
+000d11 e131
+000d12 910d
+000d13 940e 0030
+000d15 939f
+000d16 938f
+000d17 937f
+000d18 ef90
+000d19 e081
+000d1a e071
+000d1b 940e 0029
+000d1d 917f
+000d1e 918f
+000d1f 919f
+000d20 953a
+000d21 f781
+000d22 913f
+000d23 91bf
+000d24 91af
+000d25 910f
+000d26 911f
+000d27 91cf
+000d28 91df
+000d29 911f
+000d2a 91af
+000d2b 91bf
+000d2c 912f      	menu_refresh
+                 
+                 	
+000d2d e025          ldi  r18, 5
+000d2e ec32          ldi  r19, 194
+000d2f e846          ldi  r20, 134
+000d30 e251          ldi  r21, 33
+000d31 955a      L1: dec  r21
+000d32 f7f1          brne L1
+000d33 954a          dec  r20
+000d34 f7e1          brne L1
+000d35 953a          dec  r19
+000d36 f7d1          brne L1
+000d37 952a          dec  r18
+000d38 f7c1          brne L1
+                 	
+000d39 cf6a      rjmp main		
                  //-------------------------------------------------
                  //========EEPROM SEGMENT=================================================
                  .eseg
@@ -3380,22 +5830,22 @@ D:\diplom\eco\eco\eco.asm(36): Including file 'D:\diplom\eco\eco\core_init.inc'
 00009d 20
 00009e 20
 00009f 01        ee_test_msg4:	.db "test str 4     ",1
-0000a0 74
-0000a1 65
-0000a2 73
-0000a3 74
-0000a4 20
-0000a5 73
-0000a6 74
-0000a7 72
-0000a8 20
-0000a9 35
-0000aa 20
-0000ab 20
-0000ac 20
-0000ad 20
+0000a0 31
+0000a1 32
+0000a2 3a
+0000a3 33
+0000a4 34
+0000a5 20
+0000a6 31
+0000a7 34
+0000a8 2f
+0000a9 31
+0000aa 31
+0000ab 2f
+0000ac 31
+0000ad 35
 0000ae 20
-0000af 01        ee_test_msg5:	.db "test str 5     ",1
+0000af 01        ee_test_msg5:	.db "12:34 14/11/15 ",1
 0000b0 50
 0000b1 72
 0000b2 65
@@ -3430,40 +5880,40 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega32" register use summary:
-r0 :   4 r1 :   4 r2 :   0 r3 :   0 r4 :   0 r5 :   0 r6 :   0 r7 :   0 
+r0 :  12 r1 :  12 r2 :   0 r3 :   0 r4 :   0 r5 :   0 r6 :   0 r7 :   0 
 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 r13:   0 r14:   0 r15:   0 
-r16: 203 r17: 335 r18:  16 r19:  26 r20:   0 r21:   0 r22:   0 r23: 115 
-r24: 115 r25: 115 r26:  20 r27:  20 r28:  83 r29:  83 r30:  14 r31:  13 
-x  :   4 y  :  61 z  :   4 
-Registers used: 18 out of 35 (51.4%)
+r16: 527 r17: 981 r18:  43 r19:  65 r20:   2 r21:   2 r22:   0 r23: 163 
+r24: 163 r25: 163 r26:  63 r27:  63 r28: 296 r29: 296 r30:  20 r31:  19 
+x  :  13 y  : 275 z  :   8 
+Registers used: 20 out of 35 (57.1%)
 
 "ATmega32" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   5 add   :   5 adiw  :   0 and   :   0 
-andi  :  12 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   1 brge  :   0 brhc  :   0 
-brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :  26 brpl  :   0 brsh  :  12 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   7 cbr   :   0 
-clc   :   0 clh   :   0 cli   :  16 cln   :   0 clr   :  22 cls   :   0 
-clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :  28 cpse  :   2 dec   :  12 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :  18 inc   :   3 jmp   :   0 
-ld    :  36 ldd   :   0 ldi   : 314 lds   :   0 lpm   :  27 lsl   :   0 
-lsr   :   0 mov   :   8 movw  :   0 mul   :   4 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   1 or    :   2 ori   :  10 out   :  51 pop   : 286 
-push  : 286 rcall :  85 ret   :  17 reti  :  21 rjmp  :  40 rol   :   0 
+.lds  :   0 .sts  :   0 adc   :  42 add   :  56 adiw  :   1 and   :   0 
+andi  :  56 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   4 brge  :   0 brhc  :   0 
+brhs  :   0 brid  :   0 brie  :   0 brlo  :  21 brlt  :   0 brmi  :   0 
+brne  :  45 brpl  :   0 brsh  :  12 brtc  :   0 brts  :   0 brvc  :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  : 111 cbi   :   7 cbr   :   0 
+clc   :   0 clh   :   0 cli   :  10 cln   :   0 clr   :  66 cls   :   0 
+clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :  20 cpc   :   0 
+cpi   :  48 cpse  :   2 dec   :  24 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :  34 inc   :  23 jmp   :   2 
+ld    : 158 ldd   :   0 ldi   : 767 lds   :   0 lpm   :  27 lsl   :   0 
+lsr   :   0 mov   :  35 movw  :   0 mul   :  12 muls  :   0 mulsu :   0 
+neg   :   0 nop   :   0 or    :   2 ori   :  23 out   :  66 pop   : 552 
+push  : 528 rcall :  94 ret   :  28 reti  :  29 rjmp  : 107 rol   :   0 
 ror   :   0 sbc   :   0 sbci  :   0 sbi   :   8 sbic  :   1 sbis  :  25 
-sbiw  :   0 sbr   :   0 sbrc  :   1 sbrs  :   1 sec   :   0 seh   :   0 
-sei   :  28 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
-sez   :   0 sleep :   0 spm   :   0 st    :  33 std   :   0 sts   :   0 
-sub   :   0 subi  :   0 swap  :   1 tst   :   0 wdr   :   0 
-Instructions used: 37 out of 113 (32.7%)
+sbiw  :   0 sbr   :   0 sbrc  :  15 sbrs  :  30 sec   :   0 seh   :   0 
+sei   :  22 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
+sez   :   0 sleep :   0 spm   :   0 st    : 138 std   :   0 sts   :   0 
+sub   :   0 subi  :  20 swap  :   2 tst   :   0 wdr   :   0 
+Instructions used: 42 out of 113 (37.2%)
 
 "ATmega32" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000b62   2874      0   2874   32768   8.8%
-[.dseg] 0x000060 0x000124      0    196    196    2048   9.6%
+[.cseg] 0x000000 0x001a74   6736      0   6736   32768  20.6%
+[.dseg] 0x000060 0x000142      0    226    226    2048  11.0%
 [.eseg] 0x000000 0x0000c0      0    192    192    1024  18.8%
 
 Assembly complete, 0 errors, 0 warnings

@@ -26,7 +26,7 @@
  ldi r24,@1
  ldi r23,@2
 
- rcall delay_proc
+ call delay_proc
 
  pop r23
  pop r24
@@ -164,7 +164,7 @@
  push byte	
  ldi temp,cmd
  ldi byte,@0
- rcall LCD_send_byte_proc
+ call LCD_send_byte_proc
  pop byte
  pop temp
  .endm
@@ -177,7 +177,7 @@
  push byte
  ldi temp,4
  ldi byte,@0
- rcall LCD_send_byte_proc
+ call LCD_send_byte_proc
  pop byte
  pop temp
  .endm
@@ -198,7 +198,7 @@
  ldi r19,17			//r19 is a counter
  sram_read_loop:	//loop 16 times
  ld byte,Z+			//read from SRAM and post-inc
- rcall LCD_send_byte_proc	//print symbol to LCD
+ call LCD_send_byte_proc	//print symbol to LCD
  delay 240,1,1 //delay 45us
  dec r19			//loop things...
  brne sram_read_loop//go to sram_read_loop label if r19 is not 0
@@ -226,7 +226,7 @@
  ldi r19,17			//r19 is a counter
  sram_read_loop:	//loop 16 times
  ld byte,X+			//read from SRAM and post-inc
- rcall LCD_send_byte_proc	//print symbol to LCD
+ call LCD_send_byte_proc	//print symbol to LCD
  delay 240,1,1 //delay 45us
  dec r19			//loop things...
  brne sram_read_loop//go to sram_read_loop label if r19 is not 0

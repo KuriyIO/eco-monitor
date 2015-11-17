@@ -10,9 +10,11 @@
  <INCLUDED_FILES>
   <FILE>D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc</FILE>
   <FILE>D:\diplom\eco\eco\int_table.inc</FILE>
-  <FILE>D:\diplom\eco\eco\sound.inc</FILE>
-  <FILE>D:\diplom\eco\eco\menu.inc</FILE>
   <FILE>D:\diplom\eco\eco\LCD.inc</FILE>
+  <FILE>D:\diplom\eco\eco\menu.inc</FILE>
+  <FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE>
+  <FILE>D:\diplom\eco\eco\TimeSet.inc</FILE>
+  <FILE>D:\diplom\eco\eco\sound.inc</FILE>
   <FILE>D:\diplom\eco\eco\keyboard.inc</FILE>
   <FILE>D:\diplom\eco\eco\timers.inc</FILE>
   <FILE>D:\diplom\eco\eco\core_init.inc</FILE>
@@ -32,66 +34,115 @@
   <CO_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>13</LINE></CO_msg>
   <CH4_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>14</LINE></CH4_msg>
   <temperature_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>15</LINE></temperature_msg>
-  <time_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>16</LINE></time_msg>
-  <coords_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>17</LINE></coords_msg>
+  <coords_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>16</LINE></coords_msg>
+  <time_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>17</LINE></time_msg>
   <sound_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>18</LINE></sound_msg>
-  <test><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>19</LINE></test>
-  <menu_location><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>20</LINE></menu_location>
-  <tick_count><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>21</LINE></tick_count>
-  <last_btn><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>22</LINE></last_btn>
-  <sound_status><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>23</LINE></sound_status>
-  <reset><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>35</LINE></reset>
+  <CO_value><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>19</LINE></CO_value>
+  <CH4_value><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>20</LINE></CH4_value>
+  <temperature_value><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>21</LINE></temperature_value>
+  <coords_value><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>22</LINE></coords_value>
+  <time_value><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>23</LINE></time_value>
+  <sound_value><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>24</LINE></sound_value>
+  <menu_location><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>25</LINE></menu_location>
+  <tick_count><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>26</LINE></tick_count>
+  <last_btn><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>27</LINE></last_btn>
+  <sound_status><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>28</LINE></sound_status>
+  <I2C_status><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>29</LINE></I2C_status>
+  <I2C_buffer><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>30</LINE></I2C_buffer>
+  <I2C_device><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>31</LINE></I2C_device>
+  <I2C_data_pointer><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>32</LINE></I2C_data_pointer>
+  <I2C_data_read><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>33</LINE></I2C_data_read>
+  <I2C_data_write><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>34</LINE></I2C_data_write>
+  <time_set_status><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>35</LINE></time_set_status>
+  <time_set_value><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>36</LINE></time_set_value>
+  <time_set_ranges><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>37</LINE></time_set_ranges>
+  <time_set_max_values><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>38</LINE></time_set_max_values>
+  <time_set_buffer><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>39</LINE></time_set_buffer>
+  <time_set_blink_count><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>40</LINE></time_set_blink_count>
+  <reset><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>53</LINE></reset>
   <Keyboard_check_interrupt><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>43</LINE></Keyboard_check_interrupt>
-  <Sound_play_and_pause><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>137</LINE></Sound_play_and_pause>
-  <Sound_generation><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>127</LINE></Sound_generation>
-  <sound_alarm_enable><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>65</LINE></sound_alarm_enable>
-  <sound_alarm_disable><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>87</LINE></sound_alarm_disable>
-  <Buzzer_set_1><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>132</LINE></Buzzer_set_1>
-  <EEPROM_read_byte><FILE>D:\diplom\eco\eco\menu.inc</FILE><LINE>185</LINE></EEPROM_read_byte>
+  <Sound_play_and_pause><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>157</LINE></Sound_play_and_pause>
+  <Sound_generation><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>147</LINE></Sound_generation>
+  <I2C_Interrupt><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>15</LINE></I2C_Interrupt>
   <delay_proc><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>247</LINE></delay_proc>
   <delay_proc_label><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>249</LINE></delay_proc_label>
   <LCD_send_byte_proc><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>261</LINE></LCD_send_byte_proc>
+  <EEPROM_read_byte><FILE>D:\diplom\eco\eco\menu.inc</FILE><LINE>219</LINE></EEPROM_read_byte>
+  <I2C_write_data><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>303</LINE></I2C_write_data>
+  <stage_1><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>77</LINE></stage_1>
+  <stage_2><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>93</LINE></stage_2>
+  <stage_3><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>127</LINE></stage_3>
+  <stage_4_read><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>159</LINE></stage_4_read>
+  <stage_5_read><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>181</LINE></stage_5_read>
+  <stage_6_read><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>209</LINE></stage_6_read>
+  <stop_stage><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>249</LINE></stop_stage>
+  <I2C_error><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>231</LINE></I2C_error>
+  <stage_4_write><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>274</LINE></stage_4_write>
+  <I2C_Clock_Set_New_Time><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>417</LINE></I2C_Clock_Set_New_Time>
+  <I2C_write_byte><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>711</LINE></I2C_write_byte>
+  <I2C_Clock_Get_Time><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>536</LINE></I2C_Clock_Get_Time>
+  <I2C_read_byte><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>749</LINE></I2C_read_byte>
+  <Time_to_string><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>662</LINE></Time_to_string>
+  <Time_to_string_loop><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>680</LINE></Time_to_string_loop>
+  <I2C_error_restart_write><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>716</LINE></I2C_error_restart_write>
+  <I2C_wait_write_end><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>731</LINE></I2C_wait_write_end>
+  <I2C_error_restart_read><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>754</LINE></I2C_error_restart_read>
+  <I2C_wait_read_end><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>769</LINE></I2C_wait_read_end>
+  <I2C_Clock_Enable><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>788</LINE></I2C_Clock_Enable>
+  <I2C_Clock_Set_24Hour><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>812</LINE></I2C_Clock_Set_24Hour>
+  <time_set_blink><FILE>D:\diplom\eco\eco\TimeSet.inc</FILE><LINE>13</LINE></time_set_blink>
+  <return_time_set_blink><FILE>D:\diplom\eco\eco\TimeSet.inc</FILE><LINE>78</LINE></return_time_set_blink>
+  <blink_pair><FILE>D:\diplom\eco\eco\TimeSet.inc</FILE><LINE>53</LINE></blink_pair>
+  <time_set_get_pair_adress><FILE>D:\diplom\eco\eco\TimeSet.inc</FILE><LINE>111</LINE></time_set_get_pair_adress>
+  <time_set_set_buffer><FILE>D:\diplom\eco\eco\TimeSet.inc</FILE><LINE>87</LINE></time_set_set_buffer>
+  <time_set_next_pair><FILE>D:\diplom\eco\eco\TimeSet.inc</FILE><LINE>135</LINE></time_set_next_pair>
+  <sound_alarm_enable><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>85</LINE></sound_alarm_enable>
+  <sound_alarm_disable><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>107</LINE></sound_alarm_disable>
+  <Buzzer_set_1><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>152</LINE></Buzzer_set_1>
   <On_1_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>135</LINE></On_1_click>
-  <return_On_1_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>143</LINE></return_On_1_Click>
-  <On_2_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>154</LINE></On_2_click>
-  <return_On_2_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>164</LINE></return_On_2_Click>
-  <On_3_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>175</LINE></On_3_click>
-  <return_On_3_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>183</LINE></return_On_3_Click>
-  <On_4_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>194</LINE></On_4_click>
-  <return_On_4_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>202</LINE></return_On_4_Click>
-  <On_5_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>213</LINE></On_5_click>
-  <return_On_5_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>239</LINE></return_On_5_Click>
-  <sound_off><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>236</LINE></sound_off>
-  <On_6_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>250</LINE></On_6_click>
-  <return_On_6_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>258</LINE></return_On_6_Click>
-  <On_7_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>269</LINE></On_7_click>
-  <return_On_7_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>277</LINE></return_On_7_Click>
-  <On_8_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>288</LINE></On_8_click>
-  <return_On_8_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>298</LINE></return_On_8_Click>
-  <On_9_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>309</LINE></On_9_click>
-  <return_On_9_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>317</LINE></return_On_9_Click>
-  <On_asterisk_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>328</LINE></On_asterisk_click>
-  <return_On_asterisk_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>336</LINE></return_On_asterisk_Click>
-  <On_0_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>347</LINE></On_0_click>
-  <return_On_0_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>355</LINE></return_On_0_Click>
-  <On_grid_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>366</LINE></On_grid_click>
-  <return_On_grid_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>374</LINE></return_On_grid_Click>
-  <skip_A_addition><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>71</LINE></skip_A_addition>
-  <continue_A_add><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>80</LINE></continue_A_add>
+  <return_On_1_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>145</LINE></return_On_1_Click>
+  <On_2_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>156</LINE></On_2_click>
+  <return_On_2_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>176</LINE></return_On_2_Click>
+  <menu_On_2_Click_label><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>173</LINE></menu_On_2_Click_label>
+  <On_3_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>187</LINE></On_3_click>
+  <return_On_3_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>197</LINE></return_On_3_Click>
+  <On_4_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>208</LINE></On_4_click>
+  <return_On_4_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>218</LINE></return_On_4_Click>
+  <On_5_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>229</LINE></On_5_click>
+  <return_On_5_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>249</LINE></return_On_5_Click>
+  <sound_On_5_Click_label><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>246</LINE></sound_On_5_Click_label>
+  <On_6_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>260</LINE></On_6_click>
+  <return_On_6_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>270</LINE></return_On_6_Click>
+  <On_7_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>281</LINE></On_7_click>
+  <return_On_7_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>291</LINE></return_On_7_Click>
+  <On_8_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>302</LINE></On_8_click>
+  <return_On_8_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>322</LINE></return_On_8_Click>
+  <menu_On_8_Click_label><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>319</LINE></menu_On_8_Click_label>
+  <On_9_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>333</LINE></On_9_click>
+  <return_On_9_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>343</LINE></return_On_9_Click>
+  <On_asterisk_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>354</LINE></On_asterisk_click>
+  <return_On_asterisk_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>364</LINE></return_On_asterisk_Click>
+  <On_0_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>375</LINE></On_0_click>
+  <return_On_0_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>385</LINE></return_On_0_Click>
+  <On_grid_click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>396</LINE></On_grid_click>
+  <return_On_grid_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>406</LINE></return_On_grid_Click>
+  <skip_A_addition><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>79</LINE></skip_A_addition>
+  <continue_A_add><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>88</LINE></continue_A_add>
   <RAM_Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>7</LINE></RAM_Flush>
   <Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>11</LINE></Flush>
-  <main><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>46</LINE></main>
-  <ee_hello_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>53</LINE></ee_hello_msg>
-  <ee_CH4_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>54</LINE></ee_CH4_msg>
-  <ee_temp_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>55</LINE></ee_temp_msg>
-  <ee_coords_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>56</LINE></ee_coords_msg>
-  <ee_time_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>57</LINE></ee_time_msg>
-  <ee_sound_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>58</LINE></ee_sound_msg>
-  <ee_test_msg1><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>59</LINE></ee_test_msg1>
-  <ee_test_msg2><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>60</LINE></ee_test_msg2>
-  <ee_test_msg3><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>61</LINE></ee_test_msg3>
-  <ee_test_msg4><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>62</LINE></ee_test_msg4>
-  <ee_test_msg5><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>63</LINE></ee_test_msg5>
-  <ee_test_msg6><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>64</LINE></ee_test_msg6>
+  <main><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>66</LINE></main>
+  <L1><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>75</LINE></L1>
+  <ee_hello_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>89</LINE></ee_hello_msg>
+  <ee_CH4_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>90</LINE></ee_CH4_msg>
+  <ee_temp_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>91</LINE></ee_temp_msg>
+  <ee_coords_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>92</LINE></ee_coords_msg>
+  <ee_time_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>93</LINE></ee_time_msg>
+  <ee_sound_msg><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>94</LINE></ee_sound_msg>
+  <ee_test_msg1><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>95</LINE></ee_test_msg1>
+  <ee_test_msg2><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>96</LINE></ee_test_msg2>
+  <ee_test_msg3><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>97</LINE></ee_test_msg3>
+  <ee_test_msg4><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>98</LINE></ee_test_msg4>
+  <ee_test_msg5><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>99</LINE></ee_test_msg5>
+  <ee_test_msg6><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>100</LINE></ee_test_msg6>
  </LABELS>
 </ASSEMBLER_INFO>
