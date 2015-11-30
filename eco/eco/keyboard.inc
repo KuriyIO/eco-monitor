@@ -140,7 +140,16 @@
 
  Anti_false_activation '1', return_On_1_Click
 
- time_set '1'
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrs temp,time_set_S
+ rjmp return_On_1_Click
+
+ push r18
+ ldi r18,'1'
+ rcall time_set
+ pop r18
 
  return_On_1_Click:
  pop r16
@@ -167,7 +176,10 @@
  sbrs temp,time_set_S		//if time set mode on then skip menu navigation
  rjmp menu_On_2_Click_label
 
- time_set '2'
+ push r18
+ ldi r18,'2'
+ rcall time_set
+ pop r18
  rjmp return_On_2_Click
 
  menu_On_2_Click_label:
@@ -192,7 +204,16 @@
 
  Anti_false_activation '3', return_On_3_Click
  
- time_set '3'
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrs temp,time_set_S		//if time set mode on then skip sound settings
+ rjmp return_On_3_Click
+
+ push r18
+ ldi r18,'3'
+ rcall time_set
+ pop r18
 
  return_On_3_Click:
  pop r16
@@ -213,7 +234,16 @@
 
  Anti_false_activation '4', return_On_4_Click
 
- time_set '4'
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrs temp,time_set_S		//if time set mode on then skip sound settings
+ rjmp return_On_4_Click
+
+ push r18
+ ldi r18,'4'
+ rcall time_set
+ pop r18
 
  return_On_4_Click:
  pop r16
@@ -222,7 +252,7 @@
  pop temp
 
  sei
- sbis pinb,KBD_1		//wait until button is turned off
+ sbis pinb,KBD_3		//wait until button is turned off
  rjmp PC-1
  ret
  //-------On 5 click-----------------------------
@@ -233,14 +263,17 @@
  push r16
 
  Anti_false_activation '5', return_On_5_Click
-
+ 
  ldi YH,high(time_set_status)
  ldi YL,low(time_set_status)
  ld temp,Y
- sbrs temp,time_set_S		//if time set mode on then skip menu navigation
+ sbrs temp,time_set_S		//if time set mode on then skip sound settings
  rjmp sound_On_5_Click_label
 
- time_set '5'
+ push r18
+ ldi r18,'5'
+ rcall time_set
+ pop r18
  rjmp return_On_5_Click
 
  sound_On_5_Click_label:
@@ -251,7 +284,7 @@
  pop YL
  pop YH
  pop temp
-
+ 
  sei
  sbis pinb,KBD_2		//wait until button is turned off
  rjmp PC-1
@@ -265,7 +298,16 @@
 
  Anti_false_activation '6', return_On_6_Click
 
- time_set '6'
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrs temp,time_set_S		//if time set mode on then skip sound settings
+ rjmp return_On_6_Click
+
+ push r18
+ ldi r18,'6'
+ rcall time_set
+ pop r18
 
  return_On_6_Click:
  pop r16
@@ -286,7 +328,16 @@
 
  Anti_false_activation '7', return_On_7_Click
 
- time_set '7'
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrs temp,time_set_S		//if time set mode on then skip sound settings
+ rjmp return_On_7_Click
+
+ push r18
+ ldi r18,'7'
+ rcall time_set
+ pop r18
 
  return_On_7_Click:
  pop r16
@@ -313,7 +364,10 @@
  sbrs temp,time_set_S		//if time set mode on then skip menu navigation
  rjmp menu_On_8_Click_label
 
- time_set '8'
+ push r18
+ ldi r18,'8'
+ rcall time_set
+ pop r18
  rjmp return_On_8_Click
 
  menu_On_8_Click_label:
@@ -338,7 +392,16 @@
 
  Anti_false_activation '9', return_On_9_Click
 
- time_set '9'
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrs temp,time_set_S		//if time set mode on then skip sound settings
+ rjmp return_On_9_Click
+
+ push r18
+ ldi r18,'9'
+ rcall time_set
+ pop r18
 
  return_On_9_Click:
  pop r16
@@ -359,7 +422,12 @@
 
  Anti_false_activation '*', return_On_asterisk_Click
 
- time_set_start
+ ldi YH,high(menu_location)	//
+ ldi YL,low(menu_location)	//read number of current page from SRAM
+ ld menu_loc,Y				//
+ cpi menu_loc,4
+ brne PC+2
+ rcall time_set_start
 
  return_On_asterisk_Click:
  pop r16
@@ -380,7 +448,16 @@
 
  Anti_false_activation '0', return_On_0_Click
 
- time_set '0'
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrs temp,time_set_S		//if time set mode on then skip sound settings
+ rjmp return_On_0_Click
+
+ push r18
+ ldi r18,'0'
+ rcall time_set
+ pop r18
 
  return_On_0_Click:
  pop r16
@@ -400,17 +477,22 @@
  push r16
 
  Anti_false_activation '#', return_On_grid_Click
-
- time_set_set_next_pair
-
+ 
+ ldi YH,high(menu_location)	//
+ ldi YL,low(menu_location)	//read number of current page from SRAM
+ ld menu_loc,Y				//
+ cpi menu_loc,4
+ brne PC+2
+ rcall time_set_set_next_pair
+ 
  return_On_grid_Click:
  pop r16
  pop YL
  pop YH
  pop temp
-
+ 
  sei
- sbis pinb,KBD_3		//wait until button is turned off
+ sbis pinb,KBD_1	//wait until button is turned off
  rjmp PC-1
  ret
  //----------------------------------------------

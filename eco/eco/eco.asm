@@ -61,9 +61,11 @@ menu_init
 sound_init
 I2C_Init
 I2C_Check_Clock_Settings
+time_set_init
 
 //-----------MAIN----------------------------------
-main:			
+main:
+
 	Refresh_time
 	menu_refresh
 

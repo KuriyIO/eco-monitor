@@ -38,35 +38,15 @@
  breq stage_3		//go to stage 3(pointer to clock register)
 
  cpi temp, 4			//some hack
- in temp,SREG			//the same as:
- sbrc temp, 1			// cpi temp,4
-						// breq stage_4_read
-						//but have longer branch range
+ brne PC+2				//the same as breq stage_4_read
  rjmp stage_4_read	//go to stage 4 for reading data(restart)
 
-
- ldi YH, high(I2C_status)
- ldi YL, low(I2C_status)
- ld temp, Y
- andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
-
  cpi temp, 5			//some hack
- in temp,SREG			//the same as:
- sbrc temp, 1			// cpi temp,6
-						// breq stage_5_read
-						//but have longer branch range
+ brne PC+2				//the same as breq stage_5_read
  rjmp stage_5_read	//go to stage 5 (device id + R)
 
-
- ldi YH, high(I2C_status)
- ldi YL, low(I2C_status)
- ld temp, Y
- andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
  cpi temp, 6			//some hack
- in temp,SREG			//the same as:
- sbrc temp, 1			// cpi temp,6
-						// breq stage_6_read
-						//but have longer branch range
+ brne PC+2				//the same as breq stage_5_read
  rjmp stage_6_read	//go to stage 6 for reading data(read data)
 
 
@@ -253,7 +233,7 @@
  clr temp		//set current stage 0(operation end) also clear all flags
  st Y,temp
 
- /////////////////////////////////////////////////////////////////////////////////////////////////
+ 
  ldi YH,high(I2C_data_read)
  ldi YL,low(I2C_data_read)
 
@@ -261,7 +241,7 @@
  st Y,temp				//save it to I2C_data_read
  clr temp
  out TWDR,temp			//clear TWDR
- /////////////////////////////////////////////////////////////////////////////////////////////////
+ 
  ldi temp, ((1<<TWSTO)|(1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//generating stop
  out TWCR,temp
 
@@ -307,47 +287,35 @@
 									//compare of current stage operation process
 
  cpi temp, 1
- in temp,SREG			//the same as:
- sbrc temp, 1			// cpi temp,1
-						// breq stage_1
-						//but have longer branch range
+ brne PC+2			//the same as:
+					// cpi temp,1
+					// breq stage_1
+					//but have longer branch range
 
  rjmp stage_1		//go to stage 1(start)
 
 
- ldi YH, high(I2C_status)
- ldi YL, low(I2C_status)
- ld temp, Y
- andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
  cpi temp, 2
- in temp,SREG			//the same as:
- sbrc temp, 1			// cpi temp,2
-						// breq stage_2
-						//but have longer branch range
+ brne PC+2			//the same as:
+					// cpi temp,2
+					// breq stage_2
+					//but have longer branch range
  rjmp stage_2		//go to stage 2(device id + W)
 
 
- ldi YH, high(I2C_status)
- ldi YL, low(I2C_status)
- ld temp, Y
- andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
  cpi temp, 3
- in temp,SREG			//the same as:
- sbrc temp, 1			// cpi temp,3
-						// breq stage_3
-						//but have longer branch range
+ brne PC+2			//the same as:
+					// cpi temp,3
+					// breq stage_3
+					//but have longer branch range
  rjmp stage_3		//go to stage 3(pointer to clock's register)
 
 
- ldi YH, high(I2C_status)
- ldi YL, low(I2C_status)
- ld temp, Y
- andi temp, ~((1<<I2C_BS)|(1<<I2C_OP)|(1<<I2C_E))
  cpi temp, 4
- in temp,SREG			//the same as:
- sbrc temp, 1			// cpi temp,4
-						// breq stage_4_write
-						//but have longer branch range
+ brne PC+2			//the same as:
+					// cpi temp,4
+					// breq stage_4_write
+					//but have longer branch range
  rjmp stage_4_write	//go to stage 4 for write data(write data)
 
  rjmp stop_stage	//else - go to stop stage(generate stop)
@@ -413,6 +381,13 @@
 
  //-------------------------------------
 
+ //------Refresh time-------------------------------------------
+ .macro Refresh_time
+ call I2C_Clock_Get_Time
+ call Time_to_string
+ .endm
+ //-------------------------------------------------------------
+ //======PROCEDURES=========================================
  //-------Set new time----------------------
  I2C_Clock_Set_New_Time:
  push temp
@@ -520,7 +495,7 @@
 
  ldi YH,high(I2C_data_pointer)
  ldi YL,low(I2C_data_pointer)
- ldi temp,0x05
+ ldi temp,0x06
  st Y,temp							//write to 0x06 adress
 
  rcall I2C_write_byte				//write years
@@ -650,14 +625,6 @@
  pop temp
  ret
  //-----------------------------------------
- //------Refresh time-------------------------------------------
- .macro Refresh_time
- call I2C_Clock_Get_Time
- call Time_to_string
- .endm
- //-------------------------------------------------------------
- //======PROCEDURES=========================================
-
  //-------load time value from I2C_buffer-----------------------
  Time_to_string:
  push r18
@@ -667,6 +634,12 @@
  push YL
  push XH
  push XL
+
+ ldi YH,high(time_set_status)
+ ldi YL,low(time_set_status)
+ ld temp,Y
+ sbrc temp,time_set_S		//if time set mode on then return
+ rjmp return_time_to_string
 
  ldi r19,48
  clr r18
@@ -697,6 +670,52 @@
  inc r18
  cpi r18,5
  brne Time_to_string_loop
+
+ return_time_to_string:
+ pop XL
+ pop XH
+ pop YL
+ pop YH
+ pop temp
+ pop r19
+ pop r18
+ ret
+ //-------------------------------------------------------------
+ //-------load I2C_buffer from time value-----------------------
+ String_to_time:
+ push r18
+ push r19
+ push temp
+ push YH
+ push YL
+ push XH
+ push XL
+
+ clr r18
+
+ ldi YH,high(time_value)
+ ldi YL,low(time_value)
+
+ ldi XH,high(I2C_buffer)
+ ldi XL,low(I2C_buffer)
+
+ String_to_time_loop:
+
+ ld temp,Y+
+ subi temp,48
+ swap temp
+
+ ld r19,Y+
+ subi r19,48
+ or temp,r19
+
+ st X+,temp
+
+ adiw YH:YL,1
+
+ inc r18
+ cpi r18,5
+ brne String_to_time_loop
 
  pop XL
  pop XH

@@ -51,7 +51,7 @@
  inc temp
  st Y,temp
 
- rcall time_set_blink
+ call time_set_blink
 
  keyboard_check
 
