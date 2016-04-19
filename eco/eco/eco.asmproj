@@ -70,7 +70,19 @@
     <Compile Include="core_init.inc">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="delay.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DSEG.inc">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="eco.asm">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EEPROM.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GSM.inc">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="I2C_Real_Time_Clock.inc">
@@ -88,13 +100,22 @@
     <Compile Include="menu.inc">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="softUART.inc">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="sound.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="strings.inc">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="timers.inc">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TimeSet.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UART.inc">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

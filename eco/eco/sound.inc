@@ -145,19 +145,23 @@
 
  //-------Sound generation interrupt-----------
  Sound_generation:
+ sei
  sbis pind, BUZZER
  rjmp Buzzer_set_1
  cbi portd, BUZZER	//if buzzer pin is 1, then set it as 0
  reti
  Buzzer_set_1:
  sbi portd, BUZZER	//if buzzer pin is 0, then set is as 1
+ 
  reti
 
  //--------Sound play/pause interrupt----------
  Sound_play_and_pause:
+ sei
  push temp
  push YH
  push YL
+ 
 
  ldi YH,0x0C
  ldi YL,0x35
@@ -175,6 +179,7 @@
  out TCNT1L,YL
  sei
 
+ 
  pop YL
  pop YH
  pop temp

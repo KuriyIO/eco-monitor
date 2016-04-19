@@ -13,6 +13,7 @@
 
  //------On I2C interrupt------------------------------
  I2C_Interrupt:
+ //sei
  push temp
  push YH
  push YL

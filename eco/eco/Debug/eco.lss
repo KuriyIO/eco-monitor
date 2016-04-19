@@ -1,17 +1,23 @@
 
-AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Mon Nov 30 22:26:06 2015
+AVRASM ver. 2.1.57  D:\diplom\eco\eco\eco.asm Tue Apr 19 04:48:08 2016
 
 [builtin](2): Including file 'D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc'
 D:\diplom\eco\eco\eco.asm(1): Including file 'D:\dev\Atmel Toolchain\AVR Assembler\Native\2.1.1175\avrassembler\Include\m32def.inc'
-D:\diplom\eco\eco\eco.asm(44): Including file 'D:\diplom\eco\eco\int_table.inc'
-D:\diplom\eco\eco\eco.asm(45): Including file 'D:\diplom\eco\eco\LCD.inc'
-D:\diplom\eco\eco\eco.asm(46): Including file 'D:\diplom\eco\eco\menu.inc'
-D:\diplom\eco\eco\eco.asm(47): Including file 'D:\diplom\eco\eco\I2C_Real_Time_Clock.inc'
-D:\diplom\eco\eco\eco.asm(48): Including file 'D:\diplom\eco\eco\TimeSet.inc'
-D:\diplom\eco\eco\eco.asm(49): Including file 'D:\diplom\eco\eco\sound.inc'
-D:\diplom\eco\eco\eco.asm(50): Including file 'D:\diplom\eco\eco\keyboard.inc'
-D:\diplom\eco\eco\eco.asm(51): Including file 'D:\diplom\eco\eco\timers.inc'
-D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
+D:\diplom\eco\eco\eco.asm(10): Including file 'D:\diplom\eco\eco\DSEG.inc'
+D:\diplom\eco\eco\eco.asm(13): Including file 'D:\diplom\eco\eco\int_table.inc'
+D:\diplom\eco\eco\eco.asm(14): Including file 'D:\diplom\eco\eco\delay.inc'
+D:\diplom\eco\eco\eco.asm(15): Including file 'D:\diplom\eco\eco\LCD.inc'
+D:\diplom\eco\eco\eco.asm(16): Including file 'D:\diplom\eco\eco\menu.inc'
+D:\diplom\eco\eco\eco.asm(17): Including file 'D:\diplom\eco\eco\I2C_Real_Time_Clock.inc'
+D:\diplom\eco\eco\eco.asm(18): Including file 'D:\diplom\eco\eco\TimeSet.inc'
+D:\diplom\eco\eco\eco.asm(19): Including file 'D:\diplom\eco\eco\sound.inc'
+D:\diplom\eco\eco\eco.asm(20): Including file 'D:\diplom\eco\eco\keyboard.inc'
+D:\diplom\eco\eco\eco.asm(21): Including file 'D:\diplom\eco\eco\timers.inc'
+D:\diplom\eco\eco\eco.asm(23): Including file 'D:\diplom\eco\eco\UART.inc'
+D:\diplom\eco\eco\eco.asm(24): Including file 'D:\diplom\eco\eco\strings.inc'
+D:\diplom\eco\eco\eco.asm(25): Including file 'D:\diplom\eco\eco\GSM.inc'
+D:\diplom\eco\eco\eco.asm(28): Including file 'D:\diplom\eco\eco\core_init.inc'
+D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\EEPROM.inc'
                  
                  .include "m32def.inc" //include define for ATmega32 controller
                  
@@ -873,46 +879,91 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  #endif  /* _M32DEF_INC_ */
                  
                  
+                  .equ freq=16000000	   //frequency of microcontoller
                   .def temp=r17		   //define r16 as temp
                   .def byte=r16		   //define r17 as byte (will be used for send byte to LCD)
                   .def menu_loc=r18
+                  .equ XTAL = 16000000 //or 16000000	//microcontroller frequency
                  
                  //==========DATA SEGMENT=================================================
+                 .include "DSEG.inc"
+                 
+                  * DSEG.inc
+                  * Data segment
+                  *  Created: 26.03.2016 0:38:52
+                  *   Author: Hogs
+                  */ 
+                 
                  // In this segment we can to reserve some memory
                  // for strings for example...
                  .dseg
-                 .org 0x0060						//starting from 0x0060 because 
-                 								//before that adress we have reserved memory for registers
-000060           CO_msg:				.byte 16	//level CO string
-000070           CH4_msg:			.byte 16	//CH4 level message string
-000080           temperature_msg:	.byte 16	//Temperature message string
-000090           coords_msg:			.byte 16	//Coordinates message string
-0000a0           time_msg:			.byte 16	//Time message string
-0000b0           sound_msg:			.byte 16	//Sound option message string
-0000c0           CO_value:			.byte 16	//string which contain level CO value
-0000d0           CH4_value:			.byte 16	//string which contain level CH4 value
-0000e0           temperature_value:	.byte 16	//string which contain temperature value
-0000f0           coords_value:		.byte 16	//string which contain coordinates value
-000100           time_value:			.byte 16	//string which contain time value
-000110           sound_value:		.byte 16	//string which contain sound On/Off value
-000120           menu_location:		.byte 1		//current menu location
-000121           tick_count:			.byte 1		//count of button activations
-000122           last_btn:			.byte 1		//number of last pressed button
-000123           sound_status:		.byte 1		//status of sound
-000124           I2C_status:			.byte 1		//I2C status register
-000125           I2C_buffer:			.byte 5		//I2C buffer
-00012a           I2C_device:			.byte 1		//I2C device adress + R/W
-00012b           I2C_data_pointer:	.byte 1		//pointer to clock's register
-00012c           I2C_data_read:		.byte 1		//readed data
-00012d           I2C_data_write:		.byte 1		//data which need to write
-00012e           time_set_status:	.byte 1		//time set status register
-00012f           time_set_value:		.byte 1		//contain a value which need to set
-000130           time_set_ranges:	.byte 10	//contain a table with max values range
-00013a           time_set_max_values:.byte 5		//caontain a max values of hh:mm dd/MM/yy
-00013f           time_set_buffer:	.byte 2		//contain a active pair values
-000141           time_set_blink_count:.byte 1	//count of tick before blink
+                 .org 0x0060							//starting from 0x0060 because 
+                 									//before that adress we have reserved memory for registers
                  
-                 //==========CODE SEGMENT=================================================
+000060           pressure_msg:			.byte 16	//Pressure string
+000070           temperature_msg:		.byte 16	//Temperature message string
+000080           time_msg:				.byte 16	//Time message string
+000090           mc_msg:					.byte 16	//Memory Card option message string
+0000a0           sms_msg:				.byte 16	//SMS option message string
+0000b0           sound_msg:				.byte 16	//Sound option message string
+0000c0           pressure_value:			.byte 16	//string which contain pressure value
+0000d0           temperature_value:		.byte 16	//string which contain temperature value
+0000e0           time_value:				.byte 16	//string which contain time value
+0000f0           mc_value:				.byte 16	//string which contain memory card On/Off value
+000100           sms_value:				.byte 16	//string which contain SMS On/Off value
+000110           sound_value:			.byte 16	//string which contain sound On/Off value
+000120           menu_location:			.byte 1		//current menu location
+000121           tick_count:				.byte 1		//count of button activations
+000122           last_btn:				.byte 1		//number of last pressed button
+000123           sound_status:			.byte 1		//status of sound
+000124           I2C_status:				.byte 1		//I2C status register
+000125           I2C_buffer:				.byte 5		//I2C buffer
+00012a           I2C_device:				.byte 1		//I2C device adress + R/W
+00012b           I2C_data_pointer:		.byte 1		//pointer to clock's register
+00012c           I2C_data_read:			.byte 1		//readed data
+00012d           I2C_data_write:			.byte 1		//data which need to write
+00012e           time_set_status:		.byte 1		//time set status register
+00012f           time_set_value:			.byte 1		//contain a value which need to set
+000130           time_set_ranges:		.byte 10	//contain a table with max values range
+00013a           time_set_max_values:	.byte 5		//contain a max values of hh:mm dd/MM/yy
+00013f           time_set_buffer:		.byte 2		//contain a active pair values
+000141           time_set_blink_count:	.byte 1		//count of tick before blink
+000142           UART_TX_buffer:			.byte 256	//UART Transmit buffer
+000242           UART_TX_end:			.byte 1		//end of tx string
+000243           UART_RX_buffer:			.byte 256	//UART Receive buffer
+000343           UART_RX_end:			.byte 1		//end of rx string
+000344           UART_TX_byte_p:			.byte 1		//pointer to Transmit buffer
+000345           UART_RX_byte_p:			.byte 1		//pointer to Receive buffer
+000346           UART_Status:			.byte 1		//UART Status register
+000347           GSM_Status:				.byte 1		//GSM status register
+000348           GSM_new_msg:			.byte 13	//check new message string
+000355           GSM_read_SMS1:			.byte 9		//read SMS string part 1
+00035e           GSM_read_SMS2:			.byte 3		//read SMS string part 2
+000361           GSM_result:				.byte 3		// "OK" string
+000364           GSM_write:				.byte 9		//send message string
+00036d           GSM_write_msg:			.byte 2		//">" symbol
+00036f           GSM_enter:				.byte 2		//send 0x0D
+000371           GSM_end_msg:			.byte 2		//send 0x1A
+000373           GSM_phone_start:		.byte 3		// ", string
+000376           GSM_get_cmd:			.byte 11	//"device get" string
+000381           GSM_set_cmd:			.byte 11	//"device set" string
+00038c           GSM_info_parameter:		.byte 5		//"info" string
+000391           GSM_time_parameter:		.byte 5		//"time" string
+000396           GSM_temp_parameter:		.byte 5		//"temp" string
+00039b           GSM_pressure_parameter:	.byte 9		//"pressure" string
+0003a4           GSM_sound_parameter:	.byte 6		//"sound" string
+0003aa           GSM_memory_parameter:	.byte 7		//"memory" string
+0003b1           GSM_invalid_get:		.byte 84	//invalid get message
+000405           GSM_invalid_set:		.byte 65	//invalid set message
+000446           On_str:					.byte 4		//"On " string
+00044a           Off_str:				.byte 4		//"Off" string
+00044e           GSM_invalid_time_msg:	.byte 53	//invalid time set message
+000483           GSM_invalid_OnOff:		.byte 69	//invalid On/Off set message
+0004c8           GSM_sms_index:			.byte 3		//index of message
+0004cb           GSM_phone_number:		.byte 15	//phone number string
+0004da           end_of_string_phone:	.byte 1		//'\0' string
+0004db           MC_Settings:			.byte 1		//memory card settings (On/Off)
+0004dc           //==========CODE SEGMENT=================================================
                  .cseg
                  .include "int_table.inc"	//interrupt vectors
                  
@@ -921,7 +972,7 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                   //=========INTERRUPT VECTORS TABLE=============================================
                   .org $000 //RESET
-000000 940c 0883  jmp reset 
+000000 940c 108c  jmp reset 
                   .org $002 //INT0 External Interrupt Request 0
 000002 9518       reti
                   .org $004 //INT1 External Interrupt Request 1
@@ -935,9 +986,9 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                   .org $00C //TIMER1 CAPT Timer/Counter1 Capture Event
 00000c 9518       reti
                   .org $00E //TIMER1 COMPA Timer/Counter1 Compare Match A
-00000e 940c 0832  jmp Keyboard_check_interrupt
+00000e 940c 0810  jmp Keyboard_check_interrupt
                   .org $010 //TIMER1 COMPB Timer/Counter1 Compare Match B
-000010 c52c       rjmp Sound_play_and_pause
+000010 c52d       rjmp Sound_play_and_pause
                   .org $012 //TIMER1 OVF Timer/Counter1 Overflow
 000012 9518       reti
                   .org $014 //TIMER0 COMP Timer/Counter0 Compare Match
@@ -947,9 +998,9 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                   .org $018 //SPI, STC Serial Transfer Complete
 000018 9518       reti
                   .org $01A //USART, RXC USART, Rx Complete
-00001a 9518       reti
+00001a 940c 0887  jmp UART_receive
                   .org $01C //USART, UDRE USART Data Register Empty
-00001c 9518       reti
+00001c 940c 0864  jmp UART_transmit
                   .org $01E //USART, TXC USART, Tx Complete
 00001e 9518       reti
                   .org $020 //ADC ADC Conversion Complete
@@ -964,6 +1015,48 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
 000028 9518       reti
                  //===============================================================================================
                  
+                 .include "delay.inc"		//delay macro and proc
+                 
+                  * delay.inc
+                  *
+                  *  Created: 30.03.2016 0:23:08
+                  *   Author: Hogs
+                  */ 
+                 
+                 
+                 //========= PROCEDURES ======================================
+                 //------delay proc-------------------------------------------
+                       
+                  delay_proc:
+                 
+                 delay_proc_label: 
+000029 959a      	dec  r25
+00002a f7f1          brne delay_proc_label
+00002b 958a          dec  r24
+00002c f7e1          brne delay_proc_label
+00002d 957a      	dec  r23
+00002e f7d1          brne delay_proc_label
+                 
+00002f 9508       ret
+                 
+                 //======== MACRO ===========================================  
+                 //----------delay macro-------------------------------------
+                   
+                  .macro delay
+                  push r25
+                  push r24
+                  push r23
+                 
+                  ldi r25,@0
+                  ldi r24,@1
+                  ldi r23,@2
+                 
+                  call delay_proc
+                 
+                  pop r23
+                  pop r24
+                  pop r25
+                  .endm
                  .include "LCD.inc"			//macro and procedures for HD44780 like displays
                  
                   * Macro and procedures
@@ -981,24 +1074,6 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                   .equ D7 = 7
                  
                   //========MACRO================================================================
-                  
-                 //----------delay---------------------------------------------
-                   
-                  .macro delay
-                  push r25
-                  push r24
-                  push r23
-                 
-                  ldi r25,@0
-                  ldi r24,@1
-                  ldi r23,@2
-                 
-                  call delay_proc
-                 
-                  pop r23
-                  pop r24
-                  pop r25
-                  .endm
                  
                  //------------------------------------------------------------------------
                  
@@ -1209,20 +1284,6 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  //==============PROCEDURES=====================================================
                  
-                  //------delay proc-------------------------------------------------------
-                       
-                  delay_proc:
-                 
-                 delay_proc_label: 
-000029 959a      	dec  r25
-00002a f7f1          brne delay_proc_label
-00002b 958a          dec  r24
-00002c f7e1          brne delay_proc_label
-00002d 957a      	dec  r23
-00002e f7d1          brne delay_proc_label
-                 
-00002f 9508       ret
-                 
                  //------Send byte to LCD as 4-but mode------------------------------------
                  
                   LCD_send_byte_proc:
@@ -1303,9 +1364,9 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                   ldi temp,0
                   st Y,temp
                  
-                  LCD_print_str CO_msg		//print first menu page
+                  LCD_print_str pressure_msg		//print first menu page
                   second_line
-                  LCD_print_str CO_msg+96
+                  LCD_print_str pressure_msg+96
                   .endm
                   //------------------------------------------
                   //--------Menu refresh page----------------
@@ -1482,10 +1543,8 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                   ldi YL,0x60 //load to YL 0x60 coz 0x0060 - sram start
                   clr ZL		 //clear Z register
                   clr ZH
-                  //?????????????????-----DEBUG------????????????????????????????????????????????????????????????????????
+                  
                   ldi r19,193			//r19 is a counter
-                 						//USE <LDI r19,97> AFTER DEBUG
-                  //?????????????????????????????????????????????????????????????????????????????????????????????????????
                  
                   EE_read_loop:			//loop 96 times
                   call EEPROM_read_byte //read byte from EEPROM
@@ -1535,6 +1594,7 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                   //------On I2C interrupt------------------------------
                   I2C_Interrupt:
+                  //sei
 00005e 931f       push temp
 00005f 93df       push YH
 000060 93cf       push YL
@@ -2166,8 +2226,8 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
 0001db e330       ldi r19,48
 0001dc 2722       clr r18
                  
-0001dd e0d1       ldi YH,high(time_value)
-0001de e0c0       ldi YL,low(time_value)
+0001dd e0d0       ldi YH,high(time_value)
+0001de eec0       ldi YL,low(time_value)
                  
 0001df e0b1       ldi XH,high(I2C_buffer)
 0001e0 e2a5       ldi XL,low(I2C_buffer)
@@ -2215,8 +2275,8 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
 0001fe 2722       clr r18
                  
-0001ff e0d1       ldi YH,high(time_value)
-000200 e0c0       ldi YL,low(time_value)
+0001ff e0d0       ldi YH,high(time_value)
+000200 eec0       ldi YL,low(time_value)
                  
 000201 e0b1       ldi XH,high(I2C_buffer)
 000202 e2a5       ldi XL,low(I2C_buffer)
@@ -2618,8 +2678,8 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
 000335 0f10       add temp,r16				//temp = pair*2
 000336 0f10       add temp,r16				//temp = pair*2 + pair
                  
-000337 e0d1       ldi YH,high(time_value)
-000338 e0c0       ldi YL,low(time_value)
+000337 e0d0       ldi YH,high(time_value)
+000338 eec0       ldi YL,low(time_value)
                  
 000339 0fc1       add YL,temp
 00033a 2700       clr r16
@@ -3348,53 +3408,58 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                   //-------Sound generation interrupt-----------
                   Sound_generation:
-000537 9b86       sbis pind, BUZZER
-000538 c002       rjmp Buzzer_set_1
-000539 9896       cbi portd, BUZZER	//if buzzer pin is 1, then set it as 0
-00053a 9518       reti
+000537 9478       sei
+000538 9b86       sbis pind, BUZZER
+000539 c002       rjmp Buzzer_set_1
+00053a 9896       cbi portd, BUZZER	//if buzzer pin is 1, then set it as 0
+00053b 9518       reti
                   Buzzer_set_1:
-00053b 9a96       sbi portd, BUZZER	//if buzzer pin is 0, then set is as 1
-00053c 9518       reti
+00053c 9a96       sbi portd, BUZZER	//if buzzer pin is 0, then set is as 1
+                  
+00053d 9518       reti
                  
                   //--------Sound play/pause interrupt----------
                   Sound_play_and_pause:
-00053d 931f       push temp
-00053e 93df       push YH
-00053f 93cf       push YL
+00053e 9478       sei
+00053f 931f       push temp
+000540 93df       push YH
+000541 93cf       push YL
+                  
                  
-000540 e0dc       ldi YH,0x0C
-000541 e3c5       ldi YL,0x35
-000542 94f8       cli
-000543 bddb       out OCR1AH,YH	//set timer1 A as 3125
-000544 bdca       out OCR1AL,YL	//for correct work with keyboard
-000545 9478       sei
+000542 e0dc       ldi YH,0x0C
+000543 e3c5       ldi YL,0x35
+000544 94f8       cli
+000545 bddb       out OCR1AH,YH	//set timer1 A as 3125
+000546 bdca       out OCR1AL,YL	//for correct work with keyboard
+000547 9478       sei
                  
-000546 931f
-000547 b713
-000548 3010
-000549 f029
-00054a 931f
-00054b 2711
-00054c bf13
-00054d 911f
-00054e c004
-00054f 931f
-000550 e01c
-000551 bf13
-000552 911f
-000553 911f       Timer0_toggle
+000548 931f
+000549 b713
+00054a 3010
+00054b f029
+00054c 931f
+00054d 2711
+00054e bf13
+00054f 911f
+000550 c004
+000551 931f
+000552 e01c
+000553 bf13
+000554 911f
+000555 911f       Timer0_toggle
                  
-000554 27cc       clr YL
-000555 27dd       clr YH
-000556 94f8       cli
-000557 bddd       out TCNT1H,YH	//clear counter of timer1
-000558 bdcc       out TCNT1L,YL
-000559 9478       sei
+000556 27cc       clr YL
+000557 27dd       clr YH
+000558 94f8       cli
+000559 bddd       out TCNT1H,YH	//clear counter of timer1
+00055a bdcc       out TCNT1L,YL
+00055b 9478       sei
                  
-00055a 91cf       pop YL
-00055b 91df       pop YH
-00055c 911f       pop temp
-00055d 9518       reti
+                  
+00055c 91cf       pop YL
+00055d 91df       pop YH
+00055e 911f       pop temp
+00055f 9518       reti
                   //--------------------------------------------
                  .include "keyboard.inc"		//macro and procedures for 3x4 keyboard
                  
@@ -3410,7 +3475,7 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                   .equ KBD_1 = 0
                   .equ KBD_2 = 1
                   .equ KBD_3 = 2
-                  .equ count_of_ticks = 1	//count of ticks for prevent false activation macro
+                  .equ count_of_ticks = 5	//count of ticks for prevent false activation macro
                  
                   //=======MACRO==========================================
                   //-------Preventing false activation----------------------------
@@ -3471,6 +3536,7 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                   //-------Check buttons------------------------------------------
                   .macro keyboard_check
                  
+                 	push temp
                  	in temp,pind		//set pins without corruption of other pins
                  	ori temp, 0 | (1<<KBD_A) | (1<<KBD_B) | (1<<KBD_C) | (1<<KBD_D)
                  	andi temp, (~(0 | (1<<KBD_A)))//set KBD_A as 0, and KBD_B,C,D as 1
@@ -3527,817 +3593,818 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  		sbis pinb,KBD_1
                  		rcall On_grid_Click
                  
+                 	pop temp
                   .endm
                  
                   //=======PROCEDURES=====================================
                   //-------On 1 click-----------------------------
                   On_1_click:
-00055e 931f       push temp
-00055f 93df       push YH
-000560 93cf       push YL
-000561 930f       push r16
+000560 931f       push temp
+000561 93df       push YH
+000562 93cf       push YL
+000563 930f       push r16
                  
-000562 e0d1
-000563 e2c1
-000564 9119
-000565 8108
-000566 3301
-000567 f419
-000568 3011
-000569 f408
-00056a c00f
-00056b e010
-00056c e301
-00056d e0d1
-00056e e2c1
-00056f 9319
-000570 8308       Anti_false_activation '1', return_On_1_Click
+000564 e0d1
+000565 e2c1
+000566 9119
+000567 8108
+000568 3301
+000569 f419
+00056a 3015
+00056b f408
+00056c c00f
+00056d e010
+00056e e301
+00056f e0d1
+000570 e2c1
+000571 9319
+000572 8308       Anti_false_activation '1', return_On_1_Click
                  
-000571 e0d1       ldi YH,high(time_set_status)
-000572 e2ce       ldi YL,low(time_set_status)
-000573 8118       ld temp,Y
-000574 ff17       sbrs temp,time_set_S
-000575 c004       rjmp return_On_1_Click
+000573 e0d1       ldi YH,high(time_set_status)
+000574 e2ce       ldi YL,low(time_set_status)
+000575 8118       ld temp,Y
+000576 ff17       sbrs temp,time_set_S
+000577 c004       rjmp return_On_1_Click
                  
-000576 932f       push r18
-000577 e321       ldi r18,'1'
-000578 df17       rcall time_set
-000579 912f       pop r18
+000578 932f       push r18
+000579 e321       ldi r18,'1'
+00057a df15       rcall time_set
+00057b 912f       pop r18
                  
                   return_On_1_Click:
-00057a 910f       pop r16
-00057b 91cf       pop YL
-00057c 91df       pop YH
-00057d 911f       pop temp
+00057c 910f       pop r16
+00057d 91cf       pop YL
+00057e 91df       pop YH
+00057f 911f       pop temp
                  
-00057e 9478       sei
-00057f 9bb2       sbis pinb,KBD_3		//wait until button is turned off
-000580 cffe       rjmp PC-1
-000581 9508       ret
+                  /*sei
+                  sbis pinb,KBD_3		//wait until button is turned off
+                  rjmp PC-1*/
+000580 9508       ret
                   //-------On 2 click-----------------------------
                   On_2_click:
-000582 931f       push temp
-000583 93df       push YH
-000584 93cf       push YL
-000585 930f       push r16
+000581 931f       push temp
+000582 93df       push YH
+000583 93cf       push YL
+000584 930f       push r16
                  
-000586 e0d1
-000587 e2c1
-000588 9119
-000589 8108
-00058a 3302
-00058b f419
-00058c 3011
-00058d f408
-00058e c09d
-00058f e010
-000590 e302
-000591 e0d1
-000592 e2c1
-000593 9319
-000594 8308       Anti_false_activation '2', return_On_2_Click
+000585 e0d1
+000586 e2c1
+000587 9119
+000588 8108
+000589 3302
+00058a f419
+00058b 3015
+00058c f408
+00058d c09d
+00058e e010
+00058f e302
+000590 e0d1
+000591 e2c1
+000592 9319
+000593 8308       Anti_false_activation '2', return_On_2_Click
                  
-000595 e0d1       ldi YH,high(time_set_status)
-000596 e2ce       ldi YL,low(time_set_status)
-000597 8118       ld temp,Y
-000598 ff17       sbrs temp,time_set_S		//if time set mode on then skip menu navigation
-000599 c005       rjmp menu_On_2_Click_label
+000594 e0d1       ldi YH,high(time_set_status)
+000595 e2ce       ldi YL,low(time_set_status)
+000596 8118       ld temp,Y
+000597 ff17       sbrs temp,time_set_S		//if time set mode on then skip menu navigation
+000598 c005       rjmp menu_On_2_Click_label
                  
-00059a 932f       push r18
-00059b e322       ldi r18,'2'
-00059c def3       rcall time_set
-00059d 912f       pop r18
-00059e c08d       rjmp return_On_2_Click
+000599 932f       push r18
+00059a e322       ldi r18,'2'
+00059b def4       rcall time_set
+00059c 912f       pop r18
+00059d c08d       rjmp return_On_2_Click
                  
                   menu_On_2_Click_label:
-00059f 932f
-0005a0 93bf
-0005a1 93af
-0005a2 931f
-0005a3 93df
-0005a4 93cf
-0005a5 e0d1
-0005a6 e2c0
-0005a7 8128
-0005a8 e010
-0005a9 1321
-0005aa c001
-0005ab c07a
-0005ac 952a
-0005ad e110
-0005ae 9f12
-0005af 2da0
-0005b0 2db1
-0005b1 e610
-0005b2 0fa1
-0005b3 2711
-0005b4 1fb1
-0005b5 931f
-0005b6 930f
-0005b7 931f
-0005b8 930f
-0005b9 e010
-0005ba e800
-0005bb 940e 0030
-0005bd 910f
-0005be 911f
-0005bf 939f
-0005c0 938f
-0005c1 937f
-0005c2 ef90
-0005c3 e081
-0005c4 e071
-0005c5 940e 0029
-0005c7 917f
-0005c8 918f
-0005c9 919f
-0005ca 910f
-0005cb 911f
-0005cc 931f
-0005cd 930f
-0005ce 93af
-0005cf 93bf
-0005d0 933f
-0005d1 e014
-0005d2 e131
-0005d3 910d
-0005d4 940e 0030
-0005d6 939f
-0005d7 938f
-0005d8 937f
-0005d9 ef90
-0005da e081
-0005db e071
-0005dc 940e 0029
-0005de 917f
-0005df 918f
-0005e0 919f
-0005e1 953a
-0005e2 f781
-0005e3 913f
-0005e4 91bf
-0005e5 91af
-0005e6 910f
-0005e7 911f
-0005e8 e110
-0005e9 9f12
-0005ea 2da0
-0005eb 2db1
-0005ec ec10
-0005ed 0fa1
-0005ee 2711
-0005ef 1fb1
-0005f0 931f
-0005f1 930f
-0005f2 931f
-0005f3 930f
-0005f4 e010
-0005f5 ec00
-0005f6 940e 0030
-0005f8 910f
-0005f9 911f
-0005fa 939f
-0005fb 938f
-0005fc 937f
-0005fd ef90
-0005fe e081
-0005ff e071
-000600 940e 0029
-000602 917f
-000603 918f
-000604 919f
-000605 910f
-000606 911f
-000607 931f
-000608 930f
-000609 93af
-00060a 93bf
-00060b 933f
-00060c e014
-00060d e131
-00060e 910d
-00060f 940e 0030
-000611 939f
-000612 938f
-000613 937f
-000614 ef90
-000615 e081
-000616 e071
-000617 940e 0029
-000619 917f
-00061a 918f
-00061b 919f
-00061c 953a
-00061d f781
-00061e 913f
-00061f 91bf
-000620 91af
-000621 910f
-000622 911f
-000623 e0d1
-000624 e2c0
-000625 8328
-000626 91cf
-000627 91df
-000628 911f
-000629 91af
-00062a 91bf
-00062b 912f       menu_prev
+00059e 932f
+00059f 93bf
+0005a0 93af
+0005a1 931f
+0005a2 93df
+0005a3 93cf
+0005a4 e0d1
+0005a5 e2c0
+0005a6 8128
+0005a7 e010
+0005a8 1321
+0005a9 c001
+0005aa c07a
+0005ab 952a
+0005ac e110
+0005ad 9f12
+0005ae 2da0
+0005af 2db1
+0005b0 e610
+0005b1 0fa1
+0005b2 2711
+0005b3 1fb1
+0005b4 931f
+0005b5 930f
+0005b6 931f
+0005b7 930f
+0005b8 e010
+0005b9 e800
+0005ba 940e 0030
+0005bc 910f
+0005bd 911f
+0005be 939f
+0005bf 938f
+0005c0 937f
+0005c1 ef90
+0005c2 e081
+0005c3 e071
+0005c4 940e 0029
+0005c6 917f
+0005c7 918f
+0005c8 919f
+0005c9 910f
+0005ca 911f
+0005cb 931f
+0005cc 930f
+0005cd 93af
+0005ce 93bf
+0005cf 933f
+0005d0 e014
+0005d1 e131
+0005d2 910d
+0005d3 940e 0030
+0005d5 939f
+0005d6 938f
+0005d7 937f
+0005d8 ef90
+0005d9 e081
+0005da e071
+0005db 940e 0029
+0005dd 917f
+0005de 918f
+0005df 919f
+0005e0 953a
+0005e1 f781
+0005e2 913f
+0005e3 91bf
+0005e4 91af
+0005e5 910f
+0005e6 911f
+0005e7 e110
+0005e8 9f12
+0005e9 2da0
+0005ea 2db1
+0005eb ec10
+0005ec 0fa1
+0005ed 2711
+0005ee 1fb1
+0005ef 931f
+0005f0 930f
+0005f1 931f
+0005f2 930f
+0005f3 e010
+0005f4 ec00
+0005f5 940e 0030
+0005f7 910f
+0005f8 911f
+0005f9 939f
+0005fa 938f
+0005fb 937f
+0005fc ef90
+0005fd e081
+0005fe e071
+0005ff 940e 0029
+000601 917f
+000602 918f
+000603 919f
+000604 910f
+000605 911f
+000606 931f
+000607 930f
+000608 93af
+000609 93bf
+00060a 933f
+00060b e014
+00060c e131
+00060d 910d
+00060e 940e 0030
+000610 939f
+000611 938f
+000612 937f
+000613 ef90
+000614 e081
+000615 e071
+000616 940e 0029
+000618 917f
+000619 918f
+00061a 919f
+00061b 953a
+00061c f781
+00061d 913f
+00061e 91bf
+00061f 91af
+000620 910f
+000621 911f
+000622 e0d1
+000623 e2c0
+000624 8328
+000625 91cf
+000626 91df
+000627 911f
+000628 91af
+000629 91bf
+00062a 912f       menu_prev
                  
                   return_On_2_Click:
-00062c 910f       pop r16
-00062d 91cf       pop YL
-00062e 91df       pop YH
-00062f 911f       pop temp
+00062b 910f       pop r16
+00062c 91cf       pop YL
+00062d 91df       pop YH
+00062e 911f       pop temp
                  
-000630 9478       sei
-000631 9bb1       sbis pinb,KBD_2		//wait until button is turned off
-000632 cffe       rjmp PC-1
-000633 9508       ret
+                  /*sei
+                  sbis pinb,KBD_2		//wait until button is turned off
+                  rjmp PC-1*/
+00062f 9508       ret
                   //-------On 3 click-----------------------------
                   On_3_click:
-000634 931f       push temp
-000635 93df       push YH
-000636 93cf       push YL
-000637 930f       push r16
+000630 931f       push temp
+000631 93df       push YH
+000632 93cf       push YL
+000633 930f       push r16
                  
-000638 e0d1
-000639 e2c1
-00063a 9119
-00063b 8108
-00063c 3303
-00063d f419
-00063e 3011
-00063f f408
-000640 c00f
-000641 e010
-000642 e303
-000643 e0d1
-000644 e2c1
-000645 9319
-000646 8308       Anti_false_activation '3', return_On_3_Click
+000634 e0d1
+000635 e2c1
+000636 9119
+000637 8108
+000638 3303
+000639 f419
+00063a 3015
+00063b f408
+00063c c00f
+00063d e010
+00063e e303
+00063f e0d1
+000640 e2c1
+000641 9319
+000642 8308       Anti_false_activation '3', return_On_3_Click
                   
-000647 e0d1       ldi YH,high(time_set_status)
-000648 e2ce       ldi YL,low(time_set_status)
-000649 8118       ld temp,Y
-00064a ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
-00064b c004       rjmp return_On_3_Click
+000643 e0d1       ldi YH,high(time_set_status)
+000644 e2ce       ldi YL,low(time_set_status)
+000645 8118       ld temp,Y
+000646 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
+000647 c004       rjmp return_On_3_Click
                  
-00064c 932f       push r18
-00064d e323       ldi r18,'3'
-00064e de41       rcall time_set
-00064f 912f       pop r18
+000648 932f       push r18
+000649 e323       ldi r18,'3'
+00064a de45       rcall time_set
+00064b 912f       pop r18
                  
                   return_On_3_Click:
-000650 910f       pop r16
-000651 91cf       pop YL
-000652 91df       pop YH
-000653 911f       pop temp
+00064c 910f       pop r16
+00064d 91cf       pop YL
+00064e 91df       pop YH
+00064f 911f       pop temp
                  
-000654 9478       sei
-000655 9bb0       sbis pinb,KBD_1		//wait until button is turned off
-000656 cffe       rjmp PC-1
-000657 9508       ret
+                  /*sei
+                  sbis pinb,KBD_1		//wait until button is turned off
+                  rjmp PC-1*/
+000650 9508       ret
                   //-------On 4 click-----------------------------
                   On_4_click:
-000658 931f       push temp
-000659 93df       push YH
-00065a 93cf       push YL
-00065b 930f       push r16
+000651 931f       push temp
+000652 93df       push YH
+000653 93cf       push YL
+000654 930f       push r16
                  
-00065c e0d1
-00065d e2c1
-00065e 9119
-00065f 8108
-000660 3304
-000661 f419
-000662 3011
-000663 f408
-000664 c00f
-000665 e010
-000666 e304
-000667 e0d1
-000668 e2c1
-000669 9319
-00066a 8308       Anti_false_activation '4', return_On_4_Click
+000655 e0d1
+000656 e2c1
+000657 9119
+000658 8108
+000659 3304
+00065a f419
+00065b 3015
+00065c f408
+00065d c00f
+00065e e010
+00065f e304
+000660 e0d1
+000661 e2c1
+000662 9319
+000663 8308       Anti_false_activation '4', return_On_4_Click
                  
-00066b e0d1       ldi YH,high(time_set_status)
-00066c e2ce       ldi YL,low(time_set_status)
-00066d 8118       ld temp,Y
-00066e ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
-00066f c004       rjmp return_On_4_Click
+000664 e0d1       ldi YH,high(time_set_status)
+000665 e2ce       ldi YL,low(time_set_status)
+000666 8118       ld temp,Y
+000667 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
+000668 c004       rjmp return_On_4_Click
                  
-000670 932f       push r18
-000671 e324       ldi r18,'4'
-000672 de1d       rcall time_set
-000673 912f       pop r18
+000669 932f       push r18
+00066a e324       ldi r18,'4'
+00066b de24       rcall time_set
+00066c 912f       pop r18
                  
                   return_On_4_Click:
-000674 910f       pop r16
-000675 91cf       pop YL
-000676 91df       pop YH
-000677 911f       pop temp
+00066d 910f       pop r16
+00066e 91cf       pop YL
+00066f 91df       pop YH
+000670 911f       pop temp
                  
-000678 9478       sei
-000679 9bb2       sbis pinb,KBD_3		//wait until button is turned off
-00067a cffe       rjmp PC-1
-00067b 9508       ret
+                  /*sei
+                  sbis pinb,KBD_3		//wait until button is turned off
+                  rjmp PC-1*/
+000671 9508       ret
                   //-------On 5 click-----------------------------
                   On_5_click:
-00067c 931f       push temp
-00067d 93df       push YH
-00067e 93cf       push YL
-00067f 930f       push r16
+000672 931f       push temp
+000673 93df       push YH
+000674 93cf       push YL
+000675 930f       push r16
                  
-000680 e0d1
-000681 e2c1
-000682 9119
-000683 8108
-000684 3305
-000685 f419
-000686 3011
-000687 f408
-000688 c01d
-000689 e010
-00068a e305
-00068b e0d1
-00068c e2c1
-00068d 9319
-00068e 8308       Anti_false_activation '5', return_On_5_Click
+000676 e0d1
+000677 e2c1
+000678 9119
+000679 8108
+00067a 3305
+00067b f419
+00067c 3015
+00067d f408
+00067e c01d
+00067f e010
+000680 e305
+000681 e0d1
+000682 e2c1
+000683 9319
+000684 8308       Anti_false_activation '5', return_On_5_Click
                   
-00068f e0d1       ldi YH,high(time_set_status)
-000690 e2ce       ldi YL,low(time_set_status)
-000691 8118       ld temp,Y
-000692 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
-000693 c005       rjmp sound_On_5_Click_label
+000685 e0d1       ldi YH,high(time_set_status)
+000686 e2ce       ldi YL,low(time_set_status)
+000687 8118       ld temp,Y
+000688 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
+000689 c005       rjmp sound_On_5_Click_label
                  
-000694 932f       push r18
-000695 e325       ldi r18,'5'
-000696 ddf9       rcall time_set
-000697 912f       pop r18
-000698 c00d       rjmp return_On_5_Click
+00068a 932f       push r18
+00068b e325       ldi r18,'5'
+00068c de03       rcall time_set
+00068d 912f       pop r18
+00068e c00d       rjmp return_On_5_Click
                  
                   sound_On_5_Click_label:
-000699 e0d1
-00069a e2c0
-00069b 8118
-00069c 3015
-00069d f441
-00069e e0d1
-00069f e2c3
-0006a0 8118
-0006a1 fd10
-0006a2 c002
-0006a3 de63
-0006a4 c001
-0006a5 de73       sound_test return_On_5_Click
+00068f e0d1
+000690 e2c0
+000691 8118
+000692 3015
+000693 f441
+000694 e0d1
+000695 e2c3
+000696 8118
+000697 fd10
+000698 c002
+000699 de6d
+00069a c001
+00069b de7d       sound_test return_On_5_Click
                  
                   return_On_5_Click:
-0006a6 910f       pop r16
-0006a7 91cf       pop YL
-0006a8 91df       pop YH
-0006a9 911f       pop temp
+00069c 910f       pop r16
+00069d 91cf       pop YL
+00069e 91df       pop YH
+00069f 911f       pop temp
                   
-0006aa 9478       sei
-0006ab 9bb1       sbis pinb,KBD_2		//wait until button is turned off
-0006ac cffe       rjmp PC-1
-0006ad 9508       ret
+                  /*sei
+                  sbis pinb,KBD_2		//wait until button is turned off
+                  rjmp PC-1*/
+0006a0 9508       ret
                   //-------On 6 click-----------------------------
                   On_6_click:
-0006ae 931f       push temp
-0006af 93df       push YH
-0006b0 93cf       push YL
-0006b1 930f       push r16
+0006a1 931f       push temp
+0006a2 93df       push YH
+0006a3 93cf       push YL
+0006a4 930f       push r16
                  
-0006b2 e0d1
-0006b3 e2c1
-0006b4 9119
-0006b5 8108
-0006b6 3306
-0006b7 f419
-0006b8 3011
-0006b9 f408
-0006ba c00f
-0006bb e010
-0006bc e306
-0006bd e0d1
-0006be e2c1
-0006bf 9319
-0006c0 8308       Anti_false_activation '6', return_On_6_Click
+0006a5 e0d1
+0006a6 e2c1
+0006a7 9119
+0006a8 8108
+0006a9 3306
+0006aa f419
+0006ab 3015
+0006ac f408
+0006ad c00f
+0006ae e010
+0006af e306
+0006b0 e0d1
+0006b1 e2c1
+0006b2 9319
+0006b3 8308       Anti_false_activation '6', return_On_6_Click
                  
-0006c1 e0d1       ldi YH,high(time_set_status)
-0006c2 e2ce       ldi YL,low(time_set_status)
-0006c3 8118       ld temp,Y
-0006c4 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
-0006c5 c004       rjmp return_On_6_Click
+0006b4 e0d1       ldi YH,high(time_set_status)
+0006b5 e2ce       ldi YL,low(time_set_status)
+0006b6 8118       ld temp,Y
+0006b7 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
+0006b8 c004       rjmp return_On_6_Click
                  
-0006c6 932f       push r18
-0006c7 e326       ldi r18,'6'
-0006c8 ddc7       rcall time_set
-0006c9 912f       pop r18
+0006b9 932f       push r18
+0006ba e326       ldi r18,'6'
+0006bb ddd4       rcall time_set
+0006bc 912f       pop r18
                  
                   return_On_6_Click:
-0006ca 910f       pop r16
-0006cb 91cf       pop YL
-0006cc 91df       pop YH
-0006cd 911f       pop temp
+0006bd 910f       pop r16
+0006be 91cf       pop YL
+0006bf 91df       pop YH
+0006c0 911f       pop temp
                  
-0006ce 9478       sei
-0006cf 9bb0       sbis pinb,KBD_1		//wait until button is turned off
-0006d0 cffe       rjmp PC-1
-0006d1 9508       ret
+                  /*sei
+                  sbis pinb,KBD_1		//wait until button is turned off
+                  rjmp PC-1*/
+0006c1 9508       ret
                   //-------On 7 click-----------------------------
                   On_7_click:
-0006d2 931f       push temp
-0006d3 93df       push YH
-0006d4 93cf       push YL
-0006d5 930f       push r16
+0006c2 931f       push temp
+0006c3 93df       push YH
+0006c4 93cf       push YL
+0006c5 930f       push r16
                  
-0006d6 e0d1
-0006d7 e2c1
-0006d8 9119
-0006d9 8108
-0006da 3307
-0006db f419
-0006dc 3011
-0006dd f408
-0006de c00f
-0006df e010
-0006e0 e307
-0006e1 e0d1
-0006e2 e2c1
-0006e3 9319
-0006e4 8308       Anti_false_activation '7', return_On_7_Click
+0006c6 e0d1
+0006c7 e2c1
+0006c8 9119
+0006c9 8108
+0006ca 3307
+0006cb f419
+0006cc 3015
+0006cd f408
+0006ce c00f
+0006cf e010
+0006d0 e307
+0006d1 e0d1
+0006d2 e2c1
+0006d3 9319
+0006d4 8308       Anti_false_activation '7', return_On_7_Click
                  
-0006e5 e0d1       ldi YH,high(time_set_status)
-0006e6 e2ce       ldi YL,low(time_set_status)
-0006e7 8118       ld temp,Y
-0006e8 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
-0006e9 c004       rjmp return_On_7_Click
+0006d5 e0d1       ldi YH,high(time_set_status)
+0006d6 e2ce       ldi YL,low(time_set_status)
+0006d7 8118       ld temp,Y
+0006d8 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
+0006d9 c004       rjmp return_On_7_Click
                  
-0006ea 932f       push r18
-0006eb e327       ldi r18,'7'
-0006ec dda3       rcall time_set
-0006ed 912f       pop r18
+0006da 932f       push r18
+0006db e327       ldi r18,'7'
+0006dc ddb3       rcall time_set
+0006dd 912f       pop r18
                  
                   return_On_7_Click:
-0006ee 910f       pop r16
-0006ef 91cf       pop YL
-0006f0 91df       pop YH
-0006f1 911f       pop temp
+0006de 910f       pop r16
+0006df 91cf       pop YL
+0006e0 91df       pop YH
+0006e1 911f       pop temp
                  
-0006f2 9478       sei
-0006f3 9bb2       sbis pinb,KBD_3		//wait until button is turned off
-0006f4 cffe       rjmp PC-1
-0006f5 9508       ret
+                  /*sei
+                  sbis pinb,KBD_3		//wait until button is turned off
+                  rjmp PC-1*/
+0006e2 9508       ret
                   //-------On 8 click-----------------------------
                   On_8_click:
-0006f6 931f       push temp
-0006f7 93df       push YH
-0006f8 93cf       push YL
-0006f9 930f       push r16
+0006e3 931f       push temp
+0006e4 93df       push YH
+0006e5 93cf       push YL
+0006e6 930f       push r16
                  
-0006fa e0d1
-0006fb e2c1
-0006fc 9119
-0006fd 8108
-0006fe 3308
-0006ff f419
-000700 3011
-000701 f408
-000702 c09d
-000703 e010
-000704 e308
-000705 e0d1
-000706 e2c1
-000707 9319
-000708 8308       Anti_false_activation '8', return_On_8_Click
+0006e7 e0d1
+0006e8 e2c1
+0006e9 9119
+0006ea 8108
+0006eb 3308
+0006ec f419
+0006ed 3015
+0006ee f408
+0006ef c09d
+0006f0 e010
+0006f1 e308
+0006f2 e0d1
+0006f3 e2c1
+0006f4 9319
+0006f5 8308       Anti_false_activation '8', return_On_8_Click
                   
-000709 e0d1       ldi YH,high(time_set_status)
-00070a e2ce       ldi YL,low(time_set_status)
-00070b 8118       ld temp,Y
-00070c ff17       sbrs temp,time_set_S		//if time set mode on then skip menu navigation
-00070d c005       rjmp menu_On_8_Click_label
+0006f6 e0d1       ldi YH,high(time_set_status)
+0006f7 e2ce       ldi YL,low(time_set_status)
+0006f8 8118       ld temp,Y
+0006f9 ff17       sbrs temp,time_set_S		//if time set mode on then skip menu navigation
+0006fa c005       rjmp menu_On_8_Click_label
                  
-00070e 932f       push r18
-00070f e328       ldi r18,'8'
-000710 dd7f       rcall time_set
-000711 912f       pop r18
-000712 c08d       rjmp return_On_8_Click
+0006fb 932f       push r18
+0006fc e328       ldi r18,'8'
+0006fd dd92       rcall time_set
+0006fe 912f       pop r18
+0006ff c08d       rjmp return_On_8_Click
                  
                   menu_On_8_Click_label:
-000713 932f
-000714 93bf
-000715 93af
+000700 932f
+000701 93bf
+000702 93af
+000703 931f
+000704 93df
+000705 93cf
+000706 e0d1
+000707 e2c0
+000708 8128
+000709 e015
+00070a 1321
+00070b c001
+00070c c07a
+00070d 9523
+00070e e110
+00070f 9f12
+000710 2da0
+000711 2db1
+000712 e610
+000713 0fa1
+000714 2711
+000715 1fb1
 000716 931f
-000717 93df
-000718 93cf
-000719 e0d1
-00071a e2c0
-00071b 8128
-00071c e015
-00071d 1321
-00071e c001
-00071f c07a
-000720 9523
-000721 e110
-000722 9f12
-000723 2da0
-000724 2db1
-000725 e610
-000726 0fa1
-000727 2711
-000728 1fb1
-000729 931f
-00072a 930f
-00072b 931f
-00072c 930f
-00072d e010
-00072e e800
-00072f 940e 0030
-000731 910f
-000732 911f
-000733 939f
-000734 938f
-000735 937f
-000736 ef90
-000737 e081
-000738 e071
-000739 940e 0029
-00073b 917f
-00073c 918f
-00073d 919f
-00073e 910f
-00073f 911f
-000740 931f
-000741 930f
-000742 93af
-000743 93bf
-000744 933f
-000745 e014
-000746 e131
-000747 910d
-000748 940e 0030
-00074a 939f
-00074b 938f
-00074c 937f
-00074d ef90
-00074e e081
-00074f e071
-000750 940e 0029
-000752 917f
-000753 918f
-000754 919f
-000755 953a
-000756 f781
-000757 913f
-000758 91bf
-000759 91af
-00075a 910f
-00075b 911f
-00075c e110
-00075d 9f12
-00075e 2da0
-00075f 2db1
-000760 ec10
-000761 0fa1
-000762 2711
-000763 1fb1
-000764 931f
-000765 930f
-000766 931f
-000767 930f
-000768 e010
-000769 ec00
-00076a 940e 0030
-00076c 910f
-00076d 911f
-00076e 939f
-00076f 938f
-000770 937f
-000771 ef90
-000772 e081
-000773 e071
-000774 940e 0029
-000776 917f
-000777 918f
-000778 919f
-000779 910f
-00077a 911f
-00077b 931f
-00077c 930f
-00077d 93af
-00077e 93bf
-00077f 933f
-000780 e014
-000781 e131
-000782 910d
-000783 940e 0030
-000785 939f
-000786 938f
-000787 937f
-000788 ef90
-000789 e081
-00078a e071
-00078b 940e 0029
-00078d 917f
-00078e 918f
-00078f 919f
-000790 953a
-000791 f781
-000792 913f
-000793 91bf
-000794 91af
-000795 910f
-000796 911f
-000797 e0d1
-000798 e2c0
-000799 8328
-00079a 91cf
-00079b 91df
-00079c 911f
-00079d 91af
-00079e 91bf
-00079f 912f       menu_next
+000717 930f
+000718 931f
+000719 930f
+00071a e010
+00071b e800
+00071c 940e 0030
+00071e 910f
+00071f 911f
+000720 939f
+000721 938f
+000722 937f
+000723 ef90
+000724 e081
+000725 e071
+000726 940e 0029
+000728 917f
+000729 918f
+00072a 919f
+00072b 910f
+00072c 911f
+00072d 931f
+00072e 930f
+00072f 93af
+000730 93bf
+000731 933f
+000732 e014
+000733 e131
+000734 910d
+000735 940e 0030
+000737 939f
+000738 938f
+000739 937f
+00073a ef90
+00073b e081
+00073c e071
+00073d 940e 0029
+00073f 917f
+000740 918f
+000741 919f
+000742 953a
+000743 f781
+000744 913f
+000745 91bf
+000746 91af
+000747 910f
+000748 911f
+000749 e110
+00074a 9f12
+00074b 2da0
+00074c 2db1
+00074d ec10
+00074e 0fa1
+00074f 2711
+000750 1fb1
+000751 931f
+000752 930f
+000753 931f
+000754 930f
+000755 e010
+000756 ec00
+000757 940e 0030
+000759 910f
+00075a 911f
+00075b 939f
+00075c 938f
+00075d 937f
+00075e ef90
+00075f e081
+000760 e071
+000761 940e 0029
+000763 917f
+000764 918f
+000765 919f
+000766 910f
+000767 911f
+000768 931f
+000769 930f
+00076a 93af
+00076b 93bf
+00076c 933f
+00076d e014
+00076e e131
+00076f 910d
+000770 940e 0030
+000772 939f
+000773 938f
+000774 937f
+000775 ef90
+000776 e081
+000777 e071
+000778 940e 0029
+00077a 917f
+00077b 918f
+00077c 919f
+00077d 953a
+00077e f781
+00077f 913f
+000780 91bf
+000781 91af
+000782 910f
+000783 911f
+000784 e0d1
+000785 e2c0
+000786 8328
+000787 91cf
+000788 91df
+000789 911f
+00078a 91af
+00078b 91bf
+00078c 912f       menu_next
                  
                   return_On_8_Click:
-0007a0 910f       pop r16
-0007a1 91cf       pop YL
-0007a2 91df       pop YH
-0007a3 911f       pop temp
+00078d 910f       pop r16
+00078e 91cf       pop YL
+00078f 91df       pop YH
+000790 911f       pop temp
                  
-0007a4 9478       sei
-0007a5 9bb1       sbis pinb,KBD_2		//wait until button is turned off
-0007a6 cffe       rjmp PC-1
-0007a7 9508       ret
+                  /*sei
+                  sbis pinb,KBD_2		//wait until button is turned off
+                  rjmp PC-1*/
+000791 9508       ret
                   //-------On 9 click-----------------------------
                   On_9_click:
-0007a8 931f       push temp
-0007a9 93df       push YH
-0007aa 93cf       push YL
-0007ab 930f       push r16
+000792 931f       push temp
+000793 93df       push YH
+000794 93cf       push YL
+000795 930f       push r16
                  
-0007ac e0d1
-0007ad e2c1
-0007ae 9119
-0007af 8108
-0007b0 3309
-0007b1 f419
-0007b2 3011
-0007b3 f408
-0007b4 c00f
-0007b5 e010
-0007b6 e309
-0007b7 e0d1
-0007b8 e2c1
-0007b9 9319
-0007ba 8308       Anti_false_activation '9', return_On_9_Click
+000796 e0d1
+000797 e2c1
+000798 9119
+000799 8108
+00079a 3309
+00079b f419
+00079c 3015
+00079d f408
+00079e c00f
+00079f e010
+0007a0 e309
+0007a1 e0d1
+0007a2 e2c1
+0007a3 9319
+0007a4 8308       Anti_false_activation '9', return_On_9_Click
                  
-0007bb e0d1       ldi YH,high(time_set_status)
-0007bc e2ce       ldi YL,low(time_set_status)
-0007bd 8118       ld temp,Y
-0007be ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
-0007bf c004       rjmp return_On_9_Click
+0007a5 e0d1       ldi YH,high(time_set_status)
+0007a6 e2ce       ldi YL,low(time_set_status)
+0007a7 8118       ld temp,Y
+0007a8 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
+0007a9 c004       rjmp return_On_9_Click
                  
-0007c0 932f       push r18
-0007c1 e329       ldi r18,'9'
-0007c2 dccd       rcall time_set
-0007c3 912f       pop r18
+0007aa 932f       push r18
+0007ab e329       ldi r18,'9'
+0007ac dce3       rcall time_set
+0007ad 912f       pop r18
                  
                   return_On_9_Click:
-0007c4 910f       pop r16
-0007c5 91cf       pop YL
-0007c6 91df       pop YH
-0007c7 911f       pop temp
+0007ae 910f       pop r16
+0007af 91cf       pop YL
+0007b0 91df       pop YH
+0007b1 911f       pop temp
                  
-0007c8 9478       sei
-0007c9 9bb0       sbis pinb,KBD_1		//wait until button is turned off
-0007ca cffe       rjmp PC-1
-0007cb 9508       ret
+                  /*sei
+                  sbis pinb,KBD_1		//wait until button is turned off
+                  rjmp PC-1*/
+0007b2 9508       ret
                   //-------On * click-----------------------------
                   On_asterisk_click:
-0007cc 931f       push temp
-0007cd 93df       push YH
-0007ce 93cf       push YL
-0007cf 930f       push r16
+0007b3 931f       push temp
+0007b4 93df       push YH
+0007b5 93cf       push YL
+0007b6 930f       push r16
                  
-0007d0 e0d1
-0007d1 e2c1
-0007d2 9119
-0007d3 8108
-0007d4 320a
-0007d5 f419
-0007d6 3011
-0007d7 f408
-0007d8 c00c
-0007d9 e010
-0007da e20a
-0007db e0d1
-0007dc e2c1
-0007dd 9319
-0007de 8308       Anti_false_activation '*', return_On_asterisk_Click
+0007b7 e0d1
+0007b8 e2c1
+0007b9 9119
+0007ba 8108
+0007bb 320a
+0007bc f419
+0007bd 3015
+0007be f408
+0007bf c00c
+0007c0 e010
+0007c1 e20a
+0007c2 e0d1
+0007c3 e2c1
+0007c4 9319
+0007c5 8308       Anti_false_activation '*', return_On_asterisk_Click
                  
-0007df e0d1       ldi YH,high(menu_location)	//
-0007e0 e2c0       ldi YL,low(menu_location)	//read number of current page from SRAM
-0007e1 8128       ld menu_loc,Y				//
-0007e2 3024       cpi menu_loc,4
-0007e3 f409       brne PC+2
-0007e4 db7b       rcall time_set_start
+0007c6 e0d1       ldi YH,high(menu_location)	//
+0007c7 e2c0       ldi YL,low(menu_location)	//read number of current page from SRAM
+0007c8 8128       ld menu_loc,Y				//
+0007c9 3024       cpi menu_loc,4
+0007ca f409       brne PC+2
+0007cb db94       rcall time_set_start
                  
                   return_On_asterisk_Click:
-0007e5 910f       pop r16
-0007e6 91cf       pop YL
-0007e7 91df       pop YH
-0007e8 911f       pop temp
+0007cc 910f       pop r16
+0007cd 91cf       pop YL
+0007ce 91df       pop YH
+0007cf 911f       pop temp
                  
-0007e9 9478       sei
-0007ea 9bb2       sbis pinb,KBD_3		//wait until button is turned off
-0007eb cffe       rjmp PC-1
-0007ec 9508       ret
+                  /*sei
+                  sbis pinb,KBD_3		//wait until button is turned off
+                  rjmp PC-1*/
+0007d0 9508       ret
                   //-------On 0 click-----------------------------
                   On_0_click:
-0007ed 931f       push temp
-0007ee 93df       push YH
-0007ef 93cf       push YL
-0007f0 930f       push r16
+0007d1 931f       push temp
+0007d2 93df       push YH
+0007d3 93cf       push YL
+0007d4 930f       push r16
                  
-0007f1 e0d1
-0007f2 e2c1
-0007f3 9119
-0007f4 8108
-0007f5 3300
-0007f6 f419
-0007f7 3011
-0007f8 f408
-0007f9 c00f
-0007fa e010
-0007fb e300
-0007fc e0d1
-0007fd e2c1
-0007fe 9319
-0007ff 8308       Anti_false_activation '0', return_On_0_Click
+0007d5 e0d1
+0007d6 e2c1
+0007d7 9119
+0007d8 8108
+0007d9 3300
+0007da f419
+0007db 3015
+0007dc f408
+0007dd c00f
+0007de e010
+0007df e300
+0007e0 e0d1
+0007e1 e2c1
+0007e2 9319
+0007e3 8308       Anti_false_activation '0', return_On_0_Click
                  
-000800 e0d1       ldi YH,high(time_set_status)
-000801 e2ce       ldi YL,low(time_set_status)
-000802 8118       ld temp,Y
-000803 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
-000804 c004       rjmp return_On_0_Click
+0007e4 e0d1       ldi YH,high(time_set_status)
+0007e5 e2ce       ldi YL,low(time_set_status)
+0007e6 8118       ld temp,Y
+0007e7 ff17       sbrs temp,time_set_S		//if time set mode on then skip sound settings
+0007e8 c004       rjmp return_On_0_Click
                  
-000805 932f       push r18
-000806 e320       ldi r18,'0'
-000807 dc88       rcall time_set
-000808 912f       pop r18
+0007e9 932f       push r18
+0007ea e320       ldi r18,'0'
+0007eb dca4       rcall time_set
+0007ec 912f       pop r18
                  
                   return_On_0_Click:
-000809 910f       pop r16
-00080a 91cf       pop YL
-00080b 91df       pop YH
-00080c 911f       pop temp
+0007ed 910f       pop r16
+0007ee 91cf       pop YL
+0007ef 91df       pop YH
+0007f0 911f       pop temp
                  
-00080d 9478       sei
-00080e 9bb1       sbis pinb,KBD_2		//wait until button is turned off
-00080f cffe       rjmp PC-1
-000810 9508       ret
+                  /*sei
+                  sbis pinb,KBD_2		//wait until button is turned off
+                  rjmp PC-1*/
+0007f1 9508       ret
                   //-------On # click-----------------------------
                   On_grid_click:
-000811 931f       push temp
-000812 93df       push YH
-000813 93cf       push YL
-000814 930f       push r16
+0007f2 931f       push temp
+0007f3 93df       push YH
+0007f4 93cf       push YL
+0007f5 930f       push r16
                  
-000815 e0d1
-000816 e2c1
-000817 9119
-000818 8108
-000819 3203
-00081a f419
-00081b 3011
-00081c f408
-00081d c00c
-00081e e010
-00081f e203
-000820 e0d1
-000821 e2c1
-000822 9319
-000823 8308       Anti_false_activation '#', return_On_grid_Click
+0007f6 e0d1
+0007f7 e2c1
+0007f8 9119
+0007f9 8108
+0007fa 3203
+0007fb f419
+0007fc 3015
+0007fd f408
+0007fe c00c
+0007ff e010
+000800 e203
+000801 e0d1
+000802 e2c1
+000803 9319
+000804 8308       Anti_false_activation '#', return_On_grid_Click
                   
-000824 e0d1       ldi YH,high(menu_location)	//
-000825 e2c0       ldi YL,low(menu_location)	//read number of current page from SRAM
-000826 8128       ld menu_loc,Y				//
-000827 3024       cpi menu_loc,4
-000828 f409       brne PC+2
-000829 dbda       rcall time_set_set_next_pair
+000805 e0d1       ldi YH,high(menu_location)	//
+000806 e2c0       ldi YL,low(menu_location)	//read number of current page from SRAM
+000807 8128       ld menu_loc,Y				//
+000808 3024       cpi menu_loc,4
+000809 f409       brne PC+2
+00080a dbf9       rcall time_set_set_next_pair
                   
                   return_On_grid_Click:
-00082a 910f       pop r16
-00082b 91cf       pop YL
-00082c 91df       pop YH
-00082d 911f       pop temp
+00080b 910f       pop r16
+00080c 91cf       pop YL
+00080d 91df       pop YH
+00080e 911f       pop temp
                   
-00082e 9478       sei
-00082f 9bb0       sbis pinb,KBD_1	//wait until button is turned off
-000830 cffe       rjmp PC-1
-000831 9508       ret
+                  /*sei
+                  sbis pinb,KBD_1	//wait until button is turned off
+                  rjmp PC-1*/
+00080f 9508       ret
                   //----------------------------------------------
                  //================================================================
                  .include "timers.inc"		//macro and procedures for timer(s)
@@ -4355,6 +4422,15 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  		//all code which using timer 0 is there
                  
                   //==========================================================================
+                 
+                  //==============TIMER 2 (8bit)==============================================
+                 
+                 		//Timer 2 is reserved for software UART
+                 		//you can see how it works in softUART.inc
+                 		//all code which using timer 0 is there
+                 
+                  //==========================================================================
+                 
                   //==============TIMER 1 (16-bit)============================================
                  
                   //======MACRO========================
@@ -4384,101 +4460,3035 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                   //======INTERRUPTS AND PROC==========
                   //------On Match A Interrupt------
                   Keyboard_check_interrupt:
-000832 931f       push temp
-000833 93df       push YH
-000834 93cf       push YL
+000810 9478       sei
+000811 931f       push temp
+000812 93df       push YH
+000813 93cf       push YL
+                  
                  
-000835 e0d1       ldi YH,high(time_set_blink_count)
-000836 e4c1       ldi YL,low(time_set_blink_count)
-000837 8118       ld temp,Y
-000838 9513       inc temp
-000839 8318       st Y,temp
+000814 e0d1       ldi YH,high(time_set_blink_count)
+000815 e4c1       ldi YL,low(time_set_blink_count)
+000816 8118       ld temp,Y
+000817 9513       inc temp
+000818 8318       st Y,temp
                  
-00083a 940e 0266  call time_set_blink
+000819 940e 0266  call time_set_blink
                  
-00083c b310
-00083d 631c
-00083e 7f1b
-00083f bb12
-000840 9bb2
-000841 df8a
-000842 9bb1
-000843 dd3e
-000844 9bb0
-000845 ddee
-000846 b310
-000847 631c
-000848 7f17
-000849 bb12
-00084a 9bb2
-00084b dd12
-00084c 9bb1
-00084d de2e
-00084e 9bb0
-00084f de5e
-000850 b310
-000851 631c
-000852 7e1f
-000853 bb12
-000854 9bb2
-000855 de02
-000856 9bb1
-000857 de9e
-000858 9bb0
-000859 df4e
-00085a b310
-00085b 631c
-00085c 7d1f
-00085d bb12
-00085e 9bb2
-00085f de72
-000860 9bb1
-000861 df8b
-000862 9bb0
-000863 dfad       keyboard_check
+00081b 931f
+00081c b310
+00081d 631c
+00081e 7f1b
+00081f bb12
+000820 9bb2
+000821 df91
+000822 9bb1
+000823 dd5d
+000824 9bb0
+000825 de0a
+000826 b310
+000827 631c
+000828 7f17
+000829 bb12
+00082a 9bb2
+00082b dd34
+00082c 9bb1
+00082d de44
+00082e 9bb0
+00082f de71
+000830 b310
+000831 631c
+000832 7e1f
+000833 bb12
+000834 9bb2
+000835 de1b
+000836 9bb1
+000837 deab
+000838 9bb0
+000839 df58
+00083a b310
+00083b 631c
+00083c 7d1f
+00083d bb12
+00083e 9bb2
+00083f de82
+000840 9bb1
+000841 df8f
+000842 9bb0
+000843 dfae
+000844 911f       keyboard_check
                  
-000864 e0d1       ldi YH,high(sound_status)	//
-000865 e2c3       ldi YL,low(sound_status)	//get sound status in RAM
-000866 8118       ld temp,Y					
-000867 ff10       sbrs temp, sound_general_status	//if sound is off then 
-000868 c00b       rjmp skip_A_addition				//OCIE1B interrupt will never happen
+000845 e0d1       ldi YH,high(sound_status)	//
+000846 e2c3       ldi YL,low(sound_status)	//get sound status in RAM
+000847 8118       ld temp,Y					
+000848 ff10       sbrs temp, sound_general_status	//if sound is off then 
+000849 c00b       rjmp skip_A_addition				//OCIE1B interrupt will never happen
                  									//for prevent uncorrect timer work
                  									//I skip (OCR1A += 3125) if sound is off
                  
-000869 b5ca       in YL, OCR1AL
-00086a b5db       in YH, OCR1AH
-00086b e315       ldi temp,0x35
-00086c 0fc1       add YL,temp		//OCR1A += 3125
-00086d e01c       ldi temp, 0x0C		//this need for correct work with keyboard
-00086e 1fd1       adc YH,temp		//if sound enable
-00086f 94f8       cli
-000870 bddb       out OCR1AH,YH
-000871 bdca       out OCR1AL,YL
-000872 9478       sei
-000873 c006       rjmp continue_A_add	//jump over TCNT1 clear, because if sound is on
+00084a b5ca       in YL, OCR1AL
+00084b b5db       in YH, OCR1AH
+00084c e315       ldi temp,0x35
+00084d 0fc1       add YL,temp		//OCR1A += 3125
+00084e e01c       ldi temp, 0x0C		//this need for correct work with keyboard
+00084f 1fd1       adc YH,temp		//if sound enable
+000850 94f8       cli
+000851 bddb       out OCR1AH,YH
+000852 bdca       out OCR1AL,YL
+000853 9478       sei
+000854 c006       rjmp continue_A_add	//jump over TCNT1 clear, because if sound is on
                  						//TCNT1 must be cleared in OCIE1B interrupt
                  
                   skip_A_addition:
                  
-000874 27cc       clr YL
-000875 27dd       clr YH
-000876 94f8       cli
-000877 bddd       out TCNT1H,YH	//clear counter of timer1
-000878 bdcc       out TCNT1L,YL
-000879 9478       sei
+000855 27cc       clr YL
+000856 27dd       clr YH
+000857 94f8       cli
+000858 bddd       out TCNT1H,YH	//clear counter of timer1
+000859 bdcc       out TCNT1L,YL
+00085a 9478       sei
                  
                   continue_A_add:
-00087a e0d1       ldi YH,high(tick_count)
-00087b e2c1       ldi YL,low(tick_count)
-00087c 8118       ld temp,Y				//tick_count++
-00087d 9513       inc temp
-00087e 8318       st Y,temp	
+00085b e0d1       ldi YH,high(tick_count)
+00085c e2c1       ldi YL,low(tick_count)
+00085d 8118       ld temp,Y				//tick_count++
+00085e 9513       inc temp
+00085f 8318       st Y,temp	
                  
-00087f 91cf       pop YL
-000880 91df       pop YH
-000881 911f       pop temp
-000882 9518       reti
+                  
+000860 91cf       pop YL
+000861 91df       pop YH
+000862 911f       pop temp
+000863 9518       reti
                   //--------------------------------
+                 //.include "softUART.inc"		//software UART
+                 .include "UART.inc"
+                 
+                  * UART.inc
+                  *
+                  *  Created: 26.03.2016 0:01:18
+                  *   Author: Hogs
+                  */ 
+                 
+                 .equ baudrate = 9600
+                 .equ bauddivider = XTAL / (16 * baudrate) - 1
+                 
+                 .equ TX_bs = 0	//0 is TX busy flag in UART_Status register
+                 .equ RX_bs = 0	//0 is RX busy flag in UART_Status register
+                 
+                 //==========MACRO=========================
+                 //-------- UART init ---------------------
+                 .macro UART_init
+                 /* Set baudrate */
+                 ldi temp, low(bauddivider)
+                 out UBRRL, temp
+                 ldi temp, high(bauddivider)
+                 out UBRRH, temp
+                 
+                 /* Set interrupts */
+                 ldi temp, (1<<RXEN)|(1<<TXEN)
+                 out UCSRB, temp	//RX and TX lines - enable, interrupts disable
+                 
+                 /* Set else */
+                 clr temp
+                 out UCSRA, temp
+                 
+                 ldi temp, (1<<URSEL)|(1<<UCSZ1)|(1<<UCSZ0)
+                 out UCSRC, temp
+                 
+                 .endm
+                 //----------------------------------------
+                 
+                 //------- Clear TX buffer ----------------
+                 .macro UART_clear_TX_buffer
+                 push YH
+                 push YL
+                 push temp
+                 push byte
+                 
+                 /* Clear buffer pointer */
+                 ldi YH, high(UART_TX_byte_p)
+                 ldi YL, low(UART_TX_byte_p)
+                 clr temp	//temp = 0
+                 st Y, temp
+                 
+                 /* Clear buffer */
+                 ldi YH, high(UART_TX_buffer)
+                 ldi YL, low(UART_TX_buffer)	//load buffer adress
+                 
+                 ser temp	//temp = 0xFF
+                 clr byte	//byte = 0
+                 
+                 UART_clear_TX_loop:
+                 st Y+, byte	//store 0
+                 dec temp
+                 brne UART_clear_TX_loop
+                 
+                 pop byte
+                 pop temp
+                 pop YL
+                 pop YH
+                 .endm
+                 //----------------------------------------
+                 
+                 //------- Clear RX buffer ----------------
+                 .macro UART_clear_RX_buffer
+                 push YH
+                 push YL
+                 push temp
+                 push byte
+                 
+                 /* Clear buffer pointer */
+                 ldi YH, high(UART_RX_byte_p)
+                 ldi YL, low(UART_RX_byte_p)
+                 clr temp	//temp = 0
+                 st Y, temp
+                 
+                 /* Clear buffer */
+                 ldi YH, high(UART_RX_buffer)
+                 ldi YL, low(UART_RX_buffer)	//load buffer adress
+                 
+                 ser temp	//temp = 0xFF
+                 clr byte	//byte = 0
+                 
+                 UART_clear_RX_loop:
+                 st Y+, byte	//store 0
+                 dec temp
+                 brne UART_clear_RX_loop
+                 
+                 pop byte
+                 pop temp
+                 pop YL
+                 pop YH
+                 .endm
+                 //----------------------------------------
+                 
+                 //------ Start transmit ------------------
+                 .macro UART_start_transmit
+                 push YH
+                 push YL
+                 push byte
+                 push temp
+                 
+                 /* Set TX_bs flag */
+                 ldi YH, high(UART_Status)
+                 ldi YL, low(UART_Status)
+                 ld temp, Y
+                 ori temp, (1<<TX_bs)
+                 st Y, temp
+                 
+                 /* Set buffer pointer */
+                 ldi YH, high(UART_TX_byte_p)
+                 ldi YL, low(UART_TX_byte_p)
+                 ldi temp, 1
+                 st Y, temp	//set pointer as 1
+                 
+                 /* Load first byte */
+                 ldi YH, high(UART_TX_buffer)
+                 ldi YL, low(UART_TX_buffer)
+                 ld byte, Y
+                 
+                 /* Send first byte and enable interrupts */
+                 in temp, UCSRB
+                 ori temp, (1<<UDRIE)|(1<<TXCIE)
+                 out UDR, byte
+                 out UCSRB, temp
+                 
+                 pop temp
+                 pop byte
+                 pop YL
+                 pop YH
+                 .endm
+                 //----------------------------------------
+                 
+                 //------ Start receive ------------------
+                 .macro UART_start_receive
+                 push YH
+                 push YL
+                 push temp
+                 
+                 /* Set RX_bs flag */
+                 ldi YH, high(UART_Status)
+                 ldi YL, low(UART_Status)
+                 ld temp, Y
+                 ori temp, (1<<RX_bs)
+                 st Y, temp
+                 
+                 /* Enable interrupts */
+                 in temp, UCSRB
+                 ori temp, (1<<RXCIE)
+                 out UCSRB, temp
+                 
+                 pop temp
+                 pop YL
+                 pop YH
+                 .endm
+                 //----------------------------------------
+                 
+                 //------ Stop receive ------------------
+                 .macro UART_stop_receive
+                 push YH
+                 push YL
+                 push temp
+                 
+                 /* Disable interrupts */
+                 in temp, UCSRB
+                 andi temp, ~(1<<RXCIE)
+                 out UCSRB, temp
+                 
+                 /* Clear RX_bs flag */
+                 ldi YH, high(UART_Status)
+                 ldi YL, low(UART_Status)
+                 ld temp, Y
+                 andi temp, ~(1<<RX_bs)
+                 st Y, temp
+                 
+                 pop temp
+                 pop YL
+                 pop YH
+                 .endm
+                 //----------------------------------------
+                 //========================================
+                 
+                 //=============INTERRUPTS=================
+                 //-------- UDR empty interrupt -----------
+                 UART_transmit:
+000864 93df      push YH
+000865 93cf      push YL
+000866 931f      push temp
+000867 930f      push byte
+                 
+                 /* read buffer pointer */
+000868 e0d3      ldi YH, high(UART_TX_byte_p)
+000869 e4c4      ldi YL, low(UART_TX_byte_p)
+00086a 8118      ld temp, Y
+                 
+                 /* read byte from buffer */
+00086b e0d1      ldi YH, high(UART_TX_buffer)
+00086c e4c2      ldi YL, low(UART_TX_buffer)	//load buffer adress
+                 
+00086d 0fc1      add YL,temp
+00086e 2711      clr temp		//add offset
+00086f 1fd1      adc YH,temp
+                 
+000870 8108      ld byte, Y
+                 
+                 /* check for end */
+000871 3000      cpi byte, 0
+000872 f039      breq UART_stop_transmit	//return if end of string
+                 
+000873 b90c      out UDR, byte	//send byte
+                 
+                 /* inc pointer */
+000874 e0d3      ldi YH, high(UART_TX_byte_p)
+000875 e4c4      ldi YL, low(UART_TX_byte_p)
+000876 8118      ld temp, Y
+000877 9513      inc temp
+000878 8318      st Y, temp
+000879 c008      rjmp UART_return_transmit
+                 
+                 /* Stop transmit */
+                 UART_stop_transmit:
+                 
+                 /* Disable interrupts */
+00087a b11a      in temp, UCSRB
+00087b 791f      andi temp, ~((1<<UDRIE)|(1<<TXCIE))
+00087c b91a      out UCSRB, temp
+                 
+                 /* Clear TX_bs flag */
+00087d e0d3      ldi YH, high(UART_Status)
+00087e e4c6      ldi YL, low(UART_Status)
+00087f 8118      ld temp, Y
+000880 7f1e      andi temp, ~(1<<TX_bs)
+000881 8318      st Y, temp
+                 
+                 /* return */
+                 UART_return_transmit:
+                 
+000882 910f      pop byte
+000883 911f      pop temp
+000884 91cf      pop YL
+000885 91df      pop YH
+000886 9518      reti
+                 //----------------------------------------
+                 
+                 //------- End transmit (TX interrupt) ----
+                 /*UART_end_transmit:
+                 push YH
+                 push YL
+                 push temp
+                 
+                 // Disable interrupts
+                 in temp, UCSRB
+                 andi temp, ~((1<<UDRIE)|(1<<TXCIE))
+                 out UCSRB, temp
+                 
+                 // Clear TX_bs flag
+                 ldi YH, high(UART_Status)
+                 ldi YL, low(UART_Status)
+                 ld temp, Y
+                 andi temp, ~(1<<TX_bs)
+                 st Y, temp
+                 
+                 pop temp
+                 pop YL
+                 pop YH
+                 reti*/
+                 //----------------------------------------
+                 
+                 //------- Receive (RX interrupt) ---------
+                 UART_receive:
+000887 93df      push YH
+000888 93cf      push YL
+000889 931f      push temp
+00088a 930f      push byte
+                 
+00088b b10c      in byte, UDR	//read received byte
+                 
+                 /* read buffer pointer */
+00088c e0d3      ldi YH, high(UART_RX_byte_p)
+00088d e4c5      ldi YL, low(UART_RX_byte_p)
+00088e 8118      ld temp, Y
+                 
+                 /* Store byte to buffer */
+00088f e0d2      ldi YH, high(UART_RX_buffer)
+000890 e4c3      ldi YL, low(UART_RX_buffer)	//load buffer adress
+                 
+000891 0fc1      add YL, temp
+000892 2711      clr temp		//add offset
+000893 1fd1      adc YH, temp
+                 
+000894 8308      st Y, byte	//store byte
+                 
+                 /* inc pointer */
+000895 e0d3      ldi YH, high(UART_RX_byte_p)
+000896 e4c5      ldi YL, low(UART_RX_byte_p)
+000897 8118      ld temp, Y
+000898 9513      inc temp
+000899 8318      st Y, temp
+                 
+                 /* return */
+00089a 910f      pop byte
+00089b 911f      pop temp
+00089c 91cf      pop YL
+00089d 91df      pop YH
+00089e 9518      reti
+                 //----------------------------------------
+                 .include "strings.inc"
+                 
+                  * strings.inc
+                  *
+                  *  Created: 27.03.2016 4:27:29
+                  *   Author: Hogs
+                  */ 
+                 
+                  .def counter = r19
+                  //===== PROCEDURES =======================
+                  //------ Search ---------------
+                  str_search_proc:
+                  // input X (string where need to search)
+                  // input Y (substring)
+                  // output R17(0 or 1) 1 is string found, 0 is string not found
+                  // output R16(byte pointer to first symbol)
+00089f 933f       push counter
+0008a0 93bf       push XH
+0008a1 93af       push XL
+0008a2 930f       push byte
+                 
+0008a3 2733       clr counter
+0008a4 2711       clr temp
+                 
+                  str_search_loop:
+0008a5 910c       ld byte, X
+0008a6 3000       cpi byte, 0
+0008a7 f069       breq str_search_return_false
+                 
+0008a8 d012       rcall str_cmp_proc
+0008a9 3010       cpi temp, 0
+0008aa f419       brne str_search_return_true
+                 
+0008ab 9533       inc counter
+0008ac 9611       adiw XH:XL, 1
+0008ad cff7       rjmp str_search_loop
+                 
+                  str_search_return_true:
+0008ae 910f       pop byte
+0008af 91af       pop XL
+0008b0 91bf       pop XH
+0008b1 2f03       mov r16, counter
+0008b2 913f       pop counter
+0008b3 e011       ldi r17, 1
+0008b4 9508       ret
+                 
+                  str_search_return_false:
+0008b5 910f       pop byte
+0008b6 91af       pop XL
+0008b7 91bf       pop XH
+0008b8 913f       pop counter
+0008b9 2711       clr r17
+0008ba 9508       ret
+                  //-----------------------------
+                 
+                  //----- String compare --------
+                  str_cmp_proc:
+                  //input Y - first (shorter) string
+                  //input X - second (longer) string
+                  //output r17 - result (0 - false, 1 - true)
+0008bb 93bf       push XH
+0008bc 93af       push XL
+0008bd 93df       push YH
+0008be 93cf       push YL
+0008bf 930f       push byte
+                 
+                  str_cmp_loop:
+0008c0 8108       ld byte, Y
+0008c1 3000       cpi byte, 0
+0008c2 f069       breq str_cmp_return_true
+                 
+0008c3 911c       ld temp, X
+0008c4 1701       cp byte, temp
+0008c5 f419       brne str_cmp_return_false
+                 
+0008c6 9611       adiw XH:XL, 1
+0008c7 9621       adiw YH:YL, 1
+0008c8 cff7       rjmp str_cmp_loop
+                 
+                  str_cmp_return_false:
+0008c9 910f       pop byte
+0008ca 91cf       pop YL
+0008cb 91df       pop YH
+0008cc 91af       pop XL
+0008cd 91bf       pop XH
+0008ce 2711       clr temp
+0008cf 9508       ret
+                  str_cmp_return_true:
+0008d0 910f       pop byte
+0008d1 91cf       pop YL
+0008d2 91df       pop YH
+0008d3 91af       pop XL
+0008d4 91bf       pop XH
+0008d5 e011       ldi temp, 1
+0008d6 9508       ret
+                  //-----------------------------
+                 
+                  //-------- str len ------------
+                  str_len_proc:
+                  //input X - adress of string
+                  //output r17 - length
+0008d7 930f       push byte
+0008d8 93bf       push XH
+0008d9 93af       push XL
+0008da 2711       clr temp
+                 
+                  str_len_loop:
+0008db 910d       ld byte, X+
+0008dc 3000       cpi byte, 0
+0008dd f011       breq str_len_return
+                 
+0008de 9513       inc temp
+0008df cffb       rjmp str_len_loop
+                 
+                  str_len_return:
+0008e0 91af       pop XL
+0008e1 91bf       pop XH
+0008e2 910f       pop byte
+0008e3 9508       ret
+                  //-----------------------------
+                 
+                  //-------- str concat ---------
+                  str_concat_proc:
+                  //input X - string 1
+                  //input Y - string 2
+                  //no output
+                  //result is: str1 = str1+str2
+0008e4 931f       push temp
+0008e5 93bf       push XH
+0008e6 93af       push XL
+0008e7 93df       push YH
+0008e8 93cf       push YL
+                 
+0008e9 dfed       rcall str_len_proc
+0008ea 0fa1       add XL, temp
+0008eb 2711       clr temp			//set X as end of first string
+0008ec 1fb1       adc XH, temp
+                 
+                 
+                  str_concat_loop:
+0008ed 9119       ld temp, Y+
+0008ee 1710       cp temp, byte
+0008ef f011       breq str_concat_return
+                 
+0008f0 931d       st X+, temp
+0008f1 cffb       rjmp str_concat_loop
+                 
+                  str_concat_return:
+0008f2 91cf       pop YL
+0008f3 91df       pop YH
+0008f4 91af       pop XL
+0008f5 91bf       pop XH
+0008f6 911f       pop temp
+0008f7 9508       ret
+                  //---------------------------
+                 
+                  //------ Clear string -------
+                  str_clr_proc:
+                  //input X - string what need to clear
+                  //no output
+                 
+0008f8 931f       push temp
+0008f9 93bf       push XH
+0008fa 93af       push XL
+                 
+                  str_clr_loop:
+0008fb 911d       ld temp, X+
+0008fc 3010       cpi temp, 0
+0008fd f019       breq str_clr_return
+                 
+0008fe 2711       clr temp
+0008ff 931c       st X, temp
+000900 cffa       rjmp str_clr_loop
+                 
+                  str_clr_return:
+000901 91af       pop XL
+000902 91bf       pop XH
+000903 911f       pop temp
+000904 9508       ret
+                  //---------------------------
+                 
+                  //------ String copy --------
+                  str_cpy_proc:
+                  //input X - string which need to copy
+                  //input Y - string where need to paste
+                  //input r16 - end of string symbol
+                  //no output
+000905 93bf       push XH
+000906 93af       push XL
+000907 93df       push YH
+000908 93cf       push YL
+000909 931f       push temp
+                 
+                  str_cpy_loop:
+00090a 911d       ld temp, X+
+00090b 1710       cp temp, byte
+00090c f011       breq str_cpy_return
+                 
+00090d 9319       st Y+, temp
+00090e cffb       rjmp str_cpy_loop
+                 
+                  str_cpy_return:
+00090f 911f       pop temp
+000910 91cf       pop YL
+000911 91df       pop YH
+000912 91af       pop XL
+000913 91bf       pop XH
+000914 9508       ret
+                  //---------------------------
+                 
+                  //------ String copy (using length) ---
+                  str_cpy_proc_len:
+                  //input X - string which need to copy
+                  //input Y - string where need to paste
+                  //input r16 - count of symbols
+                  //no output
+000915 93bf       push XH
+000916 93af       push XL
+000917 93df       push YH
+000918 93cf       push YL
+000919 931f       push temp
+                 
+                  str_cpy_len_loop:
+00091a 911d       ld temp, X+
+00091b 950a       dec byte
+00091c f011       breq str_cpy_len_return
+                 
+00091d 9319       st Y+, temp
+00091e cffb       rjmp str_cpy_len_loop
+                 
+                  str_cpy_len_return:
+00091f 911f       pop temp
+000920 91cf       pop YL
+000921 91df       pop YH
+000922 91af       pop XL
+000923 91bf       pop XH
+000924 9508       ret
+                  //---------------------------
+                  //========================================
+                 
+                  //======= MACRO ==========================
+                  //----- String search --------------------
+                  .macro str_search
+                  // input @0 (string where need to search)
+                  // input @1 (substring)
+                  // output R17(0 or 1) 1 is string found, 0 is string not found
+                  // output R16(byte pointer to first symbol)
+                  push XH
+                  push XL
+                  push YH
+                  push YL
+                 
+                  ldi XH, high(@0)
+                  ldi XL, low(@0)
+                  ldi YH, high(@1)
+                  ldi YL, low(@1)
+                  rcall str_search_proc
+                 
+                  pop YL
+                  pop YH
+                  pop XL
+                  pop XH
+                  .endm
+                  //----------------------------------------
+                 
+                  //----- String Compare -------------------
+                  .macro str_cmp
+                  push XH
+                  push XL
+                  push YH
+                  push YL
+                 
+                  ldi XH, high(@0)
+                  ldi XL, low(@0)
+                  ldi YH, high(@1)
+                  ldi YL, low(@1)
+                  rcall str_cmp_proc
+                 
+                  pop YL
+                  pop YH
+                  pop XL
+                  pop XH
+                  .endm
+                  //----------------------------------------
+                 
+                  //----- String length --------------------
+                  .macro str_len
+                  //input - @0 adress of string
+                  //output - r17 - length
+                  push XH
+                  push XL
+                 
+                  ldi XH, high(@0)
+                  ldi XL, low(@0)
+                  rcall str_len_proc
+                 
+                  pop XL
+                  pop XH
+                  .endm
+                  //----------------------------------------
+                 
+                  //----- String concatenation -------------
+                  .macro str_concat
+                  //input @0 - adress of first string
+                  //input @1 - adress of second string
+                  //no output
+                  //result is: str1 = str1+str2
+                  
+                  push XH
+                  push XL
+                  push YH
+                  push YL
+                  push byte
+                 
+                  ldi XH, high(@0)
+                  ldi XL, low(@0)
+                  ldi YH, high(@1)
+                  ldi YL, low(@1)
+                  clr byte
+                 
+                  rcall str_concat_proc
+                 
+                  pop byte
+                  pop YL
+                  pop YH
+                  pop XL
+                  pop XH
+                  .endm
+                  //----------------------------------------
+                 
+                  //----- Extended string concatenation -------------
+                  .macro str_concat_ex
+                  //input @0 - adress of first string
+                  //input @1 - adress of second string
+                  //no output
+                  //result is: str1 = str1+str2
+                  
+                  push XH
+                  push XL
+                  push YH
+                  push YL
+                  push byte
+                 
+                  ldi XH, high(@0)
+                  ldi XL, low(@0)
+                  ldi YH, high(@1)
+                  ldi YL, low(@1)
+                  ldi byte, @2
+                 
+                  rcall str_concat_proc
+                 
+                  pop byte
+                  pop YL
+                  pop YH
+                  pop XL
+                  pop XH
+                  .endm
+                  //----------------------------------------
+                 
+                  //------ Clear string --------------------
+                  .macro str_clr
+                  //input @0 - string adress what need to clear
+                  //no output
+                  push XH
+                  push XL
+                 
+                  ldi XH, high(@0)
+                  ldi XL, low(@0)
+                  rcall str_clr_proc
+                 
+                  pop XL
+                  pop XH
+                  .endm
+                  //----------------------------------------
+                 
+                  //------ string copy ---------------------
+                  .macro str_cpy
+                  //input @0 - string which need to copy
+                  //input @1 - string where need to paste
+                  //no output
+                  push XH
+                  push XL
+                  push YH
+                  push YL
+                  push byte
+                 
+                  ldi XH, high(@0)
+                  ldi XL, low(@0)
+                  ldi YH, high(@1)
+                  ldi YL, low(@1)
+                  clr byte
+                  rcall str_cpy_proc
+                 
+                  pop byte
+                  pop YL
+                  pop YH
+                  pop XL
+                  pop XH
+                  .endm
+                  //----------------------------------------
+                 
+                  //------ extended string copy ------------
+                  .macro str_cpy_ex
+                  //input @0 - string which need to copy
+                  //input @1 - string where need to paste
+                  //input @2 - end of string symbol
+                  //no output
+                  push XH
+                  push XL
+                  push YH
+                  push YL
+                  push byte
+                 
+                  ldi XH, high(@0)
+                  ldi XL, low(@0)
+                  ldi YH, high(@1)
+                  ldi YL, low(@1)
+                  ldi byte, @2
+                  rcall str_cpy_proc
+                 
+                  pop byte
+                  pop YL
+                  pop YH
+                  pop XL
+                  pop XH
+                  .endm
+                  //----------------------------------------
+                 
+                  //------ (using length) string copy ------------
+                  .macro str_cpy_len
+                  //input @0 - string which need to copy
+                  //input @1 - string where need to paste
+                  //input @2 - count of symbols
+                  //no output
+                  push XH
+                  push XL
+                  push YH
+                  push YL
+                  push byte
+                 
+                  ldi XH, high(@0)
+                  ldi XL, low(@0)
+                  ldi YH, high(@1)
+                  ldi YL, low(@1)
+                  ldi byte, @2
+                  rcall str_cpy_proc_len
+                 
+                  pop byte
+                  pop YL
+                  pop YH
+                  pop XL
+                  pop XH
+                  .endm
+                 .include "GSM.inc"
+                 
+                  * GSM.inc
+                  *
+                  *  Created: 30.03.2016 0:25:56
+                  *   Author: Hogs
+                  */ 
+                 
+                  .equ GS = 3		//get/set flag in GSM_Status register (1 - get, 0 - set)
+                 
+                  //======= MACRO ================================
+                  //------- Copy index to RAM --------------------
+                  .macro GSM_copy_index
+                 
+                  ldi XH, high(UART_RX_buffer)
+                  ldi XL, low(UART_RX_buffer)
+                  add XL, byte
+                  push byte
+                  clr byte
+                  adc XH, byte
+                  pop byte
+                  adiw XH:XL, 12
+                  ldi YH, high(GSM_sms_index)
+                  ldi YL, low(GSM_sms_index)
+                  ldi byte, 0x0D
+                  rcall str_cpy_proc
+                 
+                  .endm
+                  //----------------------------------------------
+                 
+                  //------- Copy phone number to RAM -------------
+                  .macro GSM_copy_phone_number
+                 
+                  ldi XH, high(UART_RX_buffer)
+                  ldi XL, low(UART_RX_buffer)
+                  add XL, byte
+                  push byte
+                  clr byte
+                  adc XH, byte
+                  pop byte
+                  adiw XH:XL, 2
+                  ldi YH, high(GSM_phone_number)
+                  ldi YL, low(GSM_phone_number)
+                  ldi byte, ','
+                  rcall str_cpy_proc
+                 
+                  .endm
+                  //----------------------------------------------
+                 
+                  //------- Set New Time -------------------------
+                  .macro GSM_set_new_time
+                 
+                  push XH
+                  push XL
+                  push YH
+                  push YL
+                  push temp
+                  push byte
+                 
+                  push XH
+                  push XL
+                  push YH
+                  push YL
+                  push byte
+                 
+                  mov XH, YH
+                  mov XL, YL
+                  ldi YH, high(time_value)
+                  ldi YL, low(time_value)
+                  ldi byte, 14
+                  rcall str_cpy_proc_len
+                 
+                  pop byte
+                  pop YL
+                  pop YH
+                  pop XL
+                  pop XH
+                 
+                  ldi XH, high(I2C_buffer)
+                  ldi XL, low(I2C_buffer)
+                  
+                  ldi temp, 5
+                  GSM_set_new_time_loop:
+                  push temp
+                 
+                  ld temp, Y+
+                  subi temp, 48
+                  swap temp
+                 
+                  ld byte, Y+
+                  subi byte, 48
+                 
+                  or temp, byte
+                  st X+, temp
+                 
+                  adiw YH:YL, 1
+                 
+                  pop temp
+                  dec temp
+                  brne GSM_set_new_time_loop
+                 
+                  call I2C_Clock_Set_New_Time
+                 
+                  pop byte
+                  pop temp
+                  pop YL
+                  pop YH
+                  pop XL
+                  pop XH
+                  .endm
+                  //--------------------------------------------
+                 
+                  //------- main -------------------------------
+                  //.macro GSM_main
+                  GSM_main:
+                  /* check for new SMS */
+000925 93df
+000926 93cf
+000927 931f
+000928 e0d3
+000929 e4c6
+00092a 8118
+00092b 6011
+00092c 8318
+00092d b11a
+00092e 6810
+00092f b91a
+000930 911f
+000931 91cf
+000932 91df       UART_start_receive
+000933 93bf
+000934 93af
+000935 93df
+000936 93cf
+000937 e0b2
+000938 e4a3
+000939 e0d3
+00093a e4c8
+00093b df63
+00093c 91cf
+00093d 91df
+00093e 91af
+00093f 91bf       str_search UART_RX_buffer, GSM_new_msg
+000940 3010       cpi temp, 0
+000941 f409       brne PC+2
+000942 c6d2       rjmp GSM_return	//if no new SMS found return
+                 
+000943 e0b2
+000944 e4a3
+000945 0fa0
+000946 930f
+000947 2700
+000948 1fb0
+000949 910f
+00094a 961c
+00094b e0d4
+00094c ecc8
+00094d e00d
+00094e dfb6       GSM_copy_index		//copy index to RAM
+                 
+                  /* read message */
+                  GSM_restart:
+00094f 93df
+000950 93cf
+000951 931f
+000952 930f
+000953 e0d3
+000954 e4c4
+000955 2711
+000956 8318
+000957 e0d1
+000958 e4c2
+000959 ef1f
+00095a 2700
+00095b 9309
+00095c 951a
+00095d f7e9
+00095e 910f
+00095f 911f
+000960 91cf
+000961 91df       UART_clear_TX_buffer	//Clear TX buffer
+                 
+000962 93bf
+000963 93af
+000964 93df
+000965 93cf
+000966 930f
+000967 e0b1
+000968 e4a2
+000969 e0d3
+00096a e5c5
+00096b 2700
+00096c df77
+00096d 910f
+00096e 91cf
+00096f 91df
+000970 91af
+000971 91bf       str_concat UART_TX_buffer, GSM_read_SMS1
+000972 93bf
+000973 93af
+000974 93df
+000975 93cf
+000976 930f
+000977 e0b1
+000978 e4a2
+000979 e0d4
+00097a ecc8
+00097b 2700
+00097c df67
+00097d 910f
+00097e 91cf
+00097f 91df
+000980 91af
+000981 91bf       str_concat UART_TX_buffer, GSM_sms_index	//prepare TX buffer
+000982 93bf
+000983 93af
+000984 93df
+000985 93cf
+000986 930f
+000987 e0b1
+000988 e4a2
+000989 e0d3
+00098a e5ce
+00098b 2700
+00098c df57
+00098d 910f
+00098e 91cf
+00098f 91df
+000990 91af
+000991 91bf       str_concat UART_TX_buffer, GSM_read_SMS2
+000992 93bf
+000993 93af
+000994 93df
+000995 93cf
+000996 930f
+000997 e0b1
+000998 e4a2
+000999 e0d3
+00099a e6cf
+00099b 2700
+00099c df47
+00099d 910f
+00099e 91cf
+00099f 91df
+0009a0 91af
+0009a1 91bf       str_concat UART_TX_buffer, GSM_enter
+                  
+0009a2 93df
+0009a3 93cf
+0009a4 931f
+0009a5 b11a
+0009a6 771f
+0009a7 b91a
+0009a8 e0d3
+0009a9 e4c6
+0009aa 8118
+0009ab 7f1e
+0009ac 8318
+0009ad 911f
+0009ae 91cf
+0009af 91df       UART_stop_receive
+0009b0 93df
+0009b1 93cf
+0009b2 931f
+0009b3 930f
+0009b4 e0d3
+0009b5 e4c5
+0009b6 2711
+0009b7 8318
+0009b8 e0d2
+0009b9 e4c3
+0009ba ef1f
+0009bb 2700
+0009bc 9309
+0009bd 951a
+0009be f7e9
+0009bf 910f
+0009c0 911f
+0009c1 91cf
+0009c2 91df       UART_clear_RX_buffer
+0009c3 93df
+0009c4 93cf
+0009c5 930f
+0009c6 931f
+0009c7 e0d3
+0009c8 e4c6
+0009c9 8118
+0009ca 6011
+0009cb 8318
+0009cc e0d3
+0009cd e4c4
+0009ce e011
+0009cf 8318
+0009d0 e0d1
+0009d1 e4c2
+0009d2 8108
+0009d3 b11a
+0009d4 6610
+0009d5 b90c
+0009d6 b91a
+0009d7 911f
+0009d8 910f
+0009d9 91cf
+0009da 91df       UART_start_transmit
+0009db 93df
+0009dc 93cf
+0009dd 931f
+0009de e0d3
+0009df e4c6
+0009e0 8118
+0009e1 6011
+0009e2 8318
+0009e3 b11a
+0009e4 6810
+0009e5 b91a
+0009e6 911f
+0009e7 91cf
+0009e8 91df       UART_start_receive
+                 
+                  /* wait for operation result */
+0009e9 939f
+0009ea 938f
+0009eb 937f
+0009ec ef9f
+0009ed ef8f
+0009ee ef7f
+0009ef 940e 0029
+0009f1 917f
+0009f2 918f
+0009f3 919f       delay 255,255,255		//long delay
+0009f4 939f
+0009f5 938f
+0009f6 937f
+0009f7 ef9f
+0009f8 ef8f
+0009f9 ef7f
+0009fa 940e 0029
+0009fc 917f
+0009fd 918f
+0009fe 919f       delay 255,255,255		//about 6 sec on 16MHz or 12sec on 8MHz
+0009ff 93df
+000a00 93cf
+000a01 931f
+000a02 b11a
+000a03 771f
+000a04 b91a
+000a05 e0d3
+000a06 e4c6
+000a07 8118
+000a08 7f1e
+000a09 8318
+000a0a 911f
+000a0b 91cf
+000a0c 91df       UART_stop_receive
+000a0d 93bf
+000a0e 93af
+000a0f 93df
+000a10 93cf
+000a11 e0b2
+000a12 e4a3
+000a13 e0d3
+000a14 e6c1
+000a15 de89
+000a16 91cf
+000a17 91df
+000a18 91af
+000a19 91bf       str_search UART_RX_buffer, GSM_result
+000a1a 3010       cpi temp, 0
+000a1b f409       brne PC+2
+000a1c cf32       rjmp GSM_restart		//if no OK result then restart
+                 
+000a1d 93bf
+000a1e 93af
+000a1f 93df
+000a20 93cf
+000a21 e0b2
+000a22 e4a3
+000a23 e0d3
+000a24 e7c3
+000a25 de79
+000a26 91cf
+000a27 91df
+000a28 91af
+000a29 91bf       str_search UART_RX_buffer, GSM_phone_start
+000a2a 3010       cpi temp, 0
+000a2b f409       brne PC+2
+000a2c cf22       rjmp GSM_restart	//if no new SMS found restart
+                 
+000a2d e0b2
+000a2e e4a3
+000a2f 0fa0
+000a30 930f
+000a31 2700
+000a32 1fb0
+000a33 910f
+000a34 9612
+000a35 e0d4
+000a36 eccb
+000a37 e20c
+000a38 decc       GSM_copy_phone_number
+                 
+                  /* check for commands */
+000a39 93bf
+000a3a 93af
+000a3b 93df
+000a3c 93cf
+000a3d e0b2
+000a3e e4a3
+000a3f e0d3
+000a40 e7c6
+000a41 de5d
+000a42 91cf
+000a43 91df
+000a44 91af
+000a45 91bf       str_search UART_RX_buffer, GSM_get_cmd
+000a46 3010       cpi temp, 0
+000a47 f489       brne GSM_get_parameter
+                 
+000a48 93bf
+000a49 93af
+000a4a 93df
+000a4b 93cf
+000a4c e0b2
+000a4d e4a3
+000a4e e0d3
+000a4f e8c1
+000a50 de4e
+000a51 91cf
+000a52 91df
+000a53 91af
+000a54 91bf       str_search UART_RX_buffer, GSM_set_cmd
+000a55 3010       cpi temp, 0
+000a56 f009       breq PC+2
+000a57 c083       rjmp GSM_set_parameter
+000a58 c5bc       rjmp GSM_return
+                 
+                  GSM_get_parameter:
+000a59 e0d3       ldi YH, high(GSM_Status)
+000a5a e4c7       ldi YL, low(GSM_Status)
+000a5b e018       ldi temp, 1<<GS									//set GS flag as 1 (get)
+000a5c 8318       st Y, temp
+                  
+000a5d 93bf
+000a5e 93af
+000a5f 93df
+000a60 93cf
+000a61 e0b2
+000a62 e4a3
+000a63 e0d3
+000a64 e8cc
+000a65 de39
+000a66 91cf
+000a67 91df
+000a68 91af
+000a69 91bf       str_search UART_RX_buffer, GSM_info_parameter		//search for "info" parameter
+000a6a 3010       cpi temp, 0
+000a6b f031       breq GSM_search_time_get_parameter
+                 
+000a6c e0d3       ldi YH, high(GSM_Status)
+000a6d e4c7       ldi YL, low(GSM_Status)
+000a6e 8118       ld temp, Y
+000a6f 6011       ori temp, 1
+000a70 8318       st Y, temp
+000a71 c16b       rjmp GSM_send_SMS_command
+                 
+                  GSM_search_time_get_parameter:
+000a72 93bf
+000a73 93af
+000a74 93df
+000a75 93cf
+000a76 e0b2
+000a77 e4a3
+000a78 e0d3
+000a79 e9c1
+000a7a de24
+000a7b 91cf
+000a7c 91df
+000a7d 91af
+000a7e 91bf       str_search UART_RX_buffer, GSM_time_parameter		//search for "time" parameter
+000a7f 3010       cpi temp, 0
+000a80 f031       breq GSM_search_temp_get_parameter
+                 
+000a81 e0d3       ldi YH, high(GSM_Status)
+000a82 e4c7       ldi YL, low(GSM_Status)
+000a83 8118       ld temp, Y
+000a84 6012       ori temp, 2
+000a85 8318       st Y, temp
+000a86 c156       rjmp GSM_send_SMS_command
+                 
+                  GSM_search_temp_get_parameter:
+000a87 93bf
+000a88 93af
+000a89 93df
+000a8a 93cf
+000a8b e0b2
+000a8c e4a3
+000a8d e0d3
+000a8e e9c6
+000a8f de0f
+000a90 91cf
+000a91 91df
+000a92 91af
+000a93 91bf       str_search UART_RX_buffer, GSM_temp_parameter		//search for "temp" parameter
+000a94 3010       cpi temp, 0
+000a95 f031       breq GSM_search_pressure_get_parameter
+                 
+000a96 e0d3       ldi YH, high(GSM_Status)
+000a97 e4c7       ldi YL, low(GSM_Status)
+000a98 8118       ld temp, Y
+000a99 6013       ori temp, 3
+000a9a 8318       st Y, temp
+000a9b c141       rjmp GSM_send_SMS_command
+                 
+                  GSM_search_pressure_get_parameter:
+000a9c 93bf
+000a9d 93af
+000a9e 93df
+000a9f 93cf
+000aa0 e0b2
+000aa1 e4a3
+000aa2 e0d3
+000aa3 e9cb
+000aa4 ddfa
+000aa5 91cf
+000aa6 91df
+000aa7 91af
+000aa8 91bf       str_search UART_RX_buffer, GSM_pressure_parameter	//search for "pressure" parameter
+000aa9 3010       cpi temp, 0
+000aaa f031       breq GSM_search_sound_get_parameter
+                 
+000aab e0d3       ldi YH, high(GSM_Status)
+000aac e4c7       ldi YL, low(GSM_Status)
+000aad 8118       ld temp, Y
+000aae 6014       ori temp, 4
+000aaf 8318       st Y, temp
+000ab0 c12c       rjmp GSM_send_SMS_command
+                 
+                  GSM_search_sound_get_parameter:
+000ab1 93bf
+000ab2 93af
+000ab3 93df
+000ab4 93cf
+000ab5 e0b2
+000ab6 e4a3
+000ab7 e0d3
+000ab8 eac4
+000ab9 dde5
+000aba 91cf
+000abb 91df
+000abc 91af
+000abd 91bf       str_search UART_RX_buffer, GSM_sound_parameter		//search for "sound" parameter
+000abe 3010       cpi temp, 0
+000abf f031       breq GSM_search_memory_get_parameter
+                 
+000ac0 e0d3       ldi YH, high(GSM_Status)
+000ac1 e4c7       ldi YL, low(GSM_Status)
+000ac2 8118       ld temp, Y
+000ac3 6015       ori temp, 5
+000ac4 8318       st Y, temp
+000ac5 c117       rjmp GSM_send_SMS_command
+                 
+                  GSM_search_memory_get_parameter:
+000ac6 93bf
+000ac7 93af
+000ac8 93df
+000ac9 93cf
+000aca e0b2
+000acb e4a3
+000acc e0d3
+000acd eaca
+000ace ddd0
+000acf 91cf
+000ad0 91df
+000ad1 91af
+000ad2 91bf       str_search UART_RX_buffer, GSM_memory_parameter	//search for "memory" parameter
+000ad3 3010       cpi temp, 0
+000ad4 f029       breq GSM_search_unsupported_get_parameter
+                 
+000ad5 e0d3       ldi YH, high(GSM_Status)
+000ad6 e4c7       ldi YL, low(GSM_Status)
+000ad7 8118       ld temp, Y
+000ad8 6016       ori temp, 6
+000ad9 8318       st Y, temp
+                 
+                  GSM_search_unsupported_get_parameter:				//unsupported parameter
+000ada c102       rjmp GSM_send_SMS_command
+                 
+                 
+                  GSM_set_parameter:
+000adb e0d3       ldi YH, high(GSM_Status)
+000adc e4c7       ldi YL, low(GSM_Status)
+000add 2711       clr temp
+000ade 8318       st Y, temp
+                 
+000adf 93bf
+000ae0 93af
+000ae1 93df
+000ae2 93cf
+000ae3 e0b2
+000ae4 e4a3
+000ae5 e0d3
+000ae6 e9c1
+000ae7 ddb7
+000ae8 91cf
+000ae9 91df
+000aea 91af
+000aeb 91bf       str_search UART_RX_buffer, GSM_time_parameter		//search for "time" parameter
+000aec 3010       cpi temp, 0
+000aed f409       brne PC+2
+000aee c045       rjmp GSM_search_sound_set_parameter
+                 
+000aef 931f       push temp
+000af0 e015       ldi temp, 5
+000af1 0f01       add byte, temp
+000af2 911f       pop temp
+000af3 e0d2       ldi YH, high(UART_RX_buffer)
+000af4 e4c3       ldi YL, low(UART_RX_buffer)
+000af5 0fc0       add YL, byte
+000af6 2700       clr byte
+000af7 1fd0       adc YH, byte
+                 
+000af8 d538       rcall GSM_time_validate
+000af9 3010       cpi temp, 0
+000afa f199       breq GSM_set_time_error
+                 
+000afb 93bf
+000afc 93af
+000afd 93df
+000afe 93cf
+000aff 931f
+000b00 930f
+000b01 93bf
+000b02 93af
+000b03 93df
+000b04 93cf
+000b05 930f
+000b06 2fbd
+000b07 2fac
+000b08 e0d0
+000b09 eec0
+000b0a e00e
+000b0b de09
+000b0c 910f
+000b0d 91cf
+000b0e 91df
+000b0f 91af
+000b10 91bf
+000b11 e0b1
+000b12 e2a5
+000b13 e015
+000b14 931f
+000b15 9119
+000b16 5310
+000b17 9512
+000b18 9109
+000b19 5300
+000b1a 2b10
+000b1b 931d
+000b1c 9621
+000b1d 911f
+000b1e 951a
+000b1f f7a1
+000b20 940e 011d
+000b22 910f
+000b23 911f
+000b24 91cf
+000b25 91df
+000b26 91af
+000b27 91bf       GSM_set_new_time
+                 
+000b28 e0d3       ldi YH, high(GSM_Status)
+000b29 e4c7       ldi YL, low(GSM_Status)
+000b2a 8118       ld temp, Y
+000b2b 6012       ori temp, 2
+000b2c 8318       st Y, temp
+000b2d c0af       rjmp GSM_send_SMS_command
+                 
+                  GSM_set_time_error:
+000b2e e0d3       ldi YH, high(GSM_Status)
+000b2f e4c7       ldi YL, low(GSM_Status)
+000b30 8118       ld temp, Y
+000b31 6110       ori temp, 0b0001_0000
+000b32 8318       st Y, temp
+000b33 c0a9       rjmp GSM_send_SMS_command
+                 
+                  GSM_search_sound_set_parameter:
+000b34 93bf
+000b35 93af
+000b36 93df
+000b37 93cf
+000b38 e0b2
+000b39 e4a3
+000b3a e0d3
+000b3b eac4
+000b3c dd62
+000b3d 91cf
+000b3e 91df
+000b3f 91af
+000b40 91bf       str_search UART_RX_buffer, GSM_sound_parameter		//search for "sound" parameter
+000b41 3010       cpi temp, 0
+000b42 f409       brne PC+2
+000b43 c045       rjmp GSM_search_memory_set_parameter
+                 
+000b44 931f       push temp
+000b45 e016       ldi temp, 6
+000b46 0f01       add byte, temp
+000b47 911f       pop temp
+000b48 e0d2       ldi YH, high(UART_RX_buffer)
+000b49 e4c3       ldi YL, low(UART_RX_buffer)
+000b4a 0fc0       add YL, byte
+000b4b 2700       clr byte
+000b4c 1fd0       adc YH, byte
+                 
+000b4d d52a       rcall GSM_OnOff_Validate
+000b4e 3010       cpi temp, 0
+000b4f f199       breq GSM_set_sound_error
+                 
+000b50 9621       adiw YH:YL, 1
+000b51 8118       ld temp, Y
+000b52 3416       cpi temp, 'F'
+000b53 f4a9       brne GSM_set_sound_off
+                 
+000b54 e0d4       ldi YH,high(Sound_Settings)
+000b55 edcc       ldi YL,low(Sound_Settings) 
+000b56 e011       ldi temp, 1
+000b57 8318       st Y, temp
+000b58 93bf
+000b59 93af
+000b5a 93df
+000b5b 93cf
+000b5c 930f
+000b5d e0b4
+000b5e e4a6
+000b5f e0d1
+000b60 e1c0
+000b61 2700
+000b62 dda2
+000b63 910f
+000b64 91cf
+000b65 91df
+000b66 91af
+000b67 91bf       str_cpy On_str, sound_value
+000b68 c014       rjmp GSM_set_sound_return
+                 
+                  GSM_set_sound_off:
+000b69 e0d4       ldi YH,high(Sound_Settings)
+000b6a edcc       ldi YL,low(Sound_Settings) 
+000b6b e010       ldi temp, 0
+000b6c 8318       st Y, temp
+000b6d 93bf
+000b6e 93af
+000b6f 93df
+000b70 93cf
+000b71 930f
+000b72 e0b4
+000b73 e4aa
+000b74 e0d1
+000b75 e1c0
+000b76 2700
+000b77 dd8d
+000b78 910f
+000b79 91cf
+000b7a 91df
+000b7b 91af
+000b7c 91bf       str_cpy Off_str, sound_value
+                 
+                  GSM_set_sound_return:
+000b7d e0d3       ldi YH, high(GSM_Status)
+000b7e e4c7       ldi YL, low(GSM_Status)
+000b7f 8118       ld temp, Y
+000b80 6015       ori temp, 5
+000b81 8318       st Y, temp
+000b82 c05a       rjmp GSM_send_SMS_command
+                 
+                  GSM_set_sound_error:
+000b83 e0d3       ldi YH, high(GSM_Status)
+000b84 e4c7       ldi YL, low(GSM_Status)
+000b85 8118       ld temp, Y
+000b86 6210       ori temp, 0b0010_0000
+000b87 8318       st Y, temp
+000b88 c054       rjmp GSM_send_SMS_command
+                 
+                  GSM_search_memory_set_parameter:
+000b89 93bf
+000b8a 93af
+000b8b 93df
+000b8c 93cf
+000b8d e0b2
+000b8e e4a3
+000b8f e0d3
+000b90 eaca
+000b91 dd0d
+000b92 91cf
+000b93 91df
+000b94 91af
+000b95 91bf       str_search UART_RX_buffer, GSM_memory_parameter	//search for "memory" parameter
+000b96 3010       cpi temp, 0
+000b97 f409       brne PC+2
+000b98 c044       rjmp GSM_search_unsupported_set_parameter
+                 
+000b99 931f       push temp
+000b9a e017       ldi temp, 7
+000b9b 0f01       add byte, temp
+000b9c 911f       pop temp
+000b9d e0d2       ldi YH, high(UART_RX_buffer)
+000b9e e4c3       ldi YL, low(UART_RX_buffer)
+000b9f 0fc0       add YL, byte
+000ba0 2700       clr byte
+000ba1 1fd0       adc YH, byte
+                 
+000ba2 d4d5       rcall GSM_OnOff_Validate
+000ba3 3010       cpi temp, 0
+000ba4 f199       breq GSM_set_memory_error
+                 
+000ba5 9621       adiw YH:YL, 1
+000ba6 8118       ld temp, Y
+000ba7 3416       cpi temp, 'F'
+000ba8 f4a9       brne GSM_set_memory_off
+                 
+000ba9 e0d4       ldi YH, high(MC_Settings)
+000baa edcb       ldi YL, low(MC_Settings)
+000bab e011       ldi temp, 1
+000bac 8318       st Y, temp
+000bad 93bf
+000bae 93af
+000baf 93df
+000bb0 93cf
+000bb1 930f
+000bb2 e0b4
+000bb3 e4a6
+000bb4 e0d0
+000bb5 efc0
+000bb6 2700
+000bb7 dd4d
+000bb8 910f
+000bb9 91cf
+000bba 91df
+000bbb 91af
+000bbc 91bf       str_cpy On_str, mc_value
+000bbd c014       rjmp GSM_set_memory_return
+                 
+                  GSM_set_memory_off:
+000bbe e0d4       ldi YH, high(MC_Settings)
+000bbf edcb       ldi YL, low(MC_Settings)
+000bc0 e010       ldi temp, 0
+000bc1 93bf
+000bc2 93af
+000bc3 93df
+000bc4 93cf
+000bc5 930f
+000bc6 e0b4
+000bc7 e4aa
+000bc8 e0d0
+000bc9 efc0
+000bca 2700
+000bcb dd39
+000bcc 910f
+000bcd 91cf
+000bce 91df
+000bcf 91af
+000bd0 91bf       str_cpy Off_str, mc_value
+000bd1 8318       st Y, temp
+                 
+                  GSM_set_memory_return:
+000bd2 e0d3       ldi YH, high(GSM_Status)
+000bd3 e4c7       ldi YL, low(GSM_Status)
+000bd4 8118       ld temp, Y
+000bd5 6016       ori temp, 6
+000bd6 8318       st Y, temp
+000bd7 c005       rjmp GSM_send_SMS_command
+                 
+                  GSM_set_memory_error:
+000bd8 e0d3       ldi YH, high(GSM_Status)
+000bd9 e4c7       ldi YL, low(GSM_Status)
+000bda 8118       ld temp, Y
+000bdb 6210       ori temp, 0b0010_0000
+000bdc 8318       st Y, temp
+                 
+                  GSM_search_unsupported_set_parameter:
+                  
+                  /* SMS send command */
+                  GSM_send_SMS_command:
+000bdd 93df
+000bde 93cf
+000bdf 931f
+000be0 930f
+000be1 e0d3
+000be2 e4c4
+000be3 2711
+000be4 8318
+000be5 e0d1
+000be6 e4c2
+000be7 ef1f
+000be8 2700
+000be9 9309
+000bea 951a
+000beb f7e9
+000bec 910f
+000bed 911f
+000bee 91cf
+000bef 91df       UART_clear_TX_buffer	//Clear TX buffer
+                 
+000bf0 93bf
+000bf1 93af
+000bf2 93df
+000bf3 93cf
+000bf4 930f
+000bf5 e0b1
+000bf6 e4a2
+000bf7 e0d3
+000bf8 e6c4
+000bf9 2700
+000bfa dce9
+000bfb 910f
+000bfc 91cf
+000bfd 91df
+000bfe 91af
+000bff 91bf       str_concat UART_TX_buffer, GSM_write
+000c00 93bf
+000c01 93af
+000c02 93df
+000c03 93cf
+000c04 930f
+000c05 e0b1
+000c06 e4a2
+000c07 e0d4
+000c08 eccb
+000c09 2700
+000c0a dcd9
+000c0b 910f
+000c0c 91cf
+000c0d 91df
+000c0e 91af
+000c0f 91bf       str_concat UART_TX_buffer, GSM_phone_number	//prepare TX buffer
+000c10 93bf
+000c11 93af
+000c12 93df
+000c13 93cf
+000c14 930f
+000c15 e0b1
+000c16 e4a2
+000c17 e0d3
+000c18 e6cf
+000c19 2700
+000c1a dcc9
+000c1b 910f
+000c1c 91cf
+000c1d 91df
+000c1e 91af
+000c1f 91bf       str_concat UART_TX_buffer, GSM_enter
+                 
+000c20 93df
+000c21 93cf
+000c22 930f
+000c23 931f
+000c24 e0d3
+000c25 e4c6
+000c26 8118
+000c27 6011
+000c28 8318
+000c29 e0d3
+000c2a e4c4
+000c2b e011
+000c2c 8318
+000c2d e0d1
+000c2e e4c2
+000c2f 8108
+000c30 b11a
+000c31 6610
+000c32 b90c
+000c33 b91a
+000c34 911f
+000c35 910f
+000c36 91cf
+000c37 91df       UART_start_transmit
+000c38 93df
+000c39 93cf
+000c3a 931f
+000c3b e0d3
+000c3c e4c6
+000c3d 8118
+000c3e 6011
+000c3f 8318
+000c40 b11a
+000c41 6810
+000c42 b91a
+000c43 911f
+000c44 91cf
+000c45 91df       UART_start_receive
+                 
+000c46 939f
+000c47 938f
+000c48 937f
+000c49 ef9f
+000c4a ef8f
+000c4b ef7f
+000c4c 940e 0029
+000c4e 917f
+000c4f 918f
+000c50 919f       delay 255,255,255
+000c51 939f
+000c52 938f
+000c53 937f
+000c54 ef9f
+000c55 ef8f
+000c56 ef7f
+000c57 940e 0029
+000c59 917f
+000c5a 918f
+000c5b 919f       delay 255,255,255
+000c5c 939f
+000c5d 938f
+000c5e 937f
+000c5f ef9f
+000c60 ef8f
+000c61 ef7f
+000c62 940e 0029
+000c64 917f
+000c65 918f
+000c66 919f       delay 255,255,255
+000c67 939f
+000c68 938f
+000c69 937f
+000c6a ef9f
+000c6b ef8f
+000c6c ef7f
+000c6d 940e 0029
+000c6f 917f
+000c70 918f
+000c71 919f       delay 255,255,255		//long delay
+000c72 939f
+000c73 938f
+000c74 937f
+000c75 ef9f
+000c76 ef8f
+000c77 ef7f
+000c78 940e 0029
+000c7a 917f
+000c7b 918f
+000c7c 919f       delay 255,255,255		//about 15 sec on 16MHz or 30sec on 8MHz
+000c7d 93df
+000c7e 93cf
+000c7f 931f
+000c80 b11a
+000c81 771f
+000c82 b91a
+000c83 e0d3
+000c84 e4c6
+000c85 8118
+000c86 7f1e
+000c87 8318
+000c88 911f
+000c89 91cf
+000c8a 91df       UART_stop_receive
+                 
+000c8b 93bf
+000c8c 93af
+000c8d 93df
+000c8e 93cf
+000c8f e0b2
+000c90 e4a3
+000c91 e0d3
+000c92 e6cd
+000c93 dc0b
+000c94 91cf
+000c95 91df
+000c96 91af
+000c97 91bf       str_search UART_RX_buffer, GSM_write_msg
+000c98 3010       cpi temp, 0
+000c99 f409       brne PC+2
+000c9a cf42       rjmp GSM_send_SMS_command
+                 
+                  /* write answer message */
+000c9b 93df
+000c9c 93cf
+000c9d 931f
+000c9e 930f
+000c9f e0d3
+000ca0 e4c4
+000ca1 2711
+000ca2 8318
+000ca3 e0d1
+000ca4 e4c2
+000ca5 ef1f
+000ca6 2700
+000ca7 9309
+000ca8 951a
+000ca9 f7e9
+000caa 910f
+000cab 911f
+000cac 91cf
+000cad 91df       UART_clear_TX_buffer	//Clear TX buffer
+                 
+000cae e0b3       ldi XH, high(GSM_Status)
+000caf e4a7       ldi XL, low(GSM_Status)
+000cb0 911c       ld temp, X
+                 
+000cb1 ff13       sbrs temp, 3	//check G/S bit
+000cb2 c013       rjmp GSM_answer_set	//go to GSM_answer_set if G/S bit is 0
+                 
+                  //if G/S is 1 (get)
+000cb3 7017       andi temp, 0b0000_0111
+000cb4 3011       cpi temp, 1
+000cb5 f0c9       breq GSM_answer_AllInfo
+000cb6 3012       cpi temp, 2
+000cb7 f409       brne PC+2
+000cb8 c187       rjmp GSM_answer_time
+000cb9 3013       cpi temp, 3
+000cba f409       brne PC+2
+000cbb c1b5       rjmp GSM_answer_temp
+000cbc 3014       cpi temp, 4
+000cbd f409       brne PC+2
+000cbe c1e3       rjmp GSM_answer_pressure
+000cbf 3015       cpi temp, 5
+000cc0 f409       brne PC+2
+000cc1 c211       rjmp GSM_answer_sound
+000cc2 3016       cpi temp, 6
+000cc3 f409       brne PC+2
+000cc4 c23f       rjmp GSM_answer_memory
+000cc5 c26f       rjmp GSM_answer_invalid_get
+                 
+                  GSM_answer_set:
+                  //if G/S is 0 (set)
+                 
+000cc6 fd15       sbrc temp, 5	//check for CE(code error) flags
+000cc7 c27e       rjmp GSM_answer_invalid_time	
+000cc8 fd16       sbrc temp, 6
+000cc9 c28d       rjmp GSM_answer_invalid_OnOff
+                 
+000cca 7017       andi temp, 0b0000_0111
+000ccb 3010       cpi temp, 0	//check for correct set
+000ccc f409       brne PC+2
+000ccd c29a       rjmp GSM_answer_invalid_set
+000cce c2aa       rjmp GSM_answer_OK	//else: go to OK
+                 
+                  GSM_answer_AllInfo:
+000ccf 93bf
+000cd0 93af
+000cd1 93df
+000cd2 93cf
+000cd3 930f
+000cd4 e0b1
+000cd5 e4a2
+000cd6 e0d0
+000cd7 e6c0
+000cd8 e002
+000cd9 dc0a
+000cda 910f
+000cdb 91cf
+000cdc 91df
+000cdd 91af
+000cde 91bf       str_concat_ex UART_TX_buffer, pressure_msg, 2
+000cdf 93bf
+000ce0 93af
+000ce1 93df
+000ce2 93cf
+000ce3 930f
+000ce4 e0b1
+000ce5 e4a2
+000ce6 e0d3
+000ce7 e6cf
+000ce8 2700
+000ce9 dbfa
+000cea 910f
+000ceb 91cf
+000cec 91df
+000ced 91af
+000cee 91bf       str_concat UART_TX_buffer, GSM_enter
+000cef 93bf
+000cf0 93af
+000cf1 93df
+000cf2 93cf
+000cf3 930f
+000cf4 e0b1
+000cf5 e4a2
+000cf6 e0d0
+000cf7 ecc0
+000cf8 e001
+000cf9 dbea
+000cfa 910f
+000cfb 91cf
+000cfc 91df
+000cfd 91af
+000cfe 91bf       str_concat_ex UART_TX_buffer, pressure_value, 1
+000cff 93bf
+000d00 93af
+000d01 93df
+000d02 93cf
+000d03 930f
+000d04 e0b1
+000d05 e4a2
+000d06 e0d3
+000d07 e6cf
+000d08 2700
+000d09 dbda
+000d0a 910f
+000d0b 91cf
+000d0c 91df
+000d0d 91af
+000d0e 91bf       str_concat UART_TX_buffer, GSM_enter
+000d0f 93bf
+000d10 93af
+000d11 93df
+000d12 93cf
+000d13 930f
+000d14 e0b1
+000d15 e4a2
+000d16 e0d0
+000d17 e7c0
+000d18 2700
+000d19 dbca
+000d1a 910f
+000d1b 91cf
+000d1c 91df
+000d1d 91af
+000d1e 91bf       str_concat UART_TX_buffer, temperature_msg
+000d1f 93bf
+000d20 93af
+000d21 93df
+000d22 93cf
+000d23 930f
+000d24 e0b1
+000d25 e4a2
+000d26 e0d3
+000d27 e6cf
+000d28 2700
+000d29 dbba
+000d2a 910f
+000d2b 91cf
+000d2c 91df
+000d2d 91af
+000d2e 91bf       str_concat UART_TX_buffer, GSM_enter
+000d2f 93bf
+000d30 93af
+000d31 93df
+000d32 93cf
+000d33 930f
+000d34 e0b1
+000d35 e4a2
+000d36 e0d0
+000d37 edc0
+000d38 e001
+000d39 dbaa
+000d3a 910f
+000d3b 91cf
+000d3c 91df
+000d3d 91af
+000d3e 91bf       str_concat_ex UART_TX_buffer, temperature_value, 1
+000d3f 93bf
+000d40 93af
+000d41 93df
+000d42 93cf
+000d43 930f
+000d44 e0b1
+000d45 e4a2
+000d46 e0d3
+000d47 e6cf
+000d48 2700
+000d49 db9a
+000d4a 910f
+000d4b 91cf
+000d4c 91df
+000d4d 91af
+000d4e 91bf       str_concat UART_TX_buffer, GSM_enter
+000d4f 93bf
+000d50 93af
+000d51 93df
+000d52 93cf
+000d53 930f
+000d54 e0b1
+000d55 e4a2
+000d56 e0d0
+000d57 e8c0
+000d58 2700
+000d59 db8a
+000d5a 910f
+000d5b 91cf
+000d5c 91df
+000d5d 91af
+000d5e 91bf       str_concat UART_TX_buffer, time_msg
+000d5f 93bf
+000d60 93af
+000d61 93df
+000d62 93cf
+000d63 930f
+000d64 e0b1
+000d65 e4a2
+000d66 e0d3
+000d67 e6cf
+000d68 2700
+000d69 db7a
+000d6a 910f
+000d6b 91cf
+000d6c 91df
+000d6d 91af
+000d6e 91bf       str_concat UART_TX_buffer, GSM_enter
+000d6f 93bf
+000d70 93af
+000d71 93df
+000d72 93cf
+000d73 930f
+000d74 e0b1
+000d75 e4a2
+000d76 e0d0
+000d77 eec0
+000d78 e001
+000d79 db6a
+000d7a 910f
+000d7b 91cf
+000d7c 91df
+000d7d 91af
+000d7e 91bf       str_concat_ex UART_TX_buffer, time_value, 1
+000d7f 93bf
+000d80 93af
+000d81 93df
+000d82 93cf
+000d83 930f
+000d84 e0b1
+000d85 e4a2
+000d86 e0d3
+000d87 e6cf
+000d88 2700
+000d89 db5a
+000d8a 910f
+000d8b 91cf
+000d8c 91df
+000d8d 91af
+000d8e 91bf       str_concat UART_TX_buffer, GSM_enter
+000d8f 93bf
+000d90 93af
+000d91 93df
+000d92 93cf
+000d93 930f
+000d94 e0b1
+000d95 e4a2
+000d96 e0d0
+000d97 e9c0
+000d98 2700
+000d99 db4a
+000d9a 910f
+000d9b 91cf
+000d9c 91df
+000d9d 91af
+000d9e 91bf       str_concat UART_TX_buffer, mc_msg
+000d9f 93bf
+000da0 93af
+000da1 93df
+000da2 93cf
+000da3 930f
+000da4 e0b1
+000da5 e4a2
+000da6 e0d3
+000da7 e6cf
+000da8 2700
+000da9 db3a
+000daa 910f
+000dab 91cf
+000dac 91df
+000dad 91af
+000dae 91bf       str_concat UART_TX_buffer, GSM_enter
+000daf 93bf
+000db0 93af
+000db1 93df
+000db2 93cf
+000db3 930f
+000db4 e0b1
+000db5 e4a2
+000db6 e0d0
+000db7 efc0
+000db8 e001
+000db9 db2a
+000dba 910f
+000dbb 91cf
+000dbc 91df
+000dbd 91af
+000dbe 91bf       str_concat_ex UART_TX_buffer, mc_value, 1
+000dbf 93bf
+000dc0 93af
+000dc1 93df
+000dc2 93cf
+000dc3 930f
+000dc4 e0b1
+000dc5 e4a2
+000dc6 e0d3
+000dc7 e6cf
+000dc8 2700
+000dc9 db1a
+000dca 910f
+000dcb 91cf
+000dcc 91df
+000dcd 91af
+000dce 91bf       str_concat UART_TX_buffer, GSM_enter
+000dcf 93bf
+000dd0 93af
+000dd1 93df
+000dd2 93cf
+000dd3 930f
+000dd4 e0b1
+000dd5 e4a2
+000dd6 e0d0
+000dd7 eac0
+000dd8 2700
+000dd9 db0a
+000dda 910f
+000ddb 91cf
+000ddc 91df
+000ddd 91af
+000dde 91bf       str_concat UART_TX_buffer, sms_msg
+000ddf 93bf
+000de0 93af
+000de1 93df
+000de2 93cf
+000de3 930f
+000de4 e0b1
+000de5 e4a2
+000de6 e0d3
+000de7 e6cf
+000de8 2700
+000de9 dafa
+000dea 910f
+000deb 91cf
+000dec 91df
+000ded 91af
+000dee 91bf       str_concat UART_TX_buffer, GSM_enter
+000def 93bf
+000df0 93af
+000df1 93df
+000df2 93cf
+000df3 930f
+000df4 e0b1
+000df5 e4a2
+000df6 e0d1
+000df7 e0c0
+000df8 e001
+000df9 daea
+000dfa 910f
+000dfb 91cf
+000dfc 91df
+000dfd 91af
+000dfe 91bf       str_concat_ex UART_TX_buffer, sms_value, 1
+000dff 93bf
+000e00 93af
+000e01 93df
+000e02 93cf
+000e03 930f
+000e04 e0b1
+000e05 e4a2
+000e06 e0d3
+000e07 e6cf
+000e08 2700
+000e09 dada
+000e0a 910f
+000e0b 91cf
+000e0c 91df
+000e0d 91af
+000e0e 91bf       str_concat UART_TX_buffer, GSM_enter
+000e0f 93bf
+000e10 93af
+000e11 93df
+000e12 93cf
+000e13 930f
+000e14 e0b1
+000e15 e4a2
+000e16 e0d0
+000e17 ebc0
+000e18 2700
+000e19 daca
+000e1a 910f
+000e1b 91cf
+000e1c 91df
+000e1d 91af
+000e1e 91bf       str_concat UART_TX_buffer, sound_msg
+000e1f 93bf
+000e20 93af
+000e21 93df
+000e22 93cf
+000e23 930f
+000e24 e0b1
+000e25 e4a2
+000e26 e0d3
+000e27 e6cf
+000e28 2700
+000e29 daba
+000e2a 910f
+000e2b 91cf
+000e2c 91df
+000e2d 91af
+000e2e 91bf       str_concat UART_TX_buffer, GSM_enter
+000e2f 93bf
+000e30 93af
+000e31 93df
+000e32 93cf
+000e33 930f
+000e34 e0b1
+000e35 e4a2
+000e36 e0d1
+000e37 e1c0
+000e38 e002
+000e39 daaa
+000e3a 910f
+000e3b 91cf
+000e3c 91df
+000e3d 91af
+000e3e 91bf       str_concat_ex UART_TX_buffer, sound_value, 2
+000e3f c14a       rjmp GSM_answer_continue
+                 
+                  GSM_answer_time:
+000e40 93bf
+000e41 93af
+000e42 93df
+000e43 93cf
+000e44 930f
+000e45 e0b1
+000e46 e4a2
+000e47 e0d0
+000e48 e8c0
+000e49 2700
+000e4a da99
+000e4b 910f
+000e4c 91cf
+000e4d 91df
+000e4e 91af
+000e4f 91bf       str_concat UART_TX_buffer, time_msg
+000e50 93bf
+000e51 93af
+000e52 93df
+000e53 93cf
+000e54 930f
+000e55 e0b1
+000e56 e4a2
+000e57 e0d3
+000e58 e6cf
+000e59 2700
+000e5a da89
+000e5b 910f
+000e5c 91cf
+000e5d 91df
+000e5e 91af
+000e5f 91bf       str_concat UART_TX_buffer, GSM_enter
+000e60 93bf
+000e61 93af
+000e62 93df
+000e63 93cf
+000e64 930f
+000e65 e0b1
+000e66 e4a2
+000e67 e0d0
+000e68 eec0
+000e69 e001
+000e6a da79
+000e6b 910f
+000e6c 91cf
+000e6d 91df
+000e6e 91af
+000e6f 91bf       str_concat_ex UART_TX_buffer, time_value, 1
+000e70 c119       rjmp GSM_answer_continue
+                  
+                  GSM_answer_temp:
+000e71 93bf
+000e72 93af
+000e73 93df
+000e74 93cf
+000e75 930f
+000e76 e0b1
+000e77 e4a2
+000e78 e0d0
+000e79 e7c0
+000e7a 2700
+000e7b da68
+000e7c 910f
+000e7d 91cf
+000e7e 91df
+000e7f 91af
+000e80 91bf       str_concat UART_TX_buffer, temperature_msg
+000e81 93bf
+000e82 93af
+000e83 93df
+000e84 93cf
+000e85 930f
+000e86 e0b1
+000e87 e4a2
+000e88 e0d3
+000e89 e6cf
+000e8a 2700
+000e8b da58
+000e8c 910f
+000e8d 91cf
+000e8e 91df
+000e8f 91af
+000e90 91bf       str_concat UART_TX_buffer, GSM_enter
+000e91 93bf
+000e92 93af
+000e93 93df
+000e94 93cf
+000e95 930f
+000e96 e0b1
+000e97 e4a2
+000e98 e0d0
+000e99 edc0
+000e9a e001
+000e9b da48
+000e9c 910f
+000e9d 91cf
+000e9e 91df
+000e9f 91af
+000ea0 91bf       str_concat_ex UART_TX_buffer, temperature_value, 1
+000ea1 c0e8       rjmp GSM_answer_continue
+                 
+                  GSM_answer_pressure:
+000ea2 93bf
+000ea3 93af
+000ea4 93df
+000ea5 93cf
+000ea6 930f
+000ea7 e0b1
+000ea8 e4a2
+000ea9 e0d0
+000eaa e6c0
+000eab e002
+000eac da37
+000ead 910f
+000eae 91cf
+000eaf 91df
+000eb0 91af
+000eb1 91bf       str_concat_ex UART_TX_buffer, pressure_msg, 2
+000eb2 93bf
+000eb3 93af
+000eb4 93df
+000eb5 93cf
+000eb6 930f
+000eb7 e0b1
+000eb8 e4a2
+000eb9 e0d3
+000eba e6cf
+000ebb 2700
+000ebc da27
+000ebd 910f
+000ebe 91cf
+000ebf 91df
+000ec0 91af
+000ec1 91bf       str_concat UART_TX_buffer, GSM_enter
+000ec2 93bf
+000ec3 93af
+000ec4 93df
+000ec5 93cf
+000ec6 930f
+000ec7 e0b1
+000ec8 e4a2
+000ec9 e0d0
+000eca ecc0
+000ecb e001
+000ecc da17
+000ecd 910f
+000ece 91cf
+000ecf 91df
+000ed0 91af
+000ed1 91bf       str_concat_ex UART_TX_buffer, pressure_value, 1
+000ed2 c0b7       rjmp GSM_answer_continue
+                 
+                  GSM_answer_sound:
+000ed3 93bf
+000ed4 93af
+000ed5 93df
+000ed6 93cf
+000ed7 930f
+000ed8 e0b1
+000ed9 e4a2
+000eda e0d0
+000edb ebc0
+000edc 2700
+000edd da06
+000ede 910f
+000edf 91cf
+000ee0 91df
+000ee1 91af
+000ee2 91bf       str_concat UART_TX_buffer, sound_msg
+000ee3 93bf
+000ee4 93af
+000ee5 93df
+000ee6 93cf
+000ee7 930f
+000ee8 e0b1
+000ee9 e4a2
+000eea e0d3
+000eeb e6cf
+000eec 2700
+000eed d9f6
+000eee 910f
+000eef 91cf
+000ef0 91df
+000ef1 91af
+000ef2 91bf       str_concat UART_TX_buffer, GSM_enter
+000ef3 93bf
+000ef4 93af
+000ef5 93df
+000ef6 93cf
+000ef7 930f
+000ef8 e0b1
+000ef9 e4a2
+000efa e0d1
+000efb e1c0
+000efc e002
+000efd d9e6
+000efe 910f
+000eff 91cf
+000f00 91df
+000f01 91af
+000f02 91bf       str_concat_ex UART_TX_buffer, sound_value, 2
+000f03 c086       rjmp GSM_answer_continue
+                 
+                  GSM_answer_memory:
+000f04 93bf
+000f05 93af
+000f06 93df
+000f07 93cf
+000f08 930f
+000f09 e0b1
+000f0a e4a2
+000f0b e0d0
+000f0c e9c0
+000f0d 2700
+000f0e d9d5
+000f0f 910f
+000f10 91cf
+000f11 91df
+000f12 91af
+000f13 91bf       str_concat UART_TX_buffer, mc_msg
+000f14 93bf
+000f15 93af
+000f16 93df
+000f17 93cf
+000f18 930f
+000f19 e0b1
+000f1a e4a2
+000f1b e0d3
+000f1c e6cf
+000f1d 2700
+000f1e d9c5
+000f1f 910f
+000f20 91cf
+000f21 91df
+000f22 91af
+000f23 91bf       str_concat UART_TX_buffer, GSM_enter
+000f24 93bf
+000f25 93af
+000f26 93df
+000f27 93cf
+000f28 930f
+000f29 e0b1
+000f2a e4a2
+000f2b e0d0
+000f2c efc0
+000f2d e001
+000f2e d9b5
+000f2f 910f
+000f30 91cf
+000f31 91df
+000f32 91af
+000f33 91bf       str_concat_ex UART_TX_buffer, mc_value, 1
+000f34 c055       rjmp GSM_answer_continue
+                 
+                  GSM_answer_invalid_get:
+000f35 93bf
+000f36 93af
+000f37 93df
+000f38 93cf
+000f39 930f
+000f3a e0b1
+000f3b e4a2
+000f3c e0d3
+000f3d ebc1
+000f3e 2700
+000f3f d9a4
+000f40 910f
+000f41 91cf
+000f42 91df
+000f43 91af
+000f44 91bf       str_concat UART_TX_buffer, GSM_invalid_get
+000f45 c044       rjmp GSM_answer_continue
+                 
+                  GSM_answer_invalid_time:
+000f46 93bf
+000f47 93af
+000f48 93df
+000f49 93cf
+000f4a 930f
+000f4b e0b1
+000f4c e4a2
+000f4d e0d4
+000f4e e4ce
+000f4f 2700
+000f50 d993
+000f51 910f
+000f52 91cf
+000f53 91df
+000f54 91af
+000f55 91bf       str_concat UART_TX_buffer, GSM_invalid_time_msg
+000f56 c033       rjmp GSM_answer_continue
+                 
+                  GSM_answer_invalid_OnOff:
+000f57 93bf
+000f58 93af
+000f59 93df
+000f5a 93cf
+000f5b 930f
+000f5c e0b1
+000f5d e4a2
+000f5e e0d4
+000f5f e8c3
+000f60 2700
+000f61 d982
+000f62 910f
+000f63 91cf
+000f64 91df
+000f65 91af
+000f66 91bf       str_concat UART_TX_buffer, GSM_invalid_OnOff
+000f67 c022       rjmp GSM_answer_continue
+                 
+                  GSM_answer_invalid_set:
+000f68 93bf
+000f69 93af
+000f6a 93df
+000f6b 93cf
+000f6c 930f
+000f6d e0b1
+000f6e e4a2
+000f6f e0d4
+000f70 e0c5
+000f71 2700
+000f72 d971
+000f73 910f
+000f74 91cf
+000f75 91df
+000f76 91af
+000f77 91bf       str_concat UART_TX_buffer, GSM_invalid_set
+000f78 c011       rjmp GSM_answer_continue
+                 
+                  GSM_answer_OK:
+000f79 93bf
+000f7a 93af
+000f7b 93df
+000f7c 93cf
+000f7d 930f
+000f7e e0b1
+000f7f e4a2
+000f80 e0d3
+000f81 e6c1
+000f82 2700
+000f83 d960
+000f84 910f
+000f85 91cf
+000f86 91df
+000f87 91af
+000f88 91bf       str_concat UART_TX_buffer, GSM_result
+000f89 c000       rjmp GSM_answer_continue
+                 
+                  GSM_answer_continue:
+000f8a 93bf
+000f8b 93af
+000f8c 93df
+000f8d 93cf
+000f8e 930f
+000f8f e0b1
+000f90 e4a2
+000f91 e0d3
+000f92 e7c1
+000f93 2700
+000f94 d94f
+000f95 910f
+000f96 91cf
+000f97 91df
+000f98 91af
+000f99 91bf       str_concat UART_TX_buffer, GSM_end_msg
+000f9a 93df
+000f9b 93cf
+000f9c 930f
+000f9d 931f
+000f9e e0d3
+000f9f e4c6
+000fa0 8118
+000fa1 6011
+000fa2 8318
+000fa3 e0d3
+000fa4 e4c4
+000fa5 e011
+000fa6 8318
+000fa7 e0d1
+000fa8 e4c2
+000fa9 8108
+000faa b11a
+000fab 6610
+000fac b90c
+000fad b91a
+000fae 911f
+000faf 910f
+000fb0 91cf
+000fb1 91df       UART_start_transmit
+000fb2 93df
+000fb3 93cf
+000fb4 931f
+000fb5 e0d3
+000fb6 e4c6
+000fb7 8118
+000fb8 6011
+000fb9 8318
+000fba b11a
+000fbb 6810
+000fbc b91a
+000fbd 911f
+000fbe 91cf
+000fbf 91df       UART_start_receive
+                 
+                  /* wait for operation result */
+000fc0 939f
+000fc1 938f
+000fc2 937f
+000fc3 ef9f
+000fc4 ef8f
+000fc5 ef7f
+000fc6 940e 0029
+000fc8 917f
+000fc9 918f
+000fca 919f       delay 255,255,255
+000fcb 939f
+000fcc 938f
+000fcd 937f
+000fce ef9f
+000fcf ef8f
+000fd0 ef7f
+000fd1 940e 0029
+000fd3 917f
+000fd4 918f
+000fd5 919f       delay 255,255,255
+000fd6 939f
+000fd7 938f
+000fd8 937f
+000fd9 ef9f
+000fda ef8f
+000fdb ef7f
+000fdc 940e 0029
+000fde 917f
+000fdf 918f
+000fe0 919f       delay 255,255,255
+000fe1 939f
+000fe2 938f
+000fe3 937f
+000fe4 ef9f
+000fe5 ef8f
+000fe6 ef7f
+000fe7 940e 0029
+000fe9 917f
+000fea 918f
+000feb 919f       delay 255,255,255		//long delay
+000fec 939f
+000fed 938f
+000fee 937f
+000fef ef9f
+000ff0 ef8f
+000ff1 ef7f
+000ff2 940e 0029
+000ff4 917f
+000ff5 918f
+000ff6 919f       delay 255,255,255		//about 15 sec on 16MHz or 30sec on 8MHz
+000ff7 93df
+000ff8 93cf
+000ff9 931f
+000ffa b11a
+000ffb 771f
+000ffc b91a
+000ffd e0d3
+000ffe e4c6
+000fff 8118
+001000 7f1e
+001001 8318
+001002 911f
+001003 91cf
+001004 91df       UART_stop_receive
+                 
+001005 93bf
+001006 93af
+001007 93df
+001008 93cf
+001009 e0b2
+00100a e4a3
+00100b e0d3
+00100c e6c1
+00100d d891
+00100e 91cf
+00100f 91df
+001010 91af
+001011 91bf       str_search UART_RX_buffer, GSM_result
+001012 3010       cpi temp, 0
+001013 f409       brne PC+2
+001014 cbc8       rjmp GSM_send_SMS_command
+                  /* return */
+                  GSM_return:
+001015 9508       ret
+                  //.endm
+                 
+                  //------- store strings to SRAM ----------------
+                  //.macro GSM_init_strings
+                  GSM_init_strings:
+001016 93df       push YH
+001017 93cf       push YL
+001018 93ff       push ZH
+001019 93ef       push ZL
+00101a 93bf       push XH
+00101b 93af       push XL
+00101c 930f       push byte
+                 
+00101d e0d3       ldi YH, high(GSM_new_msg)	//Y is SRAM adress
+00101e e4c8       ldi YL, low(GSM_new_msg)
+                 
+00101f e0f0       ldi ZH, high(ee_gsm_new_SMS)	//Z is EEPROM adress
+001020 ece0       ldi ZL, low(ee_gsm_new_SMS)
+                 
+001021 e0b1       ldi XH,1
+001022 e8a0       ldi XL,0x80			
+                 
+                  gsm_EE_read_loop:
+001023 940e 0055  call EEPROM_read_byte		//read byte from EEPROM
+001025 9309       st Y+,byte					//Store byte to SRAM and post-Inc adress
+001026 9631       adiw ZH:ZL, 1				//increment Z register after reading byte
+                 
+001027 9711       sbiw XH:XL, 1			//loop things...
+001028 f7d1       brne gsm_EE_read_loop		//go to EE_read_loop label if r19 is not 0
+                 
+001029 910f       pop byte
+00102a 91af       pop XL
+00102b 91bf       pop XH
+00102c 91ef       pop ZL
+00102d 91ff       pop ZH
+00102e 91cf       pop YL
+00102f 91df       pop YH
+                  //.endm
+001030 9508       ret
+                  //----------------------------------------------
+                  //======= PROCEDURES ===========================
+                 
+                  //------- time validate ----------------
+                  GSM_time_validate:
+001031 93df       push YH
+001032 93cf       push YL
+001033 930f       push byte
+                 
+001034 2711       clr temp
+                 
+001035 9109       ld byte, Y+
+001036 3300       cpi byte, '0'
+001037 f1e0       brlo GSM_time_validate_return_false
+001038 3303       cpi byte, '3'
+001039 f5d0       brsh GSM_time_validate_return_false
+                 
+00103a 9109       ld byte, Y+
+00103b 3300       cpi byte, '0'
+00103c f1b8       brlo GSM_time_validate_return_false
+00103d 330a       cpi byte, ':'
+00103e f5a8       brsh GSM_time_validate_return_false
+                 
+00103f 9109       ld byte, Y+
+001040 330a       cpi byte, ':'
+001041 f591       brne GSM_time_validate_return_false
+                 
+001042 9109       ld byte, Y+
+001043 3300       cpi byte, '0'
+001044 f178       brlo GSM_time_validate_return_false
+001045 3307       cpi byte, '7'
+001046 f568       brsh GSM_time_validate_return_false
+                 
+001047 9109       ld byte, Y+
+001048 3300       cpi byte, '0'
+001049 f150       brlo GSM_time_validate_return_false
+00104a 330a       cpi byte, ':'
+00104b f540       brsh GSM_time_validate_return_false
+                 
+00104c 9109       ld byte, Y+
+00104d 3200       cpi byte, ' '
+00104e f529       brne GSM_time_validate_return_false
+                 
+00104f 9109       ld byte, Y+
+001050 3300       cpi byte, '0'
+001051 f110       brlo GSM_time_validate_return_false
+001052 3304       cpi byte, '4'
+001053 f500       brsh GSM_time_validate_return_false
+                 
+001054 9109       ld byte, Y+
+001055 3300       cpi byte, '0'
+001056 f0e8       brlo GSM_time_validate_return_false
+001057 330a       cpi byte, ':'
+001058 f4d8       brsh GSM_time_validate_return_false
+                 
+001059 9109       ld byte, Y+
+00105a 320f       cpi byte, '/'
+00105b f4c1       brne GSM_time_validate_return_false
+                 
+00105c 9109       ld byte, Y+
+00105d 3300       cpi byte, '0'
+00105e f0a8       brlo GSM_time_validate_return_false
+00105f 3302       cpi byte, '2'
+001060 f498       brsh GSM_time_validate_return_false
+                 
+001061 9109       ld byte, Y+
+001062 3300       cpi byte, '0'
+001063 f080       brlo GSM_time_validate_return_false
+001064 330a       cpi byte, ':'
+001065 f470       brsh GSM_time_validate_return_false
+                 
+001066 9109       ld byte, Y+
+001067 320f       cpi byte, '/'
+001068 f459       brne GSM_time_validate_return_false
+                 
+001069 9109       ld byte, Y+
+00106a 3300       cpi byte, '0'
+00106b f040       brlo GSM_time_validate_return_false
+00106c 330a       cpi byte, ':'
+00106d f430       brsh GSM_time_validate_return_false
+                 
+00106e 8108       ld byte, Y
+00106f 3300       cpi byte, '0'
+001070 f018       brlo GSM_time_validate_return_false
+001071 330a       cpi byte, ':'
+001072 f408       brsh GSM_time_validate_return_false
+                 
+                  GSM_time_validate_return_true:
+001073 e011       ldi temp, 1
+                  GSM_time_validate_return_false:
+001074 910f       pop byte
+001075 91cf       pop YL
+001076 91df       pop YH
+001077 9508       ret
+                 //-----------------------------------------------
+                 
+                 //------- On/Off validate -----------------------
+                 GSM_OnOff_Validate:
+001078 93df      push YH
+001079 93cf      push YL
+00107a 930f      push byte
+                 
+00107b 2711      clr temp
+                 
+00107c 9109      ld byte, Y+
+00107d 340f      cpi byte, 'O'
+00107e f449      brne GSM_OnOff_Validate_return_false
+                 
+00107f 9109      ld byte, Y+
+001080 340e      cpi byte, 'N'
+001081 f029      breq GSM_OnOff_Validate_return_true
+                 
+001082 3406      cpi byte, 'F'
+001083 f421      brne GSM_OnOff_Validate_return_false
+                 
+001084 8108      ld byte, Y
+001085 3406      cpi byte, 'F'
+001086 f409      brne GSM_OnOff_Validate_return_false
+                 
+                 GSM_OnOff_Validate_return_true:
+001087 e011      ldi temp, 1
+                 GSM_OnOff_Validate_return_false:
+001088 910f      pop byte
+001089 91cf      pop YL
+00108a 91df      pop YH
+00108b 9508      ret
+                 //-----------------------------------------------
                  
                  reset:
                  .include "core_init.inc"	//clear sram, registers and stack init
@@ -4489,820 +7499,842 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
                  
                  //================SRAM CLEAR=================================
                  RAM_Flush:	
-000883 e6e0      LDI	ZL,Low(SRAM_START)
-000884 e0f0      LDI	ZH,High(SRAM_START)
-000885 2700      CLR	R16
+00108c e6e0      LDI	ZL,Low(SRAM_START)
+00108d e0f0      LDI	ZH,High(SRAM_START)
+00108e 2700      CLR	R16
                  Flush:
-000886 9301      ST Z+,R16
-000887 30f8      CPI	ZH,High(RAMEND+1)
-000888 f7e9      BRNE Flush
-000889 36e0      CPI	ZL,Low(RAMEND+1)	
-00088a f7d9      BRNE Flush 
-00088b 27ee      CLR	ZL
-00088c 27ff      CLR	ZH
+00108f 9301      ST Z+,R16
+001090 30f8      CPI	ZH,High(RAMEND+1)
+001091 f7e9      BRNE Flush
+001092 36e0      CPI	ZL,Low(RAMEND+1)	
+001093 f7d9      BRNE Flush 
+001094 27ee      CLR	ZL
+001095 27ff      CLR	ZH
                  //===============REGISTERS CLEAR=============================
-00088d e1ee      LDI	ZL, 30			
-00088e 27ff      CLR	ZH		
-00088f 95ea      DEC	ZL		
-000890 83f0      ST Z,ZH		
-000891 f7e9      BRNE PC-2		
+001096 e1ee      LDI	ZL, 30			
+001097 27ff      CLR	ZH		
+001098 95ea      DEC	ZL		
+001099 83f0      ST Z,ZH		
+00109a f7e9      BRNE PC-2		
                  //===============STACK INIT==================================
-000892 e50f      LDI R16,Low(RAMEND)		
-000893 bf0d      OUT SPL,R16			
-000894 e008      LDI R16,High(RAMEND)
-000895 bf0e      OUT SPH,R16
+00109b e50f      LDI R16,Low(RAMEND)		
+00109c bf0d      OUT SPL,R16			
+00109d e008      LDI R16,High(RAMEND)
+00109e bf0e      OUT SPH,R16
                  //-----------Program start-------------------------
                  
-000896 94f8
-000897 e110
-000898 bf19
-000899 2711
-00089a bd1f
-00089b e014
-00089c bd1e
-00089d e00c
-00089e e315
-00089f bd0b
-0008a0 bd1a
-0008a1 e70a
-0008a2 e112
-0008a3 bd09
-0008a4 bd18
-0008a5 2711
-0008a6 bd1d
-0008a7 bd1c
-0008a8 9478      Timer1_Init
-0008a9 b317
-0008aa 7f18
-0008ab bb17
-0008ac b318
-0008ad 6017
-0008ae bb18
-0008af b311
-0008b0 631c
-0008b1 bb11      keyboard_init				//initialization of ports for keyboard
-0008b2 b314
-0008b3 6f1c
-0008b4 bb14
-0008b5 b315
-0008b6 7013
-0008b7 bb15
-0008b8 939f
-0008b9 938f
-0008ba 937f
-0008bb ef92
-0008bc e08f
-0008bd e075
-0008be 940e 0029
-0008c0 917f
-0008c1 918f
-0008c2 919f
-0008c3 e310
-0008c4 bb15
-0008c5 9aab
-0008c6 95c8
-0008c7 98ab
-0008c8 939f
-0008c9 938f
-0008ca 937f
-0008cb ee95
-0008cc e18e
-0008cd e079
-0008ce 940e 0029
-0008d0 917f
-0008d1 918f
-0008d2 919f
-0008d3 9aab
-0008d4 95c8
-0008d5 98ab
-0008d6 939f
-0008d7 938f
-0008d8 937f
-0008d9 ef92
-0008da e08f
-0008db e075
-0008dc 940e 0029
-0008de 917f
-0008df 918f
-0008e0 919f
-0008e1 9aab
-0008e2 95c8
-0008e3 98ab
-0008e4 939f
-0008e5 938f
-0008e6 937f
-0008e7 ef92
-0008e8 e08f
-0008e9 e075
-0008ea 940e 0029
-0008ec 917f
-0008ed 918f
-0008ee 919f
-0008ef e210
-0008f0 bb15
-0008f1 9aab
-0008f2 95c8
-0008f3 98ab
-0008f4 939f
-0008f5 938f
-0008f6 937f
-0008f7 ef90
-0008f8 e081
-0008f9 e071
-0008fa 940e 0029
-0008fc 917f
-0008fd 918f
-0008fe 919f
-0008ff 931f
-000900 930f
-000901 e010
-000902 e208
-000903 940e 0030
-000905 910f
-000906 911f
-000907 939f
-000908 938f
-000909 937f
-00090a ef90
-00090b e081
-00090c e071
-00090d 940e 0029
-00090f 917f
-000910 918f
-000911 919f
-000912 931f
-000913 930f
-000914 e010
-000915 e001
-000916 940e 0030
-000918 910f
-000919 911f
-00091a 939f
-00091b 938f
-00091c 937f
-00091d e89e
-00091e e28a
-00091f e071
-000920 940e 0029
-000922 917f
-000923 918f
-000924 919f
-000925 931f
-000926 930f
-000927 e010
-000928 e00f
-000929 940e 0030
-00092b 910f
-00092c 911f
-00092d 939f
-00092e 938f
-00092f 937f
-000930 e89e
-000931 e28a
-000932 e071
-000933 940e 0029
-000935 917f
-000936 918f
-000937 919f
-000938 931f
-000939 930f
-00093a e010
-00093b e400
-00093c 940e 0030
-00093e 910f
-00093f 911f
-000940 939f
-000941 938f
-000942 937f
-000943 ef90
-000944 e081
-000945 e071
-000946 940e 0029
-000948 917f
-000949 918f
-00094a 919f
-00094b 931f
-00094c 930f
-00094d e014
-00094e e000
-00094f 940e 0030
-000951 910f
-000952 911f
-000953 939f
-000954 938f
-000955 937f
-000956 ef90
-000957 e081
-000958 e071
-000959 940e 0029
-00095b 917f
-00095c 918f
-00095d 919f
-00095e 931f
-00095f 930f
-000960 e014
-000961 e000
-000962 940e 0030
-000964 910f
-000965 911f
-000966 939f
-000967 938f
-000968 937f
-000969 ef90
-00096a e081
-00096b e071
-00096c 940e 0029
-00096e 917f
-00096f 918f
-000970 919f
-000971 931f
-000972 930f
-000973 e014
-000974 e000
-000975 940e 0030
-000977 910f
-000978 911f
-000979 939f
-00097a 938f
-00097b 937f
-00097c ef90
-00097d e081
-00097e e071
-00097f 940e 0029
-000981 917f
-000982 918f
-000983 919f
-000984 931f
-000985 930f
-000986 e014
-000987 e000
-000988 940e 0030
-00098a 910f
-00098b 911f
-00098c 939f
-00098d 938f
-00098e 937f
-00098f ef90
-000990 e081
-000991 e071
-000992 940e 0029
-000994 917f
-000995 918f
-000996 919f
-000997 931f
-000998 930f
-000999 e014
-00099a e004
-00099b 940e 0030
-00099d 910f
-00099e 911f
-00099f 939f
-0009a0 938f
-0009a1 937f
-0009a2 ef90
-0009a3 e081
-0009a4 e071
-0009a5 940e 0029
-0009a7 917f
-0009a8 918f
-0009a9 919f
-0009aa 931f
-0009ab 930f
-0009ac e014
-0009ad e00e
-0009ae 940e 0030
-0009b0 910f
-0009b1 911f
-0009b2 939f
-0009b3 938f
-0009b4 937f
-0009b5 ef90
-0009b6 e081
-0009b7 e071
-0009b8 940e 0029
-0009ba 917f
-0009bb 918f
-0009bc 919f
-0009bd 931f
-0009be 930f
-0009bf e014
-0009c0 e10f
-0009c1 940e 0030
-0009c3 910f
-0009c4 911f
-0009c5 939f
-0009c6 938f
-0009c7 937f
-0009c8 ef90
-0009c9 e081
-0009ca e071
-0009cb 940e 0029
-0009cd 917f
-0009ce 918f
-0009cf 919f
-0009d0 931f
-0009d1 930f
-0009d2 e014
-0009d3 e000
-0009d4 940e 0030
-0009d6 910f
-0009d7 911f
-0009d8 939f
-0009d9 938f
-0009da 937f
-0009db ef90
-0009dc e081
-0009dd e071
-0009de 940e 0029
-0009e0 917f
-0009e1 918f
-0009e2 919f
-0009e3 931f
-0009e4 930f
-0009e5 e014
-0009e6 e000
-0009e7 940e 0030
-0009e9 910f
-0009ea 911f
-0009eb 939f
-0009ec 938f
-0009ed 937f
-0009ee ef90
-0009ef e081
-0009f0 e071
-0009f1 940e 0029
-0009f3 917f
-0009f4 918f
-0009f5 919f
-0009f6 931f
-0009f7 930f
-0009f8 e014
-0009f9 e10f
-0009fa 940e 0030
-0009fc 910f
-0009fd 911f
-0009fe 939f
-0009ff 938f
-000a00 937f
-000a01 ef90
-000a02 e081
-000a03 e071
-000a04 940e 0029
-000a06 917f
-000a07 918f
-000a08 919f
-000a09 931f
-000a0a 930f
-000a0b e014
-000a0c e00e
-000a0d 940e 0030
-000a0f 910f
-000a10 911f
-000a11 939f
-000a12 938f
-000a13 937f
-000a14 ef90
-000a15 e081
-000a16 e071
-000a17 940e 0029
-000a19 917f
-000a1a 918f
-000a1b 919f
-000a1c 931f
-000a1d 930f
-000a1e e014
-000a1f e004
-000a20 940e 0030
-000a22 910f
-000a23 911f
-000a24 939f
-000a25 938f
-000a26 937f
-000a27 ef90
-000a28 e081
-000a29 e071
-000a2a 940e 0029
-000a2c 917f
-000a2d 918f
-000a2e 919f
-000a2f 931f
-000a30 930f
-000a31 e014
-000a32 e000
-000a33 940e 0030
-000a35 910f
-000a36 911f
-000a37 939f
-000a38 938f
-000a39 937f
-000a3a ef90
-000a3b e081
-000a3c e071
-000a3d 940e 0029
-000a3f 917f
-000a40 918f
-000a41 919f
-000a42 931f
-000a43 930f
-000a44 e014
-000a45 e000
-000a46 940e 0030
-000a48 910f
-000a49 911f
-000a4a 939f
-000a4b 938f
-000a4c 937f
-000a4d ef90
-000a4e e081
-000a4f e071
-000a50 940e 0029
-000a52 917f
-000a53 918f
-000a54 919f
-000a55 931f
-000a56 930f
-000a57 e014
-000a58 e000
-000a59 940e 0030
-000a5b 910f
-000a5c 911f
-000a5d 939f
-000a5e 938f
-000a5f 937f
-000a60 ef90
-000a61 e081
-000a62 e071
-000a63 940e 0029
-000a65 917f
-000a66 918f
-000a67 919f
-000a68 931f
-000a69 930f
-000a6a e014
-000a6b e000
-000a6c 940e 0030
-000a6e 910f
-000a6f 911f
-000a70 939f
-000a71 938f
-000a72 937f
-000a73 ef90
-000a74 e081
-000a75 e071
-000a76 940e 0029
-000a78 917f
-000a79 918f
-000a7a 919f
-000a7b 931f
-000a7c 930f
-000a7d 931f
-000a7e 930f
-000a7f e010
-000a80 e800
-000a81 940e 0030
-000a83 910f
-000a84 911f
-000a85 939f
-000a86 938f
-000a87 937f
-000a88 ef90
-000a89 e081
-000a8a e071
-000a8b 940e 0029
-000a8d 917f
-000a8e 918f
-000a8f 919f
-000a90 910f
-000a91 911f      LCD_init					//LCD initialization
-000a92 94f8
-000a93 27dd
-000a94 e6c0
-000a95 27ee
-000a96 27ff
-000a97 ec31
-000a98 940e 0055
-000a9a 9309
-000a9b 95e3
-000a9c 953a
-000a9d f7d1
-000a9e 9478
-000a9f e0d1
-000aa0 e2c0
-000aa1 e010
-000aa2 8318
-000aa3 93ff
-000aa4 93ef
-000aa5 931f
-000aa6 930f
-000aa7 933f
-000aa8 e0f0
-000aa9 e6e0
-000aaa e014
-000aab e131
-000aac 9101
-000aad 940e 0030
-000aaf 939f
-000ab0 938f
-000ab1 937f
-000ab2 ef90
-000ab3 e081
-000ab4 e071
-000ab5 940e 0029
-000ab7 917f
-000ab8 918f
-000ab9 919f
-000aba 953a
-000abb f781
-000abc 913f
-000abd 910f
-000abe 911f
-000abf 91ef
-000ac0 91ff
-000ac1 931f
-000ac2 930f
-000ac3 931f
-000ac4 930f
-000ac5 e010
-000ac6 ec00
-000ac7 940e 0030
-000ac9 910f
-000aca 911f
-000acb 939f
-000acc 938f
-000acd 937f
-000ace ef90
-000acf e081
-000ad0 e071
-000ad1 940e 0029
-000ad3 917f
-000ad4 918f
-000ad5 919f
-000ad6 910f
-000ad7 911f
-000ad8 93ff
-000ad9 93ef
-000ada 931f
-000adb 930f
-000adc 933f
-000add e0f0
-000ade ece0
-000adf e014
-000ae0 e131
-000ae1 9101
-000ae2 940e 0030
-000ae4 939f
-000ae5 938f
-000ae6 937f
-000ae7 ef90
-000ae8 e081
-000ae9 e071
-000aea 940e 0029
-000aec 917f
-000aed 918f
-000aee 919f
-000aef 953a
-000af0 f781
-000af1 913f
-000af2 910f
-000af3 911f
-000af4 91ef
-000af5 91ff      menu_init
-000af6 b311
-000af7 6410
-000af8 bb11
-000af9 b312
-000afa 7b1f
-000afb bb12
-000afc 2711
-000afd bf12
-000afe e117
-000aff bf1c
-000b00 b719
-000b01 6012
-000b02 bf19      sound_init
-000b03 e31c
-000b04 b910
-000b05 e0d1
-000b06 e2ca
-000b07 ed10
-000b08 8318      I2C_Init
-000b09 931f
-000b0a 93df
-000b0b 93cf
-000b0c e0d1
-000b0d e2cb
-000b0e e010
-000b0f 8318
-000b10 940e 022e
-000b12 e0d1
-000b13 e2cc
-000b14 8118
-000b15 fd17
-000b16 940e 0246
-000b18 e0d1
-000b19 e2cb
-000b1a e012
-000b1b 8318
-000b1c 940e 022e
-000b1e e0d1
-000b1f e2cc
-000b20 8118
-000b21 fd16
-000b22 940e 0256
-000b24 91cf
-000b25 91df
-000b26 911f      I2C_Check_Clock_Settings
-000b27 e0d1
-000b28 e3c0
-000b29 e012
-000b2a 9319
-000b2b e019
-000b2c 9319
-000b2d e016
-000b2e 9319
-000b2f e019
-000b30 9319
-000b31 e013
-000b32 9319
-000b33 e019
-000b34 9319
-000b35 e011
-000b36 9319
-000b37 e019
-000b38 9319
-000b39 9319
-000b3a 9319
-000b3b e0d1
-000b3c e3ca
-000b3d e118
-000b3e 9319
-000b3f e31c
-000b40 9319
-000b41 e11f
-000b42 9319
-000b43 e01c
-000b44 9319
-000b45 e613
-000b46 9319      time_set_init
+00109f 94f8
+0010a0 e110
+0010a1 bf19
+0010a2 2711
+0010a3 bd1f
+0010a4 e014
+0010a5 bd1e
+0010a6 e00c
+0010a7 e315
+0010a8 bd0b
+0010a9 bd1a
+0010aa e70a
+0010ab e112
+0010ac bd09
+0010ad bd18
+0010ae 2711
+0010af bd1d
+0010b0 bd1c
+0010b1 9478      Timer1_Init					//initialization timer 1
+0010b2 b317
+0010b3 7f18
+0010b4 bb17
+0010b5 b318
+0010b6 6017
+0010b7 bb18
+0010b8 b311
+0010b9 631c
+0010ba bb11      keyboard_init				//initialization of ports for keyboard
+0010bb b314
+0010bc 6f1c
+0010bd bb14
+0010be b315
+0010bf 7013
+0010c0 bb15
+0010c1 939f
+0010c2 938f
+0010c3 937f
+0010c4 ef92
+0010c5 e08f
+0010c6 e075
+0010c7 940e 0029
+0010c9 917f
+0010ca 918f
+0010cb 919f
+0010cc e310
+0010cd bb15
+0010ce 9aab
+0010cf 95c8
+0010d0 98ab
+0010d1 939f
+0010d2 938f
+0010d3 937f
+0010d4 ee95
+0010d5 e18e
+0010d6 e079
+0010d7 940e 0029
+0010d9 917f
+0010da 918f
+0010db 919f
+0010dc 9aab
+0010dd 95c8
+0010de 98ab
+0010df 939f
+0010e0 938f
+0010e1 937f
+0010e2 ef92
+0010e3 e08f
+0010e4 e075
+0010e5 940e 0029
+0010e7 917f
+0010e8 918f
+0010e9 919f
+0010ea 9aab
+0010eb 95c8
+0010ec 98ab
+0010ed 939f
+0010ee 938f
+0010ef 937f
+0010f0 ef92
+0010f1 e08f
+0010f2 e075
+0010f3 940e 0029
+0010f5 917f
+0010f6 918f
+0010f7 919f
+0010f8 e210
+0010f9 bb15
+0010fa 9aab
+0010fb 95c8
+0010fc 98ab
+0010fd 939f
+0010fe 938f
+0010ff 937f
+001100 ef90
+001101 e081
+001102 e071
+001103 940e 0029
+001105 917f
+001106 918f
+001107 919f
+001108 931f
+001109 930f
+00110a e010
+00110b e208
+00110c 940e 0030
+00110e 910f
+00110f 911f
+001110 939f
+001111 938f
+001112 937f
+001113 ef90
+001114 e081
+001115 e071
+001116 940e 0029
+001118 917f
+001119 918f
+00111a 919f
+00111b 931f
+00111c 930f
+00111d e010
+00111e e001
+00111f 940e 0030
+001121 910f
+001122 911f
+001123 939f
+001124 938f
+001125 937f
+001126 e89e
+001127 e28a
+001128 e071
+001129 940e 0029
+00112b 917f
+00112c 918f
+00112d 919f
+00112e 931f
+00112f 930f
+001130 e010
+001131 e00f
+001132 940e 0030
+001134 910f
+001135 911f
+001136 939f
+001137 938f
+001138 937f
+001139 e89e
+00113a e28a
+00113b e071
+00113c 940e 0029
+00113e 917f
+00113f 918f
+001140 919f
+001141 931f
+001142 930f
+001143 e010
+001144 e400
+001145 940e 0030
+001147 910f
+001148 911f
+001149 939f
+00114a 938f
+00114b 937f
+00114c ef90
+00114d e081
+00114e e071
+00114f 940e 0029
+001151 917f
+001152 918f
+001153 919f
+001154 931f
+001155 930f
+001156 e014
+001157 e000
+001158 940e 0030
+00115a 910f
+00115b 911f
+00115c 939f
+00115d 938f
+00115e 937f
+00115f ef90
+001160 e081
+001161 e071
+001162 940e 0029
+001164 917f
+001165 918f
+001166 919f
+001167 931f
+001168 930f
+001169 e014
+00116a e000
+00116b 940e 0030
+00116d 910f
+00116e 911f
+00116f 939f
+001170 938f
+001171 937f
+001172 ef90
+001173 e081
+001174 e071
+001175 940e 0029
+001177 917f
+001178 918f
+001179 919f
+00117a 931f
+00117b 930f
+00117c e014
+00117d e000
+00117e 940e 0030
+001180 910f
+001181 911f
+001182 939f
+001183 938f
+001184 937f
+001185 ef90
+001186 e081
+001187 e071
+001188 940e 0029
+00118a 917f
+00118b 918f
+00118c 919f
+00118d 931f
+00118e 930f
+00118f e014
+001190 e000
+001191 940e 0030
+001193 910f
+001194 911f
+001195 939f
+001196 938f
+001197 937f
+001198 ef90
+001199 e081
+00119a e071
+00119b 940e 0029
+00119d 917f
+00119e 918f
+00119f 919f
+0011a0 931f
+0011a1 930f
+0011a2 e014
+0011a3 e004
+0011a4 940e 0030
+0011a6 910f
+0011a7 911f
+0011a8 939f
+0011a9 938f
+0011aa 937f
+0011ab ef90
+0011ac e081
+0011ad e071
+0011ae 940e 0029
+0011b0 917f
+0011b1 918f
+0011b2 919f
+0011b3 931f
+0011b4 930f
+0011b5 e014
+0011b6 e00e
+0011b7 940e 0030
+0011b9 910f
+0011ba 911f
+0011bb 939f
+0011bc 938f
+0011bd 937f
+0011be ef90
+0011bf e081
+0011c0 e071
+0011c1 940e 0029
+0011c3 917f
+0011c4 918f
+0011c5 919f
+0011c6 931f
+0011c7 930f
+0011c8 e014
+0011c9 e10f
+0011ca 940e 0030
+0011cc 910f
+0011cd 911f
+0011ce 939f
+0011cf 938f
+0011d0 937f
+0011d1 ef90
+0011d2 e081
+0011d3 e071
+0011d4 940e 0029
+0011d6 917f
+0011d7 918f
+0011d8 919f
+0011d9 931f
+0011da 930f
+0011db e014
+0011dc e000
+0011dd 940e 0030
+0011df 910f
+0011e0 911f
+0011e1 939f
+0011e2 938f
+0011e3 937f
+0011e4 ef90
+0011e5 e081
+0011e6 e071
+0011e7 940e 0029
+0011e9 917f
+0011ea 918f
+0011eb 919f
+0011ec 931f
+0011ed 930f
+0011ee e014
+0011ef e000
+0011f0 940e 0030
+0011f2 910f
+0011f3 911f
+0011f4 939f
+0011f5 938f
+0011f6 937f
+0011f7 ef90
+0011f8 e081
+0011f9 e071
+0011fa 940e 0029
+0011fc 917f
+0011fd 918f
+0011fe 919f
+0011ff 931f
+001200 930f
+001201 e014
+001202 e10f
+001203 940e 0030
+001205 910f
+001206 911f
+001207 939f
+001208 938f
+001209 937f
+00120a ef90
+00120b e081
+00120c e071
+00120d 940e 0029
+00120f 917f
+001210 918f
+001211 919f
+001212 931f
+001213 930f
+001214 e014
+001215 e00e
+001216 940e 0030
+001218 910f
+001219 911f
+00121a 939f
+00121b 938f
+00121c 937f
+00121d ef90
+00121e e081
+00121f e071
+001220 940e 0029
+001222 917f
+001223 918f
+001224 919f
+001225 931f
+001226 930f
+001227 e014
+001228 e004
+001229 940e 0030
+00122b 910f
+00122c 911f
+00122d 939f
+00122e 938f
+00122f 937f
+001230 ef90
+001231 e081
+001232 e071
+001233 940e 0029
+001235 917f
+001236 918f
+001237 919f
+001238 931f
+001239 930f
+00123a e014
+00123b e000
+00123c 940e 0030
+00123e 910f
+00123f 911f
+001240 939f
+001241 938f
+001242 937f
+001243 ef90
+001244 e081
+001245 e071
+001246 940e 0029
+001248 917f
+001249 918f
+00124a 919f
+00124b 931f
+00124c 930f
+00124d e014
+00124e e000
+00124f 940e 0030
+001251 910f
+001252 911f
+001253 939f
+001254 938f
+001255 937f
+001256 ef90
+001257 e081
+001258 e071
+001259 940e 0029
+00125b 917f
+00125c 918f
+00125d 919f
+00125e 931f
+00125f 930f
+001260 e014
+001261 e000
+001262 940e 0030
+001264 910f
+001265 911f
+001266 939f
+001267 938f
+001268 937f
+001269 ef90
+00126a e081
+00126b e071
+00126c 940e 0029
+00126e 917f
+00126f 918f
+001270 919f
+001271 931f
+001272 930f
+001273 e014
+001274 e000
+001275 940e 0030
+001277 910f
+001278 911f
+001279 939f
+00127a 938f
+00127b 937f
+00127c ef90
+00127d e081
+00127e e071
+00127f 940e 0029
+001281 917f
+001282 918f
+001283 919f
+001284 931f
+001285 930f
+001286 931f
+001287 930f
+001288 e010
+001289 e800
+00128a 940e 0030
+00128c 910f
+00128d 911f
+00128e 939f
+00128f 938f
+001290 937f
+001291 ef90
+001292 e081
+001293 e071
+001294 940e 0029
+001296 917f
+001297 918f
+001298 919f
+001299 910f
+00129a 911f      LCD_init					//LCD initialization
+00129b 94f8
+00129c 27dd
+00129d e6c0
+00129e 27ee
+00129f 27ff
+0012a0 ec31
+0012a1 940e 0055
+0012a3 9309
+0012a4 95e3
+0012a5 953a
+0012a6 f7d1
+0012a7 9478
+0012a8 e0d1
+0012a9 e2c0
+0012aa e010
+0012ab 8318
+0012ac 93ff
+0012ad 93ef
+0012ae 931f
+0012af 930f
+0012b0 933f
+0012b1 e0f0
+0012b2 e6e0
+0012b3 e014
+0012b4 e131
+0012b5 9101
+0012b6 940e 0030
+0012b8 939f
+0012b9 938f
+0012ba 937f
+0012bb ef90
+0012bc e081
+0012bd e071
+0012be 940e 0029
+0012c0 917f
+0012c1 918f
+0012c2 919f
+0012c3 953a
+0012c4 f781
+0012c5 913f
+0012c6 910f
+0012c7 911f
+0012c8 91ef
+0012c9 91ff
+0012ca 931f
+0012cb 930f
+0012cc 931f
+0012cd 930f
+0012ce e010
+0012cf ec00
+0012d0 940e 0030
+0012d2 910f
+0012d3 911f
+0012d4 939f
+0012d5 938f
+0012d6 937f
+0012d7 ef90
+0012d8 e081
+0012d9 e071
+0012da 940e 0029
+0012dc 917f
+0012dd 918f
+0012de 919f
+0012df 910f
+0012e0 911f
+0012e1 93ff
+0012e2 93ef
+0012e3 931f
+0012e4 930f
+0012e5 933f
+0012e6 e0f0
+0012e7 ece0
+0012e8 e014
+0012e9 e131
+0012ea 9101
+0012eb 940e 0030
+0012ed 939f
+0012ee 938f
+0012ef 937f
+0012f0 ef90
+0012f1 e081
+0012f2 e071
+0012f3 940e 0029
+0012f5 917f
+0012f6 918f
+0012f7 919f
+0012f8 953a
+0012f9 f781
+0012fa 913f
+0012fb 910f
+0012fc 911f
+0012fd 91ef
+0012fe 91ff      menu_init					//menu initialization
+0012ff b311
+001300 6410
+001301 bb11
+001302 b312
+001303 7b1f
+001304 bb12
+001305 2711
+001306 bf12
+001307 e117
+001308 bf1c
+001309 b719
+00130a 6012
+00130b bf19      sound_init					//buzzer initialization
+00130c e31c
+00130d b910
+00130e e0d1
+00130f e2ca
+001310 ed10
+001311 8318      I2C_Init					//i2c initialization
+001312 931f
+001313 93df
+001314 93cf
+001315 e0d1
+001316 e2cb
+001317 e010
+001318 8318
+001319 940e 022e
+00131b e0d1
+00131c e2cc
+00131d 8118
+00131e fd17
+00131f 940e 0246
+001321 e0d1
+001322 e2cb
+001323 e012
+001324 8318
+001325 940e 022e
+001327 e0d1
+001328 e2cc
+001329 8118
+00132a fd16
+00132b 940e 0256
+00132d 91cf
+00132e 91df
+00132f 911f      I2C_Check_Clock_Settings	//check clock settings and correct if needed
+001330 e0d1
+001331 e3c0
+001332 e012
+001333 9319
+001334 e019
+001335 9319
+001336 e016
+001337 9319
+001338 e019
+001339 9319
+00133a e013
+00133b 9319
+00133c e019
+00133d 9319
+00133e e011
+00133f 9319
+001340 e019
+001341 9319
+001342 9319
+001343 9319
+001344 e0d1
+001345 e3ca
+001346 e118
+001347 9319
+001348 e31c
+001349 9319
+00134a e11f
+00134b 9319
+00134c e01c
+00134d 9319
+00134e e613
+00134f 9319      time_set_init
+001350 e617
+001351 b919
+001352 e010
+001353 bd10
+001354 e118
+001355 b91a
+001356 2711
+001357 b91b
+001358 e816
+001359 bd10      UART_init
+00135a 940e 1016 call GSM_init_strings
+00135c 93df
+00135d 93cf
+00135e 931f
+00135f e0d3
+001360 e4c6
+001361 8118
+001362 6011
+001363 8318
+001364 b11a
+001365 6810
+001366 b91a
+001367 911f
+001368 91cf
+001369 91df      UART_start_receive
                  
                  //-----------MAIN----------------------------------
                  main:
                  
-000b47 940e 0176
-000b49 940e 01cf 	Refresh_time
-000b4b 932f
-000b4c 93bf
-000b4d 93af
-000b4e 931f
-000b4f 93df
-000b50 93cf
-000b51 e0d1
-000b52 e2c0
-000b53 8128
-000b54 e110
-000b55 9f12
-000b56 2da0
-000b57 2db1
-000b58 e610
-000b59 0fa1
-000b5a 2711
-000b5b 1fb1
-000b5c 931f
-000b5d 930f
-000b5e 931f
-000b5f 930f
-000b60 e010
-000b61 e800
-000b62 940e 0030
-000b64 910f
-000b65 911f
-000b66 939f
-000b67 938f
-000b68 937f
-000b69 ef90
-000b6a e081
-000b6b e071
-000b6c 940e 0029
-000b6e 917f
-000b6f 918f
-000b70 919f
-000b71 910f
-000b72 911f
-000b73 931f
-000b74 930f
-000b75 93af
-000b76 93bf
-000b77 933f
-000b78 e014
-000b79 e131
-000b7a 910d
-000b7b 940e 0030
-000b7d 939f
-000b7e 938f
-000b7f 937f
-000b80 ef90
-000b81 e081
-000b82 e071
-000b83 940e 0029
-000b85 917f
-000b86 918f
-000b87 919f
-000b88 953a
-000b89 f781
-000b8a 913f
-000b8b 91bf
-000b8c 91af
-000b8d 910f
-000b8e 911f
-000b8f e110
-000b90 9f12
-000b91 2da0
-000b92 2db1
-000b93 ec10
-000b94 0fa1
-000b95 2711
-000b96 1fb1
-000b97 931f
-000b98 930f
-000b99 931f
-000b9a 930f
-000b9b e010
-000b9c ec00
-000b9d 940e 0030
-000b9f 910f
-000ba0 911f
-000ba1 939f
-000ba2 938f
-000ba3 937f
-000ba4 ef90
-000ba5 e081
-000ba6 e071
-000ba7 940e 0029
-000ba9 917f
-000baa 918f
-000bab 919f
-000bac 910f
-000bad 911f
-000bae 931f
-000baf 930f
-000bb0 93af
-000bb1 93bf
-000bb2 933f
-000bb3 e014
-000bb4 e131
-000bb5 910d
-000bb6 940e 0030
-000bb8 939f
-000bb9 938f
-000bba 937f
-000bbb ef90
-000bbc e081
-000bbd e071
-000bbe 940e 0029
-000bc0 917f
-000bc1 918f
-000bc2 919f
-000bc3 953a
-000bc4 f781
-000bc5 913f
-000bc6 91bf
-000bc7 91af
-000bc8 910f
-000bc9 911f
-000bca 91cf
-000bcb 91df
-000bcc 911f
-000bcd 91af
-000bce 91bf
-000bcf 912f      	menu_refresh
+00136a 940e 0925 	call GSM_main
+00136c 940e 0176
+00136e 940e 01cf 	Refresh_time
+001370 932f
+001371 93bf
+001372 93af
+001373 931f
+001374 93df
+001375 93cf
+001376 e0d1
+001377 e2c0
+001378 8128
+001379 e110
+00137a 9f12
+00137b 2da0
+00137c 2db1
+00137d e610
+00137e 0fa1
+00137f 2711
+001380 1fb1
+001381 931f
+001382 930f
+001383 931f
+001384 930f
+001385 e010
+001386 e800
+001387 940e 0030
+001389 910f
+00138a 911f
+00138b 939f
+00138c 938f
+00138d 937f
+00138e ef90
+00138f e081
+001390 e071
+001391 940e 0029
+001393 917f
+001394 918f
+001395 919f
+001396 910f
+001397 911f
+001398 931f
+001399 930f
+00139a 93af
+00139b 93bf
+00139c 933f
+00139d e014
+00139e e131
+00139f 910d
+0013a0 940e 0030
+0013a2 939f
+0013a3 938f
+0013a4 937f
+0013a5 ef90
+0013a6 e081
+0013a7 e071
+0013a8 940e 0029
+0013aa 917f
+0013ab 918f
+0013ac 919f
+0013ad 953a
+0013ae f781
+0013af 913f
+0013b0 91bf
+0013b1 91af
+0013b2 910f
+0013b3 911f
+0013b4 e110
+0013b5 9f12
+0013b6 2da0
+0013b7 2db1
+0013b8 ec10
+0013b9 0fa1
+0013ba 2711
+0013bb 1fb1
+0013bc 931f
+0013bd 930f
+0013be 931f
+0013bf 930f
+0013c0 e010
+0013c1 ec00
+0013c2 940e 0030
+0013c4 910f
+0013c5 911f
+0013c6 939f
+0013c7 938f
+0013c8 937f
+0013c9 ef90
+0013ca e081
+0013cb e071
+0013cc 940e 0029
+0013ce 917f
+0013cf 918f
+0013d0 919f
+0013d1 910f
+0013d2 911f
+0013d3 931f
+0013d4 930f
+0013d5 93af
+0013d6 93bf
+0013d7 933f
+0013d8 e014
+0013d9 e131
+0013da 910d
+0013db 940e 0030
+0013dd 939f
+0013de 938f
+0013df 937f
+0013e0 ef90
+0013e1 e081
+0013e2 e071
+0013e3 940e 0029
+0013e5 917f
+0013e6 918f
+0013e7 919f
+0013e8 953a
+0013e9 f781
+0013ea 913f
+0013eb 91bf
+0013ec 91af
+0013ed 910f
+0013ee 911f
+0013ef 91cf
+0013f0 91df
+0013f1 911f
+0013f2 91af
+0013f3 91bf
+0013f4 912f      	menu_refresh
                  
-                 	
-000bd0 e025          ldi  r18, 5
-000bd1 ec32          ldi  r19, 194
-000bd2 e846          ldi  r20, 134
-000bd3 e251          ldi  r21, 33
-000bd4 955a      L1: dec  r21
-000bd5 f7f1          brne L1
-000bd6 954a          dec  r20
-000bd7 f7e1          brne L1
-000bd8 953a          dec  r19
-000bd9 f7d1          brne L1
-000bda 952a          dec  r18
-000bdb f7c1          brne L1
-                 	
-000bdc cf6a      rjmp main		
+0013f5 cf74      rjmp main		
                  //-------------------------------------------------
                  //========EEPROM SEGMENT=================================================
                  .eseg
+                 .include "EEPROM.inc"
+                 
+                  * EEPROM.inc
+                  *
+                  *  Created: 30.03.2016 0:35:04
+                  *   Author: Hogs
+                  */ 
+                 
                  .org 0
-000000 4c
-000001 65
-000002 76
-000003 65
-000004 6c
-000005 20
-000006 43
-000007 4f
+                 
+                 //--------------- MENU strings ------------------------------------------
+000000 50
+000001 72
+000002 65
+000003 73
+000004 73
+000005 75
+000006 72
+000007 65
 000008 20
 000009 20
 00000a 20
@@ -5310,71 +8342,71 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
 00000c 20
 00000d 20
 00000e 20
-00000f 20        ee_hello_msg:	.db "Level CO        "
-000010 4c
+00000f 02        ee_pressure_msg:.db "Pressure       ",2		//menu strings
+000010 54
 000011 65
-000012 76
-000013 65
-000014 6c
-000015 20
-000016 43
-000017 48
-000018 34
-000019 20
-00001a 20
+000012 6d
+000013 70
+000014 65
+000015 72
+000016 61
+000017 74
+000018 75
+000019 72
+00001a 65
 00001b 20
 00001c 20
 00001d 20
 00001e 20
-00001f 00        ee_CH4_msg:		.db "Level CH4      ",0
+00001f 00        ee_temp_msg:	.db "Temperature    ",0		//0 is up arrow
 000020 54
-000021 65
+000021 69
 000022 6d
-000023 70
-000024 65
-000025 72
-000026 61
-000027 74
-000028 75
-000029 72
-00002a 65
+000023 65
+000024 20
+000025 20
+000026 20
+000027 20
+000028 20
+000029 20
+00002a 20
 00002b 20
 00002c 20
 00002d 20
 00002e 20
-00002f 00        ee_temp_msg:	.db "Temperature    ",0
-000030 43
-000031 6f
-000032 6f
-000033 72
-000034 64
-000035 69
-000036 6e
-000037 61
-000038 74
-000039 65
-00003a 73
+00002f 00        ee_time_msg:	.db "Time           ",0
+000030 4d
+000031 65
+000032 6d
+000033 6f
+000034 72
+000035 79
+000036 20
+000037 43
+000038 61
+000039 72
+00003a 64
 00003b 20
 00003c 20
 00003d 20
 00003e 20
-00003f 00        ee_coords_msg:	.db "Coordinates    ",0
-000040 54
-000041 69
-000042 6d
-000043 65
-000044 20
-000045 20
-000046 20
-000047 20
-000048 20
-000049 20
-00004a 20
-00004b 20
+00003f 00        ee_mc_msg:		.db "Memory Card    ",0
+000040 53
+000041 4d
+000042 53
+000043 20
+000044 72
+000045 65
+000046 73
+000047 70
+000048 6f
+000049 6e
+00004a 73
+00004b 65
 00004c 20
 00004d 20
 00004e 20
-00004f 00        ee_time_msg:	.db "Time           ",0
+00004f 00        ee_sms_msg:		.db "SMS response   ",0
 000050 53
 000051 6f
 000052 75
@@ -5406,7 +8438,7 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
 00006c 20
 00006d 20
 00006e 20
-00006f 01        ee_test_msg1:	.db "test str 1     ",1
+00006f 01        ee_test_msg1:	.db "test str 1     ",1		//1 is down arrow
 000070 74
 000071 65
 000072 73
@@ -5423,22 +8455,22 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
 00007d 20
 00007e 20
 00007f 01        ee_test_msg2:	.db "test str 2     ",1
-000080 74
-000081 65
-000082 73
-000083 74
-000084 20
-000085 73
-000086 74
-000087 72
-000088 20
-000089 33
-00008a 20
-00008b 20
-00008c 20
-00008d 20
+000080 31
+000081 32
+000082 3a
+000083 33
+000084 34
+000085 20
+000086 31
+000087 34
+000088 2f
+000089 31
+00008a 31
+00008b 2f
+00008c 31
+00008d 35
 00008e 20
-00008f 01        ee_test_msg3:	.db "test str 3     ",1
+00008f 01        ee_test_msg3:	.db "12:34 14/11/15 ",1
 000090 74
 000091 65
 000092 73
@@ -5455,22 +8487,22 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
 00009d 20
 00009e 20
 00009f 01        ee_test_msg4:	.db "test str 4     ",1
-0000a0 31
-0000a1 32
-0000a2 3a
-0000a3 33
-0000a4 34
-0000a5 20
-0000a6 31
-0000a7 34
-0000a8 2f
-0000a9 31
-0000aa 31
-0000ab 2f
-0000ac 31
-0000ad 35
+0000a0 74
+0000a1 65
+0000a2 73
+0000a3 74
+0000a4 20
+0000a5 73
+0000a6 74
+0000a7 72
+0000a8 20
+0000a9 35
+0000aa 20
+0000ab 20
+0000ac 20
+0000ad 20
 0000ae 20
-0000af 01        ee_test_msg5:	.db "12:34 14/11/15 ",1
+0000af 01        ee_test_msg5:	.db "test str 5     ",1
 0000b0 50
 0000b1 72
 0000b2 65
@@ -5486,7 +8518,394 @@ D:\diplom\eco\eco\eco.asm(54): Including file 'D:\diplom\eco\eco\core_init.inc'
 0000bc 65
 0000bd 73
 0000be 74
-0000bf 20        ee_test_msg6:	.db "Press 5 to test "
+0000bf 02        ee_test_msg6:	.db "Press 5 to test",2
+                 //------------------------------------------------------------------------
+                 
+                 //------------ GSM strings -----------------------------------------------
+0000c0 2b
+0000c1 43
+0000c2 4d
+0000c3 54
+0000c4 49
+0000c5 3a
+0000c6 20
+0000c7 22
+0000c8 53
+0000c9 4d
+0000ca 22
+0000cb 2c
+0000cc 00        ee_gsm_new_SMS:				.db "+CMTI: ",'"',"SM",'"',',',0    //+CMTI: "SM",INDEX  
+0000cd 41
+0000ce 54
+0000cf 2b
+0000d0 43
+0000d1 4d
+0000d2 47
+0000d3 52
+0000d4 3d
+0000d5 00        ee_gsm_read_SMS1:			.db "AT+CMGR=",0
+0000d6 2c
+0000d7 30
+0000d8 00        ee_gsm_read_SMS2:			.db ",0",0
+0000d9 4f
+0000da 4b
+0000db 00        ee_gsm_result:				.db "OK",0
+0000dc 41
+0000dd 54
+0000de 2b
+0000df 43
+0000e0 4d
+0000e1 47
+0000e2 53
+0000e3 3d
+0000e4 00        ee_gsm_write:				.db "AT+CMGS=",0
+0000e5 3e
+0000e6 00        ee_gsm_write_msg:			.db ">",0
+0000e7 0d
+0000e8 00        ee_gsm_enter:				.db 0x0D,0
+0000e9 1a
+0000ea 00        ee_gsm_end_msg:				.db 0x1A,0
+0000eb 22
+0000ec 2c
+0000ed 00        ee_gsm_phone_start:			.db '"',',',0
+0000ee 64
+0000ef 65
+0000f0 76
+0000f1 69
+0000f2 63
+0000f3 65
+0000f4 20
+0000f5 67
+0000f6 65
+0000f7 74
+0000f8 00        ee_gsm_cmd1:				.db "device get",0
+0000f9 64
+0000fa 65
+0000fb 76
+0000fc 69
+0000fd 63
+0000fe 65
+0000ff 20
+000100 73
+000101 65
+000102 74
+000103 00        ee_gsm_cmd2:				.db "device set",0
+000104 69
+000105 6e
+000106 66
+000107 6f
+000108 00        ee_gsm_info_parameter:		.db "info",0
+000109 74
+00010a 69
+00010b 6d
+00010c 65
+00010d 00        ee_gsm_time_parameter:		.db "time",0
+00010e 74
+00010f 65
+000110 6d
+000111 70
+000112 00        ee_gsm_temp_parameter:		.db "temp",0
+000113 70
+000114 72
+000115 65
+000116 73
+000117 73
+000118 75
+000119 72
+00011a 65
+00011b 00        ee_gsm_pressure_parameter:	.db "pressure",0
+00011c 73
+00011d 6f
+00011e 75
+00011f 6e
+000120 64
+000121 00        ee_gsm_sound_parameter:		.db "sound",0
+000122 6d
+000123 65
+000124 6d
+000125 6f
+000126 72
+000127 79
+000128 00        ee_gsm_memory_parameter:	.db "memory",0
+000129 69
+00012a 6e
+00012b 76
+00012c 61
+00012d 6c
+00012e 69
+00012f 64
+000130 20
+000131 67
+000132 65
+000133 74
+000134 20
+000135 63
+000136 6f
+000137 6d
+000138 6d
+000139 61
+00013a 6e
+00013b 64
+00013c 2c
+00013d 20
+00013e 79
+00013f 6f
+000140 75
+000141 20
+000142 63
+000143 61
+000144 6e
+000145 20
+000146 75
+000147 73
+000148 65
+000149 20
+00014a 6f
+00014b 6e
+00014c 6c
+00014d 79
+00014e 0d
+00014f 69
+000150 6e
+000151 66
+000152 6f
+000153 0d
+000154 74
+000155 69
+000156 6d
+000157 65
+000158 0d
+000159 74
+00015a 65
+00015b 6d
+00015c 70
+00015d 0d
+00015e 70
+00015f 72
+000160 65
+000161 73
+000162 73
+000163 75
+000164 72
+000165 65
+000166 0d
+000167 73
+000168 6f
+000169 75
+00016a 6e
+00016b 64
+00016c 0d
+00016d 6d
+00016e 65
+00016f 6d
+000170 6f
+000171 72
+000172 79
+000173 0d
+000174 63
+000175 6f
+000176 6d
+000177 6d
+000178 61
+000179 6e
+00017a 64
+00017b 73
+00017c 00        ee_gsm_invalid_get:			.db "invalid get command, you can use only", 0x0D, "info", 0x0D, "time", 0x0D, "temp", 0x0D, "pressure", 0x0D, "sound", 0x0D, "memory", 0x0D, "commands", 0
+00017d 69
+00017e 6e
+00017f 76
+000180 61
+000181 6c
+000182 69
+000183 64
+000184 20
+000185 73
+000186 65
+000187 74
+000188 20
+000189 63
+00018a 6f
+00018b 6d
+00018c 6d
+00018d 61
+00018e 6e
+00018f 64
+000190 2c
+000191 20
+000192 79
+000193 6f
+000194 75
+000195 20
+000196 63
+000197 61
+000198 6e
+000199 20
+00019a 75
+00019b 73
+00019c 65
+00019d 20
+00019e 6f
+00019f 6e
+0001a0 6c
+0001a1 79
+0001a2 0d
+0001a3 74
+0001a4 69
+0001a5 6d
+0001a6 65
+0001a7 0d
+0001a8 73
+0001a9 6f
+0001aa 75
+0001ab 6e
+0001ac 64
+0001ad 0d
+0001ae 6d
+0001af 65
+0001b0 6d
+0001b1 6f
+0001b2 72
+0001b3 79
+0001b4 0d
+0001b5 63
+0001b6 6f
+0001b7 6d
+0001b8 6d
+0001b9 61
+0001ba 6e
+0001bb 64
+0001bc 73
+0001bd 00        ee_gsm_invalid_set:			.db "invalid set command, you can use only", 0x0D, "time", 0x0D, "sound", 0x0D, "memory", 0x0D, "commands", 0
+0001be 4f
+0001bf 6e
+0001c0 20
+0001c1 00        ee_On_str:					.db "On ",0
+0001c2 4f
+0001c3 66
+0001c4 66
+0001c5 00        ee_Off_str:					.db "Off",0
+0001c6 69
+0001c7 6e
+0001c8 76
+0001c9 61
+0001ca 6c
+0001cb 69
+0001cc 64
+0001cd 20
+0001ce 74
+0001cf 69
+0001d0 6d
+0001d1 65
+0001d2 20
+0001d3 73
+0001d4 65
+0001d5 74
+0001d6 2c
+0001d7 20
+0001d8 75
+0001d9 73
+0001da 65
+0001db 0d
+0001dc 64
+0001dd 65
+0001de 76
+0001df 69
+0001e0 63
+0001e1 65
+0001e2 20
+0001e3 73
+0001e4 65
+0001e5 74
+0001e6 20
+0001e7 74
+0001e8 69
+0001e9 6d
+0001ea 65
+0001eb 20
+0001ec 32
+0001ed 33
+0001ee 3a
+0001ef 34
+0001f0 35
+0001f1 20
+0001f2 31
+0001f3 39
+0001f4 2f
+0001f5 30
+0001f6 34
+0001f7 2f
+0001f8 31
+0001f9 36
+0001fa 00        ee_gsm_invalid_time:		.db "invalid time set, use", 0x0D, "device set time 23:45 19/04/16",0
+0001fb 69
+0001fc 6e
+0001fd 76
+0001fe 61
+0001ff 6c
+000200 69
+000201 64
+000202 20
+000203 4f
+000204 6e
+000205 2f
+000206 4f
+000207 66
+000208 66
+000209 20
+00020a 73
+00020b 65
+00020c 74
+00020d 2c
+00020e 20
+00020f 75
+000210 73
+000211 65
+000212 0d
+000213 64
+000214 65
+000215 76
+000216 69
+000217 63
+000218 65
+000219 20
+00021a 73
+00021b 65
+00021c 74
+00021d 20
+00021e 73
+00021f 6f
+000220 75
+000221 6e
+000222 64
+000223 20
+000224 4f
+000225 4e
+000226 0d
+000227 6f
+000228 72
+000229 0d
+00022a 64
+00022b 65
+00022c 76
+00022d 69
+00022e 63
+00022f 65
+000230 20
+000231 73
+000232 65
+000233 74
+000234 20
+000235 6d
+000236 65
+000237 6d
+000238 6f
+000239 72
+00023a 79
+00023b 20
+00023c 4f
+00023d 46
+00023e 46
+00023f 00        ee_gsm_invalid_OnOff:		.db "invalid On/Off set, use", 0x0D, "device set sound ON", 0x0D, "or", 0x0D, "device set memory OFF",0  
                  //=======================================================================
 
 
@@ -5507,38 +8926,38 @@ counted separately from r26..r31 here.
 "ATmega32" register use summary:
 r0 :  13 r1 :  12 r2 :   0 r3 :   0 r4 :   0 r5 :   0 r6 :   0 r7 :   0 
 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 r13:   0 r14:   0 r15:   0 
-r16: 377 r17: 822 r18:  91 r19:  70 r20:   2 r21:   2 r22:   0 r23: 163 
-r24: 163 r25: 163 r26:  66 r27:  66 r28: 239 r29: 239 r30:  29 r31:  28 
-x  :  14 y  : 209 z  :  14 
-Registers used: 20 out of 35 (57.1%)
+r16: 682 r17:1128 r18:  89 r19:  74 r20:   0 r21:   0 r22:   0 r23: 199 
+r24: 199 r25: 199 r26: 315 r27: 315 r28: 575 r29: 575 r30:  33 r31:  32 
+x  :  24 y  : 313 z  :  14 
+Registers used: 18 out of 35 (51.4%)
 
 "ATmega32" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :  25 add   :  36 adiw  :   3 and   :   0 
-andi  :  36 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   7 brge  :   0 brhc  :   0 
-brhs  :   0 brid  :   0 brie  :   0 brlo  :   4 brlt  :   0 brmi  :   0 
-brne  :  55 brpl  :   1 brsh  :  13 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  : 112 cbi   :   7 cbr   :   0 
-clc   :   0 clh   :   0 cli   :  10 cln   :   0 clr   :  50 cls   :   0 
-clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   3 cpc   :   0 
-cpi   :  52 cpse  :   2 dec   :  25 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :  27 inc   :  26 jmp   :   2 
-ld    : 121 ldd   :   0 ldi   : 681 lds   :   0 lpm   :  27 lsl   :   0 
-lsr   :   0 mov   :  31 movw  :   0 mul   :  13 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   3 ori   :  14 out   :  66 pop   : 543 
-push  : 518 rcall :  59 ret   :  32 reti  :  29 rjmp  :  80 rol   :   0 
-ror   :   0 sbc   :   0 sbci  :   0 sbi   :   8 sbic  :   1 sbis  :  25 
-sbiw  :   0 sbr   :   0 sbrc  :   9 sbrs  :  19 sec   :   0 seh   :   0 
-sei   :  22 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
-sez   :   0 sleep :   0 spm   :   0 st    : 116 std   :   0 sts   :   0 
-sub   :   0 subi  :   7 swap  :   3 tst   :   0 wdr   :   0 
-Instructions used: 43 out of 113 (38.1%)
+.lds  :   0 .sts  :   0 adc   :  33 add   :  47 adiw  :  12 and   :   0 
+andi  :  48 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :  27 brge  :   0 brhc  :   0 
+brhs  :   0 brid  :   0 brie  :   0 brlo  :  14 brlt  :   0 brmi  :   0 
+brne  :  83 brpl  :   1 brsh  :  23 brtc  :   0 brts  :   0 brvc  :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  : 128 cbi   :   7 cbr   :   0 
+clc   :   0 clh   :   0 cli   :  10 cln   :   0 clr   : 118 cls   :   0 
+clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   6 cpc   :   0 
+cpi   : 114 cpse  :   2 dec   :  27 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :  41 inc   :  30 jmp   :   4 
+ld    : 184 ldd   :   0 ldi   :1161 lds   :   0 lpm   :  27 lsl   :   0 
+lsr   :   0 mov   :  34 movw  :   0 mul   :  13 muls  :   0 mulsu :   0 
+neg   :   0 nop   :   0 or    :   4 ori   :  42 out   :  88 pop   :1051 
+push  :1017 rcall : 138 ret   :  45 reti  :  29 rjmp  : 121 rol   :   0 
+ror   :   0 sbc   :   0 sbci  :   0 sbi   :   8 sbic  :   1 sbis  :  13 
+sbiw  :   1 sbr   :   0 sbrc  :  11 sbrs  :  20 sec   :   0 seh   :   0 
+sei   :  13 sen   :   0 ser   :   4 ses   :   0 set   :   0 sev   :   0 
+sez   :   0 sleep :   0 spm   :   0 st    : 167 std   :   0 sts   :   0 
+sub   :   0 subi  :   9 swap  :   4 tst   :   0 wdr   :   0 
+Instructions used: 45 out of 113 (39.8%)
 
 "ATmega32" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0017ba   6038      0   6038   32768  18.4%
-[.dseg] 0x000060 0x000142      0    226    226    2048  11.0%
-[.eseg] 0x000000 0x0000c0      0    192    192    1024  18.8%
+[.cseg] 0x000000 0x0027ec  10188      0  10188   32768  31.1%
+[.dseg] 0x000060 0x0004dd      0   1149   1149    2048  56.1%
+[.eseg] 0x000000 0x000240      0    576    576    1024  56.3%
 
 Assembly complete, 0 errors, 0 warnings

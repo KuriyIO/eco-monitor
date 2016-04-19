@@ -12,6 +12,15 @@
 		//all code which using timer 0 is there
 
  //==========================================================================
+
+ //==============TIMER 2 (8bit)==============================================
+
+		//Timer 2 is reserved for software UART
+		//you can see how it works in softUART.inc
+		//all code which using timer 0 is there
+
+ //==========================================================================
+
  //==============TIMER 1 (16-bit)============================================
 
  //======MACRO========================
@@ -41,9 +50,11 @@
  //======INTERRUPTS AND PROC==========
  //------On Match A Interrupt------
  Keyboard_check_interrupt:
+ sei
  push temp
  push YH
  push YL
+ 
 
  ldi YH,high(time_set_blink_count)
  ldi YL,low(time_set_blink_count)
@@ -92,6 +103,7 @@
  inc temp
  st Y,temp	
 
+ 
  pop YL
  pop YH
  pop temp

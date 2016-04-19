@@ -30,9 +30,9 @@
  .org $018 //SPI, STC Serial Transfer Complete
  reti
  .org $01A //USART, RXC USART, Rx Complete
- reti
+ jmp UART_receive
  .org $01C //USART, UDRE USART Data Register Empty
- reti
+ jmp UART_transmit
  .org $01E //USART, TXC USART, Tx Complete
  reti
  .org $020 //ADC ADC Conversion Complete

@@ -11,7 +11,7 @@
  .equ KBD_1 = 0
  .equ KBD_2 = 1
  .equ KBD_3 = 2
- .equ count_of_ticks = 1	//count of ticks for prevent false activation macro
+ .equ count_of_ticks = 5	//count of ticks for prevent false activation macro
 
  //=======MACRO==========================================
  //-------Preventing false activation----------------------------
@@ -72,6 +72,7 @@
  //-------Check buttons------------------------------------------
  .macro keyboard_check
 
+	push temp
 	in temp,pind		//set pins without corruption of other pins
 	ori temp, 0 | (1<<KBD_A) | (1<<KBD_B) | (1<<KBD_C) | (1<<KBD_D)
 	andi temp, (~(0 | (1<<KBD_A)))//set KBD_A as 0, and KBD_B,C,D as 1
@@ -128,6 +129,7 @@
 		sbis pinb,KBD_1
 		rcall On_grid_Click
 
+	pop temp
  .endm
 
  //=======PROCEDURES=====================================
@@ -157,9 +159,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_3		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On 2 click-----------------------------
  On_2_click:
@@ -191,9 +193,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_2		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On 3 click-----------------------------
  On_3_click:
@@ -221,9 +223,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_1		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On 4 click-----------------------------
  On_4_click:
@@ -251,9 +253,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_3		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On 5 click-----------------------------
  On_5_click:
@@ -285,9 +287,9 @@
  pop YH
  pop temp
  
- sei
+ /*sei
  sbis pinb,KBD_2		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On 6 click-----------------------------
  On_6_click:
@@ -315,9 +317,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_1		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On 7 click-----------------------------
  On_7_click:
@@ -345,9 +347,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_3		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On 8 click-----------------------------
  On_8_click:
@@ -379,9 +381,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_2		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On 9 click-----------------------------
  On_9_click:
@@ -409,9 +411,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_1		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On * click-----------------------------
  On_asterisk_click:
@@ -435,9 +437,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_3		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On 0 click-----------------------------
  On_0_click:
@@ -465,9 +467,9 @@
  pop YH
  pop temp
 
- sei
+ /*sei
  sbis pinb,KBD_2		//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //-------On # click-----------------------------
  On_grid_click:
@@ -491,9 +493,9 @@
  pop YH
  pop temp
  
- sei
+ /*sei
  sbis pinb,KBD_1	//wait until button is turned off
- rjmp PC-1
+ rjmp PC-1*/
  ret
  //----------------------------------------------
 //================================================================
