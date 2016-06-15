@@ -16,82 +16,6 @@
  //========MACRO================================================================
 
 //------------------------------------------------------------------------
-
- //      LCD initialization
- .macro LCD_init
- LCD_port_init		//init port C as output
-
- delay 242,15,5		//50 ms delay
- ldi temp,0x30
- out portc,temp		//send 0x30
- sbi portc,E
- lpm
- cbi portc,E
- delay 229,30,9		//100 ms delay
- sbi portc,E
- lpm				//send 0x30
- cbi portc,E
- delay 242,15,5		//50 ms delay 
- sbi portc,E
- lpm				//send 0x30
- cbi portc,E
- delay 242,15,5		//50 ms delay
- ldi temp,0x20
- out portc,temp
- sbi portc,E		//send 0x20
- lpm
- cbi portc,E
- delay 240,1,1		//delay 45us
-
- LCD_send_cmd 0x28	//init 4-bit mode 2 lines
- delay 240,1,1 //delay 45us
- LCD_send_cmd 0x01	//clear display
- delay 142,42,1 //delay 2ms
- LCD_send_cmd 0x0F	//display ON
- delay 142,42,1 //delay 2ms
-
- LCD_send_cmd 0b0100_0000	//Set CGRAM adress as 0x00
- delay 240,1,1 //delay 45us
-
- LCD_send_symbol 0b00000000			//Start sending bytes for draw a new symbol
- delay 240,1,1 //delay 45us			//in this case i draw upper arrow
- LCD_send_symbol 0b00000000			//for do that i sending next bytes
- delay 240,1,1 //delay 45us			//
- LCD_send_symbol 0b00000000			//00000000
- delay 240,1,1 //delay 45us			//00000000
- LCD_send_symbol 0b00000000			//00000000
- delay 240,1,1 //delay 45us			//00000000
- LCD_send_symbol 0b00000100			//00000100
- delay 240,1,1 //delay 45us			//00001110
- LCD_send_symbol 0b00001110			//00011111
- delay 240,1,1 //delay 45us			//00000000
- LCD_send_symbol 0b00011111			//
- delay 240,1,1 //delay 45us			//
- LCD_send_symbol 0b00000000			//
- delay 240,1,1 //delay 45us			//
-
- LCD_send_symbol 0b00000000			//the same like previous but for draw down arrow
- delay 240,1,1 //delay 45us
- LCD_send_symbol 0b00011111
- delay 240,1,1 //delay 45us
- LCD_send_symbol 0b00001110
- delay 240,1,1 //delay 45us
- LCD_send_symbol 0b00000100
- delay 240,1,1 //delay 45us
- LCD_send_symbol 0b00000000
- delay 240,1,1 //delay 45us
- LCD_send_symbol 0b00000000
- delay 240,1,1 //delay 45us
- LCD_send_symbol 0b00000000
- delay 240,1,1 //delay 45us
- LCD_send_symbol 0b00000000
- delay 240,1,1 //delay 45us
-
- first_line	//set DDRAM as 0 (in start of first line)
- .endm
-
-//------------------------------------------------------------------------
-
  //      LCD clear
  .macro LCD_clear
  push temp
@@ -274,4 +198,159 @@
  sei
  ret
 //------------------------------------------------------------------------
-//                          sorry for bad english
+
+//      LCD initialization
+ LCD_init:
+ LCD_port_init		//init port C as output
+
+ delay 242,15,5		//50 ms delay
+ ldi temp,0x30
+ out portc,temp		//send 0x30
+ sbi portc,E
+ lpm
+ cbi portc,E
+ delay 229,30,9		//100 ms delay
+ sbi portc,E
+ lpm				//send 0x30
+ cbi portc,E
+ delay 242,15,5		//50 ms delay 
+ sbi portc,E
+ lpm				//send 0x30
+ cbi portc,E
+ delay 242,15,5		//50 ms delay
+ ldi temp,0x20
+ out portc,temp
+ sbi portc,E		//send 0x20
+ lpm
+ cbi portc,E
+ delay 240,1,1		//delay 45us
+
+ LCD_send_cmd 0x28	//init 4-bit mode 2 lines
+ delay 240,1,1 //delay 45us
+ delay 142,42,1 //delay 2ms ?????????????????????????????
+ LCD_send_cmd 0x01	//clear display
+ delay 142,42,1 //delay 2ms
+ delay 142,42,1 //delay 2ms ?????????????????????????????
+ LCD_send_cmd 0x0C	//display ON
+ delay 142,42,1 //delay 2ms
+ delay 142,42,1 //delay 2ms ?????????????????????????????
+
+ rcall LCD_add_symbols
+
+ first_line	//set DDRAM as 0 (in start of first line)
+ ret
+
+//------------------------------------------------------------------------
+
+//-----------------Short init---------------------------------------------
+LCD_Short_init:
+
+ /*ldi temp,0x30
+ out portc,temp		//send 0x30
+ sbi portc,E
+ lpm
+ cbi portc,E
+ delay 229,30,9		//100 ms delay
+ sbi portc,E
+ lpm				//send 0x30
+ cbi portc,E
+ delay 242,15,5		//50 ms delay 
+ sbi portc,E
+ lpm				//send 0x30
+ cbi portc,E
+ delay 242,15,5		//50 ms delay
+ ldi temp,0x20
+ out portc,temp
+ sbi portc,E		//send 0x20
+ lpm
+ cbi portc,E
+ delay 240,1,1		//delay 45us
+
+ LCD_send_cmd 0x28	//init 4-bit mode 2 lines
+ delay 240,1,1 //delay 45us
+ //delay 142,42,1 //delay 2ms ?????????????????????????????
+ //LCD_send_cmd 0x01	//clear display
+ //delay 142,42,1 //delay 2ms
+ //delay 142,42,1 //delay 2ms ?????????????????????????????*/
+ LCD_send_cmd 0x0C	//display ON
+ delay 142,42,1 //delay 2ms
+ //delay 142,42,1 //delay 2ms ?????????????????????????????
+ rcall LCD_add_symbols
+ //first_line	//set DDRAM as 0 (in start of first line)
+ret
+//------------------------------------------------------------------------
+
+//--------------- Add symbols --------------------------------------------
+LCD_add_symbols:
+ LCD_send_cmd 0b0100_0000	//Set CGRAM adress as 0x00
+ delay 240,1,1 //delay 45us
+
+ LCD_send_symbol 0b00000000			//Start sending bytes for draw a new symbol
+ delay 240,1,1 //delay 45us			//in this case i draw upper arrow
+ LCD_send_symbol 0b00000000			//for do that i sending next bytes
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//00000000
+ delay 240,1,1 //delay 45us			//00000000
+ LCD_send_symbol 0b00000000			//00000000
+ delay 240,1,1 //delay 45us			//00000000
+ LCD_send_symbol 0b00000100			//00000100
+ delay 240,1,1 //delay 45us			//00001110
+ LCD_send_symbol 0b00001110			//00011111
+ delay 240,1,1 //delay 45us			//00000000
+ LCD_send_symbol 0b00011111			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+
+ LCD_send_symbol 0b00000000			//the same like previous but for draw down arrow
+ delay 240,1,1 //delay 45us
+ LCD_send_symbol 0b00011111
+ delay 240,1,1 //delay 45us
+ LCD_send_symbol 0b00001110
+ delay 240,1,1 //delay 45us
+ LCD_send_symbol 0b00000100
+ delay 240,1,1 //delay 45us
+ LCD_send_symbol 0b00000000
+ delay 240,1,1 //delay 45us
+ LCD_send_symbol 0b00000000
+ delay 240,1,1 //delay 45us
+ LCD_send_symbol 0b00000000
+ delay 240,1,1 //delay 45us
+ LCD_send_symbol 0b00000000
+ delay 240,1,1 //delay 45us
+
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000 		//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+
+ LCD_send_symbol 0b00001100			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00010010			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00010010			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00001100			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ LCD_send_symbol 0b00000000			//
+ delay 240,1,1 //delay 45us			//
+ ret
+//------------------------------------------------------------------------

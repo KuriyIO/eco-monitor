@@ -11,7 +11,7 @@
  .equ KBD_1 = 0
  .equ KBD_2 = 1
  .equ KBD_3 = 2
- .equ count_of_ticks = 5	//count of ticks for prevent false activation macro
+ .equ count_of_ticks = 10	//count of ticks for prevent false activation macro
 
  //=======MACRO==========================================
  //-------Preventing false activation----------------------------
@@ -427,9 +427,9 @@
  ldi YH,high(menu_location)	//
  ldi YL,low(menu_location)	//read number of current page from SRAM
  ld menu_loc,Y				//
- cpi menu_loc,4
+ cpi menu_loc,2
  brne PC+2
- rcall time_set_start
+ call time_set_start
 
  return_On_asterisk_Click:
  pop r16
@@ -483,7 +483,7 @@
  ldi YH,high(menu_location)	//
  ldi YL,low(menu_location)	//read number of current page from SRAM
  ld menu_loc,Y				//
- cpi menu_loc,4
+ cpi menu_loc,2
  brne PC+2
  rcall time_set_set_next_pair
  

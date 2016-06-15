@@ -200,7 +200,7 @@
  inc temp				//set next stage
  st Y,temp
 
- ldi temp, ((1<<TWINT)|(1<<TWEN)|(1<<TWIE))	//send data pointer
+ ldi temp, ((1<<TWINT)|(1<<TWEN)|(1<<TWIE))
  out TWCR,temp
 
  pop YL

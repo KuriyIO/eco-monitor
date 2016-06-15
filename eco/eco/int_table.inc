@@ -20,11 +20,11 @@
  .org $00E //TIMER1 COMPA Timer/Counter1 Compare Match A
  jmp Keyboard_check_interrupt
  .org $010 //TIMER1 COMPB Timer/Counter1 Compare Match B
- rjmp Sound_play_and_pause
+ jmp Sound_play_and_pause
  .org $012 //TIMER1 OVF Timer/Counter1 Overflow
  reti
  .org $014 //TIMER0 COMP Timer/Counter0 Compare Match
- rjmp Sound_generation
+ jmp Sound_generation
  .org $016 //TIMER0 OVF Timer/Counter0 Overflow
  reti
  .org $018 //SPI, STC Serial Transfer Complete
@@ -42,7 +42,7 @@
  .org $024 //ANA_COMP Analog Comparator
  reti
  .org $026 //TWI Two-wire Serial Interface
- rjmp I2C_Interrupt
+ reti
  .org $028 //SPM_RDY Store Program Memory Ready
  reti
 //===============================================================================================

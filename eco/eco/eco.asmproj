@@ -67,6 +67,9 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="bmp.inc">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="core_init.inc">
       <SubType>Code</SubType>
     </Compile>
@@ -85,6 +88,9 @@
     <Compile Include="GSM.inc">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="I2C.inc">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="I2C_Real_Time_Clock.inc">
       <SubType>Code</SubType>
     </Compile>
@@ -97,7 +103,16 @@
     <Compile Include="LCD.inc">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="math.inc">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="menu.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Pressure.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RTC.inc">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="softUART.inc">
@@ -107,6 +122,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="strings.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Temp.inc">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="timers.inc">

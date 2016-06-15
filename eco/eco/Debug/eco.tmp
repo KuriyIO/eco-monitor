@@ -14,7 +14,8 @@
   <FILE>D:\diplom\eco\eco\delay.inc</FILE>
   <FILE>D:\diplom\eco\eco\LCD.inc</FILE>
   <FILE>D:\diplom\eco\eco\menu.inc</FILE>
-  <FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE>
+  <FILE>D:\diplom\eco\eco\I2C.inc</FILE>
+  <FILE>D:\diplom\eco\eco\RTC.inc</FILE>
   <FILE>D:\diplom\eco\eco\TimeSet.inc</FILE>
   <FILE>D:\diplom\eco\eco\sound.inc</FILE>
   <FILE>D:\diplom\eco\eco\keyboard.inc</FILE>
@@ -22,6 +23,7 @@
   <FILE>D:\diplom\eco\eco\UART.inc</FILE>
   <FILE>D:\diplom\eco\eco\strings.inc</FILE>
   <FILE>D:\diplom\eco\eco\GSM.inc</FILE>
+  <FILE>D:\diplom\eco\eco\Temp.inc</FILE>
   <FILE>D:\diplom\eco\eco\core_init.inc</FILE>
   <FILE>D:\diplom\eco\eco\EEPROM.inc</FILE>
  </INCLUDED_FILES>
@@ -96,47 +98,67 @@
   <Off_str><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>70</LINE></Off_str>
   <GSM_invalid_time_msg><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>71</LINE></GSM_invalid_time_msg>
   <GSM_invalid_OnOff><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>72</LINE></GSM_invalid_OnOff>
-  <GSM_sms_index><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>73</LINE></GSM_sms_index>
-  <GSM_phone_number><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>74</LINE></GSM_phone_number>
-  <end_of_string_phone><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>75</LINE></end_of_string_phone>
-  <MC_Settings><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>76</LINE></MC_Settings>
-  <Sound_Settings><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>77</LINE></Sound_Settings>
-  <reset><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>27</LINE></reset>
+  <GSM_ERROR><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>73</LINE></GSM_ERROR>
+  <GSM_CSQ><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>74</LINE></GSM_CSQ>
+  <GSM_sms_index><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>75</LINE></GSM_sms_index>
+  <GSM_phone_number><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>76</LINE></GSM_phone_number>
+  <end_of_string_phone><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>77</LINE></end_of_string_phone>
+  <MC_Settings><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>78</LINE></MC_Settings>
+  <Sound_Settings><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>79</LINE></Sound_Settings>
+  <Wire_temp><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>80</LINE></Wire_temp>
+  <temp_buffer><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>81</LINE></temp_buffer>
+  <AC1><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>86</LINE></AC1>
+  <AC2><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>87</LINE></AC2>
+  <AC3><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>88</LINE></AC3>
+  <AC4><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>89</LINE></AC4>
+  <AC5><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>90</LINE></AC5>
+  <AC6><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>91</LINE></AC6>
+  <B1><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>92</LINE></B1>
+  <B2><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>93</LINE></B2>
+  <MB><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>94</LINE></MB>
+  <MC><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>95</LINE></MC>
+  <MD><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>96</LINE></MD>
+  <UT><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>99</LINE></UT>
+  <UP><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>100</LINE></UP>
+  <X1><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>103</LINE></X1>
+  <X2><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>104</LINE></X2>
+  <B5><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>105</LINE></B5>
+  <T><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>106</LINE></T>
+  <B6><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>108</LINE></B6>
+  <X3><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>109</LINE></X3>
+  <B3><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>110</LINE></B3>
+  <B4><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>111</LINE></B4>
+  <B7><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>112</LINE></B7>
+  <P><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>113</LINE></P>
+  <testtest><FILE>D:\diplom\eco\eco\DSEG.inc</FILE><LINE>116</LINE></testtest>
+  <reset><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>39</LINE></reset>
   <Keyboard_check_interrupt><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>52</LINE></Keyboard_check_interrupt>
   <Sound_play_and_pause><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>159</LINE></Sound_play_and_pause>
   <Sound_generation><FILE>D:\diplom\eco\eco\sound.inc</FILE><LINE>147</LINE></Sound_generation>
-  <UART_receive><FILE>D:\diplom\eco\eco\UART.inc</FILE><LINE>275</LINE></UART_receive>
-  <UART_transmit><FILE>D:\diplom\eco\eco\UART.inc</FILE><LINE>190</LINE></UART_transmit>
-  <I2C_Interrupt><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>15</LINE></I2C_Interrupt>
+  <UART_receive><FILE>D:\diplom\eco\eco\UART.inc</FILE><LINE>271</LINE></UART_receive>
+  <UART_transmit><FILE>D:\diplom\eco\eco\UART.inc</FILE><LINE>186</LINE></UART_transmit>
   <delay_proc><FILE>D:\diplom\eco\eco\delay.inc</FILE><LINE>12</LINE></delay_proc>
   <delay_proc_label><FILE>D:\diplom\eco\eco\delay.inc</FILE><LINE>14</LINE></delay_proc_label>
-  <LCD_send_byte_proc><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>229</LINE></LCD_send_byte_proc>
-  <EEPROM_read_byte><FILE>D:\diplom\eco\eco\menu.inc</FILE><LINE>217</LINE></EEPROM_read_byte>
-  <I2C_write_data><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>284</LINE></I2C_write_data>
-  <stage_1><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>58</LINE></stage_1>
-  <stage_2><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>74</LINE></stage_2>
-  <stage_3><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>108</LINE></stage_3>
-  <stage_4_read><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>140</LINE></stage_4_read>
-  <stage_5_read><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>162</LINE></stage_5_read>
-  <stage_6_read><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>190</LINE></stage_6_read>
-  <stop_stage><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>230</LINE></stop_stage>
-  <I2C_error><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>212</LINE></I2C_error>
-  <stage_4_write><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>255</LINE></stage_4_write>
-  <I2C_Clock_Set_New_Time><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>393</LINE></I2C_Clock_Set_New_Time>
-  <I2C_write_byte><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>731</LINE></I2C_write_byte>
-  <I2C_Clock_Get_Time><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>512</LINE></I2C_Clock_Get_Time>
-  <I2C_read_byte><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>769</LINE></I2C_read_byte>
-  <Time_to_string><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>630</LINE></Time_to_string>
-  <return_time_to_string><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>675</LINE></return_time_to_string>
-  <Time_to_string_loop><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>654</LINE></Time_to_string_loop>
-  <String_to_time><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>686</LINE></String_to_time>
-  <String_to_time_loop><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>703</LINE></String_to_time_loop>
-  <I2C_error_restart_write><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>736</LINE></I2C_error_restart_write>
-  <I2C_wait_write_end><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>751</LINE></I2C_wait_write_end>
-  <I2C_error_restart_read><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>774</LINE></I2C_error_restart_read>
-  <I2C_wait_read_end><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>789</LINE></I2C_wait_read_end>
-  <I2C_Clock_Enable><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>808</LINE></I2C_Clock_Enable>
-  <I2C_Clock_Set_24Hour><FILE>D:\diplom\eco\eco\I2C_Real_Time_Clock.inc</FILE><LINE>832</LINE></I2C_Clock_Set_24Hour>
+  <LCD_send_byte_proc><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>153</LINE></LCD_send_byte_proc>
+  <LCD_init><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>203</LINE></LCD_init>
+  <LCD_add_symbols><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>284</LINE></LCD_add_symbols>
+  <LCD_Short_init><FILE>D:\diplom\eco\eco\LCD.inc</FILE><LINE>246</LINE></LCD_Short_init>
+  <EEPROM_read_byte><FILE>D:\diplom\eco\eco\menu.inc</FILE><LINE>219</LINE></EEPROM_read_byte>
+  <i2c_write><FILE>D:\diplom\eco\eco\I2C.inc</FILE><LINE>165</LINE></i2c_write>
+  <i2c_write_err><FILE>D:\diplom\eco\eco\I2C.inc</FILE><LINE>236</LINE></i2c_write_err>
+  <i2c_write_b><FILE>D:\diplom\eco\eco\I2C.inc</FILE><LINE>207</LINE></i2c_write_b>
+  <i2c_write_stop><FILE>D:\diplom\eco\eco\I2C.inc</FILE><LINE>229</LINE></i2c_write_stop>
+  <i2c_read><FILE>D:\diplom\eco\eco\I2C.inc</FILE><LINE>253</LINE></i2c_read>
+  <i2c_read_err><FILE>D:\diplom\eco\eco\I2C.inc</FILE><LINE>364</LINE></i2c_read_err>
+  <i2c_read_b><FILE>D:\diplom\eco\eco\I2C.inc</FILE><LINE>326</LINE></i2c_read_b>
+  <i2c_read_stop><FILE>D:\diplom\eco\eco\I2C.inc</FILE><LINE>357</LINE></i2c_read_stop>
+  <I2C_Clock_Get_Time><FILE>D:\diplom\eco\eco\RTC.inc</FILE><LINE>63</LINE></I2C_Clock_Get_Time>
+  <Time_to_string><FILE>D:\diplom\eco\eco\RTC.inc</FILE><LINE>92</LINE></Time_to_string>
+  <return_time_to_string><FILE>D:\diplom\eco\eco\RTC.inc</FILE><LINE>137</LINE></return_time_to_string>
+  <Time_to_string_loop><FILE>D:\diplom\eco\eco\RTC.inc</FILE><LINE>116</LINE></Time_to_string_loop>
+  <String_to_time><FILE>D:\diplom\eco\eco\RTC.inc</FILE><LINE>149</LINE></String_to_time>
+  <String_to_time_loop><FILE>D:\diplom\eco\eco\RTC.inc</FILE><LINE>166</LINE></String_to_time_loop>
+  <I2C_Clock_Set_New_Time><FILE>D:\diplom\eco\eco\RTC.inc</FILE><LINE>194</LINE></I2C_Clock_Set_New_Time>
   <time_set_blink><FILE>D:\diplom\eco\eco\TimeSet.inc</FILE><LINE>13</LINE></time_set_blink>
   <return_time_set_blink><FILE>D:\diplom\eco\eco\TimeSet.inc</FILE><LINE>76</LINE></return_time_set_blink>
   <blink_pair><FILE>D:\diplom\eco\eco\TimeSet.inc</FILE><LINE>56</LINE></blink_pair>
@@ -190,8 +212,8 @@
   <return_On_grid_Click><FILE>D:\diplom\eco\eco\keyboard.inc</FILE><LINE>490</LINE></return_On_grid_Click>
   <skip_A_addition><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>90</LINE></skip_A_addition>
   <continue_A_add><FILE>D:\diplom\eco\eco\timers.inc</FILE><LINE>99</LINE></continue_A_add>
-  <UART_stop_transmit><FILE>D:\diplom\eco\eco\UART.inc</FILE><LINE>226</LINE></UART_stop_transmit>
-  <UART_return_transmit><FILE>D:\diplom\eco\eco\UART.inc</FILE><LINE>241</LINE></UART_return_transmit>
+  <UART_stop_transmit><FILE>D:\diplom\eco\eco\UART.inc</FILE><LINE>222</LINE></UART_stop_transmit>
+  <UART_return_transmit><FILE>D:\diplom\eco\eco\UART.inc</FILE><LINE>237</LINE></UART_return_transmit>
   <str_search_proc><FILE>D:\diplom\eco\eco\strings.inc</FILE><LINE>11</LINE></str_search_proc>
   <str_search_loop><FILE>D:\diplom\eco\eco\strings.inc</FILE><LINE>24</LINE></str_search_loop>
   <str_search_return_false><FILE>D:\diplom\eco\eco\strings.inc</FILE><LINE>46</LINE></str_search_return_false>
@@ -215,53 +237,76 @@
   <str_cpy_proc_len><FILE>D:\diplom\eco\eco\strings.inc</FILE><LINE>211</LINE></str_cpy_proc_len>
   <str_cpy_len_loop><FILE>D:\diplom\eco\eco\strings.inc</FILE><LINE>222</LINE></str_cpy_len_loop>
   <str_cpy_len_return><FILE>D:\diplom\eco\eco\strings.inc</FILE><LINE>230</LINE></str_cpy_len_return>
-  <GSM_main><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>114</LINE></GSM_main>
-  <GSM_return><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>560</LINE></GSM_return>
-  <GSM_restart><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>125</LINE></GSM_restart>
-  <GSM_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>165</LINE></GSM_get_parameter>
-  <GSM_set_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>245</LINE></GSM_set_parameter>
-  <GSM_search_time_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>182</LINE></GSM_search_time_get_parameter>
-  <GSM_send_SMS_command><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>399</LINE></GSM_send_SMS_command>
-  <GSM_search_temp_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>194</LINE></GSM_search_temp_get_parameter>
-  <GSM_search_pressure_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>206</LINE></GSM_search_pressure_get_parameter>
-  <GSM_search_sound_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>218</LINE></GSM_search_sound_get_parameter>
-  <GSM_search_memory_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>230</LINE></GSM_search_memory_get_parameter>
-  <GSM_search_unsupported_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>241</LINE></GSM_search_unsupported_get_parameter>
-  <GSM_search_sound_set_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>287</LINE></GSM_search_sound_set_parameter>
-  <GSM_time_validate><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>605</LINE></GSM_time_validate>
-  <GSM_set_time_error><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>279</LINE></GSM_set_time_error>
-  <GSM_search_memory_set_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>342</LINE></GSM_search_memory_set_parameter>
-  <GSM_OnOff_Validate><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>698</LINE></GSM_OnOff_Validate>
-  <GSM_set_sound_error><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>334</LINE></GSM_set_sound_error>
-  <GSM_set_sound_off><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>319</LINE></GSM_set_sound_off>
-  <GSM_set_sound_return><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>326</LINE></GSM_set_sound_return>
-  <GSM_search_unsupported_set_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>396</LINE></GSM_search_unsupported_set_parameter>
-  <GSM_set_memory_error><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>389</LINE></GSM_set_memory_error>
-  <GSM_set_memory_off><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>374</LINE></GSM_set_memory_off>
-  <GSM_set_memory_return><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>381</LINE></GSM_set_memory_return>
-  <GSM_answer_set><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>452</LINE></GSM_answer_set>
-  <GSM_answer_AllInfo><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>466</LINE></GSM_answer_AllInfo>
-  <GSM_answer_time><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>492</LINE></GSM_answer_time>
-  <GSM_answer_temp><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>498</LINE></GSM_answer_temp>
-  <GSM_answer_pressure><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>504</LINE></GSM_answer_pressure>
-  <GSM_answer_sound><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>510</LINE></GSM_answer_sound>
-  <GSM_answer_memory><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>516</LINE></GSM_answer_memory>
-  <GSM_answer_invalid_get><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>522</LINE></GSM_answer_invalid_get>
-  <GSM_answer_invalid_time><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>526</LINE></GSM_answer_invalid_time>
-  <GSM_answer_invalid_OnOff><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>530</LINE></GSM_answer_invalid_OnOff>
-  <GSM_answer_invalid_set><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>534</LINE></GSM_answer_invalid_set>
-  <GSM_answer_OK><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>538</LINE></GSM_answer_OK>
-  <GSM_answer_continue><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>542</LINE></GSM_answer_continue>
-  <GSM_init_strings><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>566</LINE></GSM_init_strings>
+  <GSM_main><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>143</LINE></GSM_main>
+  <GSM_return><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>642</LINE></GSM_return>
+  <GSM_restart><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>173</LINE></GSM_restart>
+  <GSM_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>221</LINE></GSM_get_parameter>
+  <GSM_set_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>301</LINE></GSM_set_parameter>
+  <GSM_search_time_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>238</LINE></GSM_search_time_get_parameter>
+  <GSM_send_SMS_command><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>455</LINE></GSM_send_SMS_command>
+  <GSM_search_temp_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>250</LINE></GSM_search_temp_get_parameter>
+  <GSM_search_pressure_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>262</LINE></GSM_search_pressure_get_parameter>
+  <GSM_search_sound_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>274</LINE></GSM_search_sound_get_parameter>
+  <GSM_search_memory_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>286</LINE></GSM_search_memory_get_parameter>
+  <GSM_search_unsupported_get_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>297</LINE></GSM_search_unsupported_get_parameter>
+  <GSM_search_sound_set_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>343</LINE></GSM_search_sound_set_parameter>
+  <GSM_time_validate><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>693</LINE></GSM_time_validate>
+  <GSM_set_time_error><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>335</LINE></GSM_set_time_error>
+  <GSM_search_memory_set_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>398</LINE></GSM_search_memory_set_parameter>
+  <GSM_OnOff_Validate><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>786</LINE></GSM_OnOff_Validate>
+  <GSM_set_sound_error><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>390</LINE></GSM_set_sound_error>
+  <GSM_set_sound_off><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>375</LINE></GSM_set_sound_off>
+  <GSM_set_sound_return><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>382</LINE></GSM_set_sound_return>
+  <GSM_search_unsupported_set_parameter><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>452</LINE></GSM_search_unsupported_set_parameter>
+  <GSM_set_memory_error><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>445</LINE></GSM_set_memory_error>
+  <GSM_set_memory_off><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>430</LINE></GSM_set_memory_off>
+  <GSM_set_memory_return><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>437</LINE></GSM_set_memory_return>
+  <GSM_answer_set><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>510</LINE></GSM_answer_set>
+  <GSM_answer_AllInfo><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>524</LINE></GSM_answer_AllInfo>
+  <GSM_answer_time><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>542</LINE></GSM_answer_time>
+  <GSM_answer_temp><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>549</LINE></GSM_answer_temp>
+  <GSM_answer_pressure><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>556</LINE></GSM_answer_pressure>
+  <GSM_answer_sound><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>563</LINE></GSM_answer_sound>
+  <GSM_answer_memory><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>570</LINE></GSM_answer_memory>
+  <GSM_answer_invalid_get><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>577</LINE></GSM_answer_invalid_get>
+  <GSM_answer_invalid_time><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>582</LINE></GSM_answer_invalid_time>
+  <GSM_answer_invalid_OnOff><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>587</LINE></GSM_answer_invalid_OnOff>
+  <GSM_answer_invalid_set><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>592</LINE></GSM_answer_invalid_set>
+  <GSM_answer_OK><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>597</LINE></GSM_answer_OK>
+  <GSM_answer_continue><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>602</LINE></GSM_answer_continue>
+  <GSM_correct_return><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>637</LINE></GSM_correct_return>
+  <GSM_init_strings><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>654</LINE></GSM_init_strings>
   <ee_gsm_new_SMS><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>26</LINE></ee_gsm_new_SMS>
-  <gsm_EE_read_loop><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>584</LINE></gsm_EE_read_loop>
-  <GSM_time_validate_return_false><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>690</LINE></GSM_time_validate_return_false>
-  <GSM_time_validate_return_true><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>688</LINE></GSM_time_validate_return_true>
-  <GSM_OnOff_Validate_return_false><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>722</LINE></GSM_OnOff_Validate_return_false>
-  <GSM_OnOff_Validate_return_true><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>720</LINE></GSM_OnOff_Validate_return_true>
+  <gsm_EE_read_loop><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>672</LINE></gsm_EE_read_loop>
+  <GSM_time_validate_return_false><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>778</LINE></GSM_time_validate_return_false>
+  <GSM_time_validate_return_true><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>776</LINE></GSM_time_validate_return_true>
+  <GSM_OnOff_Validate_return_false><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>810</LINE></GSM_OnOff_Validate_return_false>
+  <GSM_OnOff_Validate_return_true><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>808</LINE></GSM_OnOff_Validate_return_true>
+  <dbg_TX><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>818</LINE></dbg_TX>
+  <EE_write_loop><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>838</LINE></EE_write_loop>
+  <EEPROM_write><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>898</LINE></EEPROM_write>
+  <dbg_RX><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>858</LINE></dbg_RX>
+  <EE_write1_loop><FILE>D:\diplom\eco\eco\GSM.inc</FILE><LINE>878</LINE></EE_write1_loop>
+  <Temperature><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>46</LINE></Temperature>
+  <Wire_Reset_proc><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>116</LINE></Wire_Reset_proc>
+  <wire_return><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>108</LINE></wire_return>
+  <Wire_Init><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>131</LINE></Wire_Init>
+  <Wire_Measure><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>141</LINE></Wire_Measure>
+  <Wire_ReadTemp><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>148</LINE></Wire_ReadTemp>
+  <wire_temp_plus><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>86</LINE></wire_temp_plus>
+  <wire_refresh><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>90</LINE></wire_refresh>
+  <wire_lbl><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>98</LINE></wire_lbl>
+  <Wire_delay2_proc><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>206</LINE></Wire_delay2_proc>
+  <Wire_Write_proc><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>180</LINE></Wire_Write_proc>
+  <Wire_Read_proc><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>159</LINE></Wire_Read_proc>
+  <wire_read_bit><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>162</LINE></wire_read_bit>
+  <Wire_delay1_proc><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>215</LINE></Wire_delay1_proc>
+  <wire_write_bit><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>182</LINE></wire_write_bit>
+  <wire_write_1><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>193</LINE></wire_write_1>
+  <wire_next_bit><FILE>D:\diplom\eco\eco\Temp.inc</FILE><LINE>198</LINE></wire_next_bit>
   <RAM_Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>7</LINE></RAM_Flush>
   <Flush><FILE>D:\diplom\eco\eco\core_init.inc</FILE><LINE>11</LINE></Flush>
-  <main><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>44</LINE></main>
+  <main><FILE>D:\diplom\eco\eco\eco.asm</FILE><LINE>111</LINE></main>
   <ee_pressure_msg><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>11</LINE></ee_pressure_msg>
   <ee_temp_msg><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>12</LINE></ee_temp_msg>
   <ee_time_msg><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>13</LINE></ee_time_msg>
@@ -296,5 +341,8 @@
   <ee_Off_str><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>46</LINE></ee_Off_str>
   <ee_gsm_invalid_time><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>47</LINE></ee_gsm_invalid_time>
   <ee_gsm_invalid_OnOff><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>48</LINE></ee_gsm_invalid_OnOff>
+  <ee_gsm_Error><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>49</LINE></ee_gsm_Error>
+  <ee_gsm_CSQ><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>50</LINE></ee_gsm_CSQ>
+  <qwe><FILE>D:\diplom\eco\eco\EEPROM.inc</FILE><LINE>52</LINE></qwe>
  </LABELS>
 </ASSEMBLER_INFO>

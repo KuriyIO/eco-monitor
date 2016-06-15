@@ -42,16 +42,14 @@ push temp
 push byte
 
 /* Clear buffer pointer */
-ldi YH, high(UART_TX_byte_p)
-ldi YL, low(UART_TX_byte_p)
 clr temp	//temp = 0
-st Y, temp
+sts UART_TX_byte_p, temp
 
 /* Clear buffer */
 ldi YH, high(UART_TX_buffer)
 ldi YL, low(UART_TX_buffer)	//load buffer adress
 
-ser temp	//temp = 0xFF
+clr temp	//temp = 0
 clr byte	//byte = 0
 
 UART_clear_TX_loop:
@@ -74,16 +72,14 @@ push temp
 push byte
 
 /* Clear buffer pointer */
-ldi YH, high(UART_RX_byte_p)
-ldi YL, low(UART_RX_byte_p)
 clr temp	//temp = 0
-st Y, temp
+sts UART_RX_byte_p, temp
 
 /* Clear buffer */
 ldi YH, high(UART_RX_buffer)
 ldi YL, low(UART_RX_buffer)	//load buffer adress
 
-ser temp	//temp = 0xFF
+clr temp	//temp = 0
 clr byte	//byte = 0
 
 UART_clear_RX_loop:

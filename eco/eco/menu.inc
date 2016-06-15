@@ -32,6 +32,8 @@
  push YH
  push YL
 
+ call LCD_Short_init
+
  ldi YH,high(menu_location)		//load to Y register adress of
  ldi YL,low(menu_location)		//current menu page
  ld menu_loc,Y					//read from SRAM current menu page

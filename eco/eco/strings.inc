@@ -253,7 +253,7 @@
  ldi XL, low(@0)
  ldi YH, high(@1)
  ldi YL, low(@1)
- rcall str_search_proc
+ call str_search_proc
 
  pop YL
  pop YH
@@ -317,7 +317,7 @@
  ldi YL, low(@1)
  clr byte
 
- rcall str_concat_proc
+ call str_concat_proc
 
  pop byte
  pop YL
@@ -346,7 +346,7 @@
  ldi YL, low(@1)
  ldi byte, @2
 
- rcall str_concat_proc
+ call str_concat_proc
 
  pop byte
  pop YL
@@ -388,7 +388,7 @@
  ldi YH, high(@1)
  ldi YL, low(@1)
  clr byte
- rcall str_cpy_proc
+ call str_cpy_proc
 
  pop byte
  pop YL

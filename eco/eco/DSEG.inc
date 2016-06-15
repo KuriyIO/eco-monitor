@@ -70,8 +70,47 @@ On_str:					.byte 4		//"On " string
 Off_str:				.byte 4		//"Off" string
 GSM_invalid_time_msg:	.byte 53	//invalid time set message
 GSM_invalid_OnOff:		.byte 69	//invalid On/Off set message
+GSM_ERROR:				.byte 6		//"ERROR" string
+GSM_CSQ:				.byte 8
 GSM_sms_index:			.byte 3		//index of message
 GSM_phone_number:		.byte 15	//phone number string
 end_of_string_phone:	.byte 1		//'\0' string
 MC_Settings:			.byte 1		//memory card settings (On/Off)
 Sound_Settings:			.byte 1		//sound settings (On/Off)
+Wire_temp:				.byte 2		//data from 1-Wire DS18B20
+temp_buffer:			.byte 10
+
+//- - - - - BMP parameters - - - - - - - 
+
+// Calibration coefficients
+AC1:		.byte 2
+AC2:		.byte 2
+AC3:		.byte 2
+AC4:		.byte 2
+AC5:		.byte 2
+AC6:		.byte 2
+B1:			.byte 2
+B2:			.byte 2
+MB:			.byte 2
+MC:			.byte 2
+MD:			.byte 2
+
+// Temperature and pressure values
+UT:			.byte 2
+UP:			.byte 2
+
+// Calculation data
+X1:			.byte 4
+X2:			.byte 4
+B5:			.byte 4
+T:			.byte 4
+
+B6:			.byte 4
+X3:			.byte 4
+B3:			.byte 4
+B4:			.byte 4
+B7:			.byte 4
+P:			.byte 4
+//- - - - - - - - - - - - - - - - - - - -
+
+testtest:				.byte 1	
